@@ -33,7 +33,7 @@
 
 ## 3. Основные проблемы
 
-В рамках отдела выделены ключевые проблемы в [`01_context/problems.md`](01_context/problems.md)
+В рамках отдела выделены ключевые проблемы в [`01_business_context/stakeholders.md`](01_business_context/problems.md)
 
 ---
 
@@ -65,7 +65,7 @@
 
 ## 5. Заинтересованные стороны
 
-Подробнее: [`01_context/stakeholders.md`](01_context/stakeholders.md).
+Подробнее: [`01_business_context/stakeholders.md`](01_business_context/stakeholders.md).
 
 ---
 
@@ -73,7 +73,7 @@
 
 В результате проекта должны быть сформированы:
 
-- Какое нибудь приемлемое решение для получения зачета :)
+- ~~Какое нибудь приемлемое решение для получения зачета :)~~
 
 ---
 
