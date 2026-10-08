@@ -1,0 +1,75 @@
+@startuml POS_AS_IS
+
+left to right direction
+
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultTextAlignment center
+
+title RetailMax — POS\nUML Component Diagram (AS-IS)
+
+
+' =========================================================
+' Целевая система POS
+' =========================================================
+
+package "POS (IS-04)" {
+
+    component "Sale Processing\n<<logical>>" as Sale
+
+    component "Discount & Loyalty\nHandling\n<<logical>>" as Loyalty
+}
+
+
+' =========================================================
+' Внешние системы
+' =========================================================
+
+component "Integration Platform\n(IS-07)" as IP
+
+component "CRM\n(IS-02)" as CRM
+
+
+' =========================================================
+' Зависимости AS-IS
+' =========================================================
+
+Sale --> Loyalty : применение\nскидок и бонусов
+
+Loyalty --> IP : REST API\nзапрос данных клиента\nи программы лояльности
+
+IP --> CRM : запрос данных\nклиента и лояльности
+
+
+' =========================================================
+' Проблема
+' =========================================================
+
+note bottom of Loyalty
+
+Проблема AS-IS:
+
+для применения бонусов и скидок
+POS обращается к CRM
+во время оформления продажи.
+
+При задержке или недоступности CRM
+увеличивается время обслуживания
+покупателя на кассе.
+
+end note
+
+
+note bottom of Sale
+
+Компоненты POS представлены
+как логическая декомпозиция
+документированных функций системы.
+
+Физическая внутренняя структура POS
+в исходных материалах не задана.
+
+end note
+
+@enduml

@@ -1,0 +1,143 @@
+@startuml sales_sequence_UML_AS_IS
+
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 230
+autonumber
+
+title RetailMax — CRM\nUML Sequence Diagram (AS-IS)\nПрименение и начисление бонусов при оффлайн-продаже
+
+' ==========================================
+' Участники (по C4 Context и UML Component)
+' ==========================================
+
+actor "Покупатель" as Customer
+actor "Старший продавец\nмагазина" as Seller
+participant "POS\n(IS-04)" as POS
+participant "Integration Platform\n(IS-07)" as IP
+
+box "CRM (IS-02)" #F3F6FA
+  participant "Customer\nManagement" as CM
+  participant "Loyalty\nProgram" as LP
+  participant "Purchase\nHistory" as PH
+end box
+
+participant "ERP\n(IS-01)" as ERP
+
+' ==========================================
+' 1. Сканирование товаров
+' ==========================================
+
+== Сканирование товаров ==
+
+Customer -> Seller : передает товары и карту лояльности
+Seller -> POS : сканирует товары
+POS -> IP : запрос цены и акций
+IP -> ERP : запрос цены
+ERP --> IP : цена
+IP --> POS : цена и действующие акции
+
+' ==========================================
+' 2. Проверка карты лояльности
+' ==========================================
+
+== Проверка карты лояльности (синхронно, INT-02) ==
+
+opt есть карта лояльности
+  Seller -> POS : сканирует карту
+  activate POS
+  POS -> IP : запрос бонусов и скидок\n(номер карты), REST
+  activate IP
+  IP -> CM : найти клиента по карте
+  CM --> IP : данные клиента
+  IP -> LP : запрос баланса\nи персональной скидки
+
+  alt CRM ответила
+    LP --> IP : баланс бонусов, скидка
+    IP --> POS : баланс бонусов, скидка
+    POS --> Seller : скидка и доступные бонусы
+    Seller -> Customer : предлагает списать бонусы
+    Customer --> Seller : согласие или отказ
+  else CRM недоступна или отвечает медленно
+    note over LP
+      Ответа нет. Таймаута
+      и кэша на кассе нет
+    end note
+    Seller -> Seller : ждет ответа
+    Customer -> Customer : ждет у кассы
+    IP --> POS : ошибка
+    POS --> Seller : бонусы недоступны
+    note right of POS
+      Проблема AS-IS (INT-02, BP-01).
+      Продажа стоит, пока ждут CRM,
+      время обслуживания растет.
+      Если CRM не ответила, покупка
+      проходит без бонусов
+    end note
+  end
+  deactivate IP
+  deactivate POS
+end
+
+' ==========================================
+' 3. Оплата и отправка продажи
+' ==========================================
+
+== Оплата и фиксация продажи ==
+
+Customer -> Seller : оплачивает покупку
+Seller -> POS : закрыть чек
+POS -> POS : оформить чек
+POS --> Customer : чек
+
+POS -> IP : факт продажи, REST
+IP -> ERP : факт продажи (INT-01)
+
+alt ERP приняла
+  ERP --> IP : ok
+  ERP -> ERP : уменьшить остатки
+else ошибка или высокая нагрузка
+  ERP --> IP : ошибка
+  note right of ERP
+    Проблема AS-IS (INT-01).
+    Повторной отправки нет,
+    продажа в ERP теряется
+  end note
+end
+
+' ==========================================
+' 4. Списание и начисление бонусов
+' ==========================================
+
+== Списание и начисление бонусов ==
+
+opt продажа по карте лояльности
+  POS -> IP : продажа по карте\n(чек, сумма, списание бонусов), REST
+  IP -> LP : применить продажу
+
+  alt CRM приняла
+    LP -> LP : списать и начислить бонусы
+    LP -> PH : записать покупку в историю
+    PH --> LP : ok
+    LP --> IP : новый баланс
+    IP --> POS : подтверждение
+  else CRM недоступна
+    IP --> POS : ошибка
+    note right of POS
+      Повторной отправки нет.
+      Бонусы не начислены, уровень
+      и баланс в CRM расходятся
+      с реальными покупками клиента
+    end note
+  end
+end
+
+note over Customer, ERP
+  Итог AS-IS. Все обмены синхронные, событий нет, кэша на кассе нет.
+  Скорость продажи зависит от CRM, а при сбоях данные о бонусах
+  и уровне лояльности клиента рассинхронизируются
+end note
+
+@enduml

@@ -1,0 +1,282 @@
+<?xml version='1.0' encoding='utf-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_WH-BPMN-TOBE-fulfillment" targetNamespace="https://retailmax.example/warehouse/models">
+  <bpmn:message id="WH-BPMN-TOBE-fulfillment_message" name="Складское задание" />
+  <bpmn:process id="WH-BPMN-TOBE-fulfillment_process" name="Исполнение заказа To-Be" isExecutable="false">
+    <bpmn:laneSet id="WH-BPMN-TOBE-fulfillment_lanes">
+      <bpmn:lane id="WH-BPMN-TOBE-fulfillment_lane_0" name="Кладовщик / комплектовщик">
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_pick</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_qty</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_pack</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_hand</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="WH-BPMN-TOBE-fulfillment_lane_1" name="WMS и интеграции">
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_allocate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_commit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_publish</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="WH-BPMN-TOBE-fulfillment_lane_2" name="Начальник склада">
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_reject</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_endno</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_short</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>WH-BPMN-TOBE-fulfillment_endex</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="WH-BPMN-TOBE-fulfillment_start" name="Получено задание">
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_0</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="WH-BPMN-TOBE-fulfillment_message_def" messageRef="WH-BPMN-TOBE-fulfillment_message" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="WH-BPMN-TOBE-fulfillment_validate" name="Проверить резерв и уникальность задания">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_0</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="WH-BPMN-TOBE-fulfillment_gate" name="Резерв действителен?">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_1</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_2</bpmn:outgoing>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="WH-BPMN-TOBE-fulfillment_reject" name="Разобрать отказ и уведомить владельца">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_2</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="WH-BPMN-TOBE-fulfillment_endno" name="Задание не принято">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="WH-BPMN-TOBE-fulfillment_allocate" name="Закрепить резерв и назначить маршрут">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_4</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="WH-BPMN-TOBE-fulfillment_pick" name="Подобрать и проверить строки">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_5</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="WH-BPMN-TOBE-fulfillment_qty" name="Подбор полный?">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_6</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_7</bpmn:outgoing>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="WH-BPMN-TOBE-fulfillment_short" name="Зафиксировать недостачу и уведомить владельца">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_7</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="WH-BPMN-TOBE-fulfillment_endex" name="Задание в исключении">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="WH-BPMN-TOBE-fulfillment_pack" name="Упаковать и подтвердить готовность">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_9</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="WH-BPMN-TOBE-fulfillment_hand" name="Подтвердить физическую передачу">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_10</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_11</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="WH-BPMN-TOBE-fulfillment_commit" name="Исполнить резерв, списать запас и записать событие">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_11</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="WH-BPMN-TOBE-fulfillment_publish" name="Передать результат ERP и каналам">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_12</bpmn:incoming>
+      <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_13</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="WH-BPMN-TOBE-fulfillment_end" name="Передача отражена">
+      <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_0" sourceRef="WH-BPMN-TOBE-fulfillment_start" targetRef="WH-BPMN-TOBE-fulfillment_validate" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_1" sourceRef="WH-BPMN-TOBE-fulfillment_validate" targetRef="WH-BPMN-TOBE-fulfillment_gate" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_2" sourceRef="WH-BPMN-TOBE-fulfillment_gate" targetRef="WH-BPMN-TOBE-fulfillment_reject" name="Нет">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Нет</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_3" sourceRef="WH-BPMN-TOBE-fulfillment_reject" targetRef="WH-BPMN-TOBE-fulfillment_endno" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_4" sourceRef="WH-BPMN-TOBE-fulfillment_gate" targetRef="WH-BPMN-TOBE-fulfillment_allocate" name="Да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Да</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_5" sourceRef="WH-BPMN-TOBE-fulfillment_allocate" targetRef="WH-BPMN-TOBE-fulfillment_pick" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_6" sourceRef="WH-BPMN-TOBE-fulfillment_pick" targetRef="WH-BPMN-TOBE-fulfillment_qty" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_7" sourceRef="WH-BPMN-TOBE-fulfillment_qty" targetRef="WH-BPMN-TOBE-fulfillment_short" name="Нет">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Нет</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_8" sourceRef="WH-BPMN-TOBE-fulfillment_short" targetRef="WH-BPMN-TOBE-fulfillment_endex" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_9" sourceRef="WH-BPMN-TOBE-fulfillment_qty" targetRef="WH-BPMN-TOBE-fulfillment_pack" name="Да">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Да</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_10" sourceRef="WH-BPMN-TOBE-fulfillment_pack" targetRef="WH-BPMN-TOBE-fulfillment_hand" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_11" sourceRef="WH-BPMN-TOBE-fulfillment_hand" targetRef="WH-BPMN-TOBE-fulfillment_commit" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_12" sourceRef="WH-BPMN-TOBE-fulfillment_commit" targetRef="WH-BPMN-TOBE-fulfillment_publish" />
+    <bpmn:sequenceFlow id="WH-BPMN-TOBE-fulfillment_flow_13" sourceRef="WH-BPMN-TOBE-fulfillment_publish" targetRef="WH-BPMN-TOBE-fulfillment_end" />
+  </bpmn:process>
+  <bpmn:collaboration id="WH-BPMN-TOBE-fulfillment_collab">
+    <bpmn:participant id="WH-BPMN-TOBE-fulfillment_pool" name="Warehouse — Исполнение заказа To-Be" processRef="WH-BPMN-TOBE-fulfillment_process" />
+    <bpmn:participant id="WH-BPMN-TOBE-fulfillment_external" name="ERP / владелец заказа" />
+    <bpmn:messageFlow id="WH-BPMN-TOBE-fulfillment_msg_in" name="Задание" sourceRef="WH-BPMN-TOBE-fulfillment_external" targetRef="WH-BPMN-TOBE-fulfillment_start" />
+    <bpmn:messageFlow id="WH-BPMN-TOBE-fulfillment_msg_out" name="Результат / факт" sourceRef="WH-BPMN-TOBE-fulfillment_publish" targetRef="WH-BPMN-TOBE-fulfillment_external" />
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="WH-BPMN-TOBE-fulfillment_diagram">
+    <bpmndi:BPMNPlane id="WH-BPMN-TOBE-fulfillment_plane" bpmnElement="WH-BPMN-TOBE-fulfillment_collab">
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_pool_di" bpmnElement="WH-BPMN-TOBE-fulfillment_pool" isHorizontal="true">
+        <dc:Bounds x="50" y="110" width="2080" height="495" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_external_di" bpmnElement="WH-BPMN-TOBE-fulfillment_external" isHorizontal="true">
+        <dc:Bounds x="50" y="20" width="2080" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_lane_0_di" bpmnElement="WH-BPMN-TOBE-fulfillment_lane_0" isHorizontal="true">
+        <dc:Bounds x="80" y="110" width="2050" height="165" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_lane_1_di" bpmnElement="WH-BPMN-TOBE-fulfillment_lane_1" isHorizontal="true">
+        <dc:Bounds x="80" y="275" width="2050" height="165" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_lane_2_di" bpmnElement="WH-BPMN-TOBE-fulfillment_lane_2" isHorizontal="true">
+        <dc:Bounds x="80" y="440" width="2050" height="165" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_start_di" bpmnElement="WH-BPMN-TOBE-fulfillment_start">
+        <dc:Bounds x="232.0" y="327.0" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="185.0" y="369.0" width="130" height="45" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_validate_di" bpmnElement="WH-BPMN-TOBE-fulfillment_validate">
+        <dc:Bounds x="355.0" y="305.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_gate_di" bpmnElement="WH-BPMN-TOBE-fulfillment_gate" isMarkerVisible="true">
+        <dc:Bounds x="575.0" y="320.0" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="535.0" y="376.0" width="130" height="45" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_reject_di" bpmnElement="WH-BPMN-TOBE-fulfillment_reject">
+        <dc:Bounds x="705.0" y="470.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_endno_di" bpmnElement="WH-BPMN-TOBE-fulfillment_endno">
+        <dc:Bounds x="932.0" y="492.0" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="885.0" y="534.0" width="130" height="45" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_allocate_di" bpmnElement="WH-BPMN-TOBE-fulfillment_allocate">
+        <dc:Bounds x="705.0" y="305.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_pick_di" bpmnElement="WH-BPMN-TOBE-fulfillment_pick">
+        <dc:Bounds x="880.0" y="140.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_qty_di" bpmnElement="WH-BPMN-TOBE-fulfillment_qty" isMarkerVisible="true">
+        <dc:Bounds x="1100.0" y="155.0" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1060.0" y="211.0" width="130" height="45" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_short_di" bpmnElement="WH-BPMN-TOBE-fulfillment_short">
+        <dc:Bounds x="1230.0" y="470.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_endex_di" bpmnElement="WH-BPMN-TOBE-fulfillment_endex">
+        <dc:Bounds x="1457.0" y="492.0" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1410.0" y="534.0" width="130" height="45" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_pack_di" bpmnElement="WH-BPMN-TOBE-fulfillment_pack">
+        <dc:Bounds x="1230.0" y="140.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_hand_di" bpmnElement="WH-BPMN-TOBE-fulfillment_hand">
+        <dc:Bounds x="1405.0" y="140.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_commit_di" bpmnElement="WH-BPMN-TOBE-fulfillment_commit">
+        <dc:Bounds x="1580.0" y="305.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_publish_di" bpmnElement="WH-BPMN-TOBE-fulfillment_publish">
+        <dc:Bounds x="1755.0" y="305.0" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH-BPMN-TOBE-fulfillment_end_di" bpmnElement="WH-BPMN-TOBE-fulfillment_end">
+        <dc:Bounds x="1982.0" y="327.0" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1935.0" y="369.0" width="130" height="45" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_0" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_0">
+        <di:waypoint x="268.0" y="345.0" />
+        <di:waypoint x="355.0" y="345.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_1" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_1">
+        <di:waypoint x="495.0" y="345.0" />
+        <di:waypoint x="575.0" y="345.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_2" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_2">
+        <di:waypoint x="625.0" y="345.0" />
+        <di:waypoint x="675.0" y="345.0" />
+        <di:waypoint x="675.0" y="510.0" />
+        <di:waypoint x="705.0" y="510.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="683.0" y="417.5" width="70" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_3" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_3">
+        <di:waypoint x="845.0" y="510.0" />
+        <di:waypoint x="932.0" y="510.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_4" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_4">
+        <di:waypoint x="625.0" y="345.0" />
+        <di:waypoint x="705.0" y="345.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="630.0" y="321.0" width="70" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_5" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_5">
+        <di:waypoint x="845.0" y="345.0" />
+        <di:waypoint x="862.5" y="345.0" />
+        <di:waypoint x="862.5" y="180.0" />
+        <di:waypoint x="880.0" y="180.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_6" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_6">
+        <di:waypoint x="1020.0" y="180.0" />
+        <di:waypoint x="1100.0" y="180.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_7" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_7">
+        <di:waypoint x="1150.0" y="180.0" />
+        <di:waypoint x="1200.0" y="180.0" />
+        <di:waypoint x="1200.0" y="510.0" />
+        <di:waypoint x="1230.0" y="510.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1208.0" y="335.0" width="70" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_8" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_8">
+        <di:waypoint x="1370.0" y="510.0" />
+        <di:waypoint x="1457.0" y="510.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_9" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_9">
+        <di:waypoint x="1150.0" y="180.0" />
+        <di:waypoint x="1230.0" y="180.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1155.0" y="156.0" width="70" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_10" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_10">
+        <di:waypoint x="1370.0" y="180.0" />
+        <di:waypoint x="1405.0" y="180.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_11" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_11">
+        <di:waypoint x="1545.0" y="180.0" />
+        <di:waypoint x="1562.5" y="180.0" />
+        <di:waypoint x="1562.5" y="345.0" />
+        <di:waypoint x="1580.0" y="345.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_12" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_12">
+        <di:waypoint x="1720.0" y="345.0" />
+        <di:waypoint x="1755.0" y="345.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_flow_di_13" bpmnElement="WH-BPMN-TOBE-fulfillment_flow_13">
+        <di:waypoint x="1895.0" y="345.0" />
+        <di:waypoint x="1982.0" y="345.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_msg_in_di" bpmnElement="WH-BPMN-TOBE-fulfillment_msg_in">
+        <di:waypoint x="250.0" y="70" />
+        <di:waypoint x="250.0" y="327.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WH-BPMN-TOBE-fulfillment_msg_out_di" bpmnElement="WH-BPMN-TOBE-fulfillment_msg_out">
+        <di:waypoint x="1825.0" y="305.0" />
+        <di:waypoint x="1825.0" y="70" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

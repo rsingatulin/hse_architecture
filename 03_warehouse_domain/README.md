@@ -3,19 +3,69 @@
 | Поле | Значение |
 | --- | --- |
 | Идентификатор | WH-OV-001 |
-| Версия | 1.0 |
+| Версия | 1.1 |
 | Ответственная группа | Команда 3 — «Управление складом» |
-| Дата | 17.09.2026 |
+| Дата | 04.10.2026 |
 | Статус | Черновик для согласования внутри команды |
 | Дисциплина | Архитектура и проектирование корпоративных информационных систем |
 | Область | BP-03 «Управление складом», сервис SRV-05 «Управление запасами» |
 
-## Результаты задания
+## Результаты DOC-01–DOC-09
 
-1. [Анализ материалов и границы домена](#анализ-материалов-и-границы-домена) — в настоящем документе.
-2. [Реестр заинтересованных сторон](01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md) — участники склада и стороны, влияющие на его работу.
-3. [Ключевые проблемы](01_Business_Architecture/Requirements/WH-PRB-001-problems.md) — симптомы, подтверждённые причины, последствия и приоритеты.
-4. [Архитектурные требования](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) — требования, критерии проверки и трассировка к проблемам.
+Подготовлен архитектурный пакет Warehouse по заданиям **DOC-01–DOC-09 включительно**. [Матрица покрытия 61 пункта](07_Project_Management/WH-PM-003-assignment-coverage.md) связывает каждое задание с результатом. Материалы от 17.09.2026 сохранены и дополнены 04.10.2026; все новые решения имеют статус проекта для согласования.
+
+Отчёты оформлены в Markdown. Mermaid-схемы читаются на GitHub. Для BPMN приложены стандартные графические SVG и редактируемые `.bpmn`, встроенные в Markdown; ArchiMate представлен типизированной моделью элементов/отношений и редактируемым Open Exchange XML, C4 — диаграммами границ и контейнеров, UML Component — обзором и исходником PlantUML. Устная защита, подтверждение другими командами и реальные испытания систем требуют участия людей и не объявлены состоявшимися.
+
+### Структура домена
+
+```text
+03_warehouse_domain/
+├── 01_Business_Architecture/
+│   ├── Stakeholders/
+│   ├── Business_Process/
+│   ├── Business_Capabilities/
+│   └── Requirements/
+├── 02_Application_Architecture/
+│   ├── Application_Catalog/
+│   ├── Services/
+│   ├── APIs/
+│   └── Integrations/
+├── 03_Data_Architecture/
+│   ├── Data_Entities/
+│   ├── Data_Flows/
+│   └── Data_Ownership/
+├── 04_Technology_Architecture/
+│   ├── Infrastructure/
+│   ├── Deployment/
+│   ├── Security/
+│   └── Monitoring/
+├── 05_Architecture_Decisions/ADR/
+├── 06_Architecture_Models/
+│   ├── BPMN/
+│   ├── ArchiMate/
+│   ├── C4/
+│   └── UML/
+└── 07_Project_Management/
+    ├── Risks/
+    ├── Roadmap/
+    └── TCO_ROI/
+```
+
+### Навигация
+
+| Раздел | Документы |
+| --- | --- |
+| Бизнес | [Архитектурное видение и бизнес-возможности Warehouse](01_Business_Architecture/Business_Capabilities/WH-VIS-001-vision.md); [Участники и карта влияния](01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md); [Паспорт процесса BP-03 и предложения по совершенствованию](01_Business_Architecture/Business_Process/WH-BP-001-process.md); [9 ключевых проблем](01_Business_Architecture/Requirements/WH-PRB-001-problems.md); [20 архитектурных требований](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
+| Приложения | [Карта приложений и границы ответственности](02_Application_Architecture/Application_Catalog/WH-APP-001-landscape.md); [Каталог сервисов Warehouse](02_Application_Architecture/Services/WH-SRV-001-services.md); [Интеграционная архитектура As-Is и To-Be](02_Application_Architecture/Integrations/WH-INT-001-integration.md); [Каталог API и событий Warehouse](02_Application_Architecture/APIs/WH-API-001-catalog.md); [Варианты применения ИИ в Warehouse](02_Application_Architecture/Services/WH-AI-001-ai-options.md) |
+| Данные | [Концептуальная и целевая модель данных Warehouse](03_Data_Architecture/Data_Entities/WH-DAT-001-data-model.md); [Владельцы данных, качество и устранение дублирования](03_Data_Architecture/Data_Ownership/WH-DGO-001-ownership.md); [Потоки данных и правила межсистемного обмена](03_Data_Architecture/Data_Flows/WH-DF-001-flows.md) |
+| Технологии | [Технологическая архитектура Warehouse As-Is](04_Technology_Architecture/Infrastructure/WH-TECH-001-as-is.md); [Технологическая архитектура To-Be и концепция Kubernetes](04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md); [Безопасность складского контура](04_Technology_Architecture/Security/WH-SEC-001-security.md); [Наблюдаемость, восстановление и приёмочные сценарии](04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md) |
+| Архитектурные решения | [ADR-WH-001: единый источник остатка и резервирование](05_Architecture_Decisions/ADR/ADR-WH-001-inventory-authority.md); [ADR-WH-002: управляемые API и восстановимая доставка событий](05_Architecture_Decisions/ADR/ADR-WH-002-integration.md); [ADR-WH-003: поэтапное контейнерное размещение новых компонентов](05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md) |
+| Модели | [BPMN: процесс Warehouse As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md); [BPMN: целевые процессы Warehouse](06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md); [ArchiMate: связанные бизнес-, прикладной и технологический слои](06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md); [C4: контекст складской информационной системы](06_Architecture_Models/C4/WH-C4-001-context.md); [C4: контейнеры Warehouse System и взаимодействие сервисов](06_Architecture_Models/C4/WH-C4-002-containers.md); [UML Component: складское приложение и адаптер](06_Architecture_Models/UML/WH-UML-001-components.md) |
+| Управление проектом | [Паспорт и план выполнения архитектурного проекта Warehouse](07_Project_Management/WH-PM-001-project-plan.md); [Междоменные соглашения и проверка согласованности](07_Project_Management/WH-PM-002-coordination.md); [Покрытие заданий DOC-01–DOC-09](07_Project_Management/WH-PM-003-assignment-coverage.md); [Предварительное ТЭО Warehouse: TCO, эффект и чувствительность](07_Project_Management/TCO_ROI/WH-ECO-001-business-case.md); [Реестр рисков архитектуры и перехода Warehouse](07_Project_Management/Risks/WH-RSK-001-risks.md); [Дорожная карта будущего внедрения Warehouse](07_Project_Management/Roadmap/WH-ROAD-001-roadmap.md); [Материалы для защиты архитектурного проекта Warehouse](07_Project_Management/WH-PM-004-defense.md) |
+
+### Область изменений
+
+Рабочая область — только `03_warehouse_domain/`. Документация предприятия и опубликованные требования соседних команд использованы для чтения и сверки. Изменения в их файлы не вносятся.
 
 ## Анализ материалов и границы домена
 
@@ -112,4 +162,4 @@ WMS уже поддерживает основные складские функ
 
 Методическая основа: «Arch_HSE_chapter_2.pptx», слайды 9, 11–18 — реестр участников, разделение симптомов и причин, приоритезация и результаты обследования; «Arch_HSE_chapter_1.pptx», слайд 19 — результаты первой практической работы; «Общая инструкция.docx» — размещение внутри своего домена. Лекции доступны в локальной папке материалов; публичные ссылки на них не предоставлены. «Arch_HSE_Common.pptx» задаёт организационный контекст курса.
 
-Перед утверждением команда должна закрыть вопросы WH-Q-01–WH-Q-08, согласовать требования с владельцами смежных процессов и назначить ответственных за последующие BPMN, ArchiMate, C4 и ADR.
+Перед утверждением команда должна закрыть вопросы WH-Q-01–WH-Q-08, согласовать требования с владельцами смежных процессов и назначить ответственных за согласование и дальнейшее сопровождение подготовленных BPMN, ArchiMate, C4 и ADR.

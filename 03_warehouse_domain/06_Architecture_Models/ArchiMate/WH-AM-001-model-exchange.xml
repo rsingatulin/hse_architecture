@@ -1,0 +1,305 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" identifier="WH_MODEL_001" version="1.0" xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ https://www.opengroup.org/xsd/archimate/3.1/archimate3_Diagram.xsd">
+  <name xml:lang="ru">Warehouse — проектная модель As-Is / To-Be</name>
+  <elements>
+    <element identifier="BA1" xsi:type="BusinessActor">
+      <name xml:lang="ru">Распределительный склад</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="BR1" xsi:type="BusinessRole">
+      <name xml:lang="ru">Кладовщик / комплектовщик</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="BR2" xsi:type="BusinessRole">
+      <name xml:lang="ru">Начальник склада</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="BP1" xsi:type="BusinessProcess">
+      <name xml:lang="ru">Приёмка и размещение</name>
+      <documentation xml:lang="ru">As-Is/To-Be, детали различаются</documentation>
+    </element>
+    <element identifier="BP2" xsi:type="BusinessProcess">
+      <name xml:lang="ru">Комплектация и передача</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="BP3" xsi:type="BusinessProcess">
+      <name xml:lang="ru">Инвентаризация</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="BS1" xsi:type="BusinessService">
+      <name xml:lang="ru">Складское исполнение заказа</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="AC1" xsi:type="ApplicationComponent">
+      <name xml:lang="ru">WMS</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="AC2" xsi:type="ApplicationComponent">
+      <name xml:lang="ru">ERP</name>
+      <documentation xml:lang="ru">As-Is/To-Be, внешний</documentation>
+    </element>
+    <element identifier="AC3" xsi:type="ApplicationComponent">
+      <name xml:lang="ru">Integration Platform</name>
+      <documentation xml:lang="ru">As-Is по DOC-04/05; To-Be развиваемая</documentation>
+    </element>
+    <element identifier="AC4" xsi:type="ApplicationComponent">
+      <name xml:lang="ru">Адаптер Warehouse</name>
+      <documentation xml:lang="ru">To-Be, новый</documentation>
+    </element>
+    <element identifier="AC5" xsi:type="ApplicationComponent">
+      <name xml:lang="ru">Интернет-магазин</name>
+      <documentation xml:lang="ru">Внешний</documentation>
+    </element>
+    <element identifier="AC6" xsi:type="ApplicationComponent">
+      <name xml:lang="ru">BI</name>
+      <documentation xml:lang="ru">Внешний</documentation>
+    </element>
+    <element identifier="AF1" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Регистрация складских операций</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="AF2" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Управление заданием</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="AF3" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Атомарное управление резервом</name>
+      <documentation xml:lang="ru">To-Be: уточнение возможностей WMS</documentation>
+    </element>
+    <element identifier="AF4" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Преобразование и восстановимая доставка</name>
+      <documentation xml:lang="ru">To-Be</documentation>
+    </element>
+    <element identifier="AF5" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Ведение товара и учётного заказа</name>
+      <documentation xml:lang="ru">As-Is/To-Be, ERP</documentation>
+    </element>
+    <element identifier="AS1" xsi:type="ApplicationService">
+      <name xml:lang="ru">Управление запасами</name>
+      <documentation xml:lang="ru">As-Is/To-Be; SRV-05</documentation>
+    </element>
+    <element identifier="AS2" xsi:type="ApplicationService">
+      <name xml:lang="ru">Исполнение складского задания</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="AS3" xsi:type="ApplicationService">
+      <name xml:lang="ru">Подтверждение резерва</name>
+      <documentation xml:lang="ru">To-Be</documentation>
+    </element>
+    <element identifier="AS4" xsi:type="ApplicationService">
+      <name xml:lang="ru">Обмен Warehouse</name>
+      <documentation xml:lang="ru">To-Be</documentation>
+    </element>
+    <element identifier="AS5" xsi:type="ApplicationService">
+      <name xml:lang="ru">Данные товара и заказа</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="DO1" xsi:type="DataObject">
+      <name xml:lang="ru">Складской остаток</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="DO2" xsi:type="DataObject">
+      <name xml:lang="ru">Задание и отгрузка</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="DO3" xsi:type="DataObject">
+      <name xml:lang="ru">Товар и заказ</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="DO4" xsi:type="DataObject">
+      <name xml:lang="ru">Резерв</name>
+      <documentation xml:lang="ru">Поле в As-Is, целевой жизненный цикл</documentation>
+    </element>
+    <element identifier="N1" xsi:type="Node">
+      <name xml:lang="ru">Поддерживаемая среда WMS</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="N2" xsi:type="Node">
+      <name xml:lang="ru">Корпоративный контейнерный контур</name>
+      <documentation xml:lang="ru">To-Be</documentation>
+    </element>
+    <element identifier="TF1" xsi:type="TechnologyFunction">
+      <name xml:lang="ru">Выполнение приложения WMS</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="TF2" xsi:type="TechnologyFunction">
+      <name xml:lang="ru">Выполнение адаптера</name>
+      <documentation xml:lang="ru">To-Be</documentation>
+    </element>
+    <element identifier="TS1" xsi:type="TechnologyService">
+      <name xml:lang="ru">Среда выполнения WMS</name>
+      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    </element>
+    <element identifier="TS2" xsi:type="TechnologyService">
+      <name xml:lang="ru">Контейнерное выполнение</name>
+      <documentation xml:lang="ru">To-Be</documentation>
+    </element>
+  </elements>
+  <relationships>
+    <relationship identifier="WH_REL_0" source="BA1" target="BR1" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_1" source="BA1" target="BR2" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_2" source="BR1" target="BP1" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_3" source="BR1" target="BP2" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_4" source="BR1" target="BP3" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_5" source="BR2" target="BP3" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_6" source="AC1" target="AF1" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_7" source="AC1" target="AF2" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_8" source="AC1" target="AF3" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_9" source="AC2" target="AF5" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_10" source="AC4" target="AF4" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_11" source="N1" target="TF1" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_12" source="N2" target="TF2" xsi:type="Assignment"/>
+    <relationship identifier="WH_REL_13" source="BP2" target="BS1" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_14" source="AF1" target="AS1" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_15" source="AF2" target="AS2" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_16" source="AF3" target="AS3" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_17" source="AF4" target="AS4" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_18" source="AF5" target="AS5" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_19" source="TF1" target="TS1" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_20" source="TF2" target="TS2" xsi:type="Realization"/>
+    <relationship identifier="WH_REL_21" source="AS1" target="BP1" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_22" source="AS1" target="BP3" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_23" source="AS2" target="BP2" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_24" source="AS3" target="AF2" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_25" source="AS3" target="AF4" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_26" source="AS4" target="AC2" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_27" source="AS4" target="AC5" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_28" source="AS4" target="AC6" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_29" source="AS5" target="AF1" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_30" source="AS5" target="AF2" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_31" source="TS1" target="AC1" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_32" source="TS2" target="AC4" xsi:type="Serving"/>
+    <relationship identifier="WH_REL_33" source="AF1" target="DO1" xsi:type="Access" accessType="ReadWrite"/>
+    <relationship identifier="WH_REL_34" source="AF2" target="DO2" xsi:type="Access" accessType="ReadWrite"/>
+    <relationship identifier="WH_REL_35" source="AF3" target="DO4" xsi:type="Access" accessType="ReadWrite"/>
+    <relationship identifier="WH_REL_36" source="AF3" target="DO1" xsi:type="Access" accessType="ReadWrite"/>
+    <relationship identifier="WH_REL_37" source="AF1" target="DO3" xsi:type="Access" accessType="Read"/>
+    <relationship identifier="WH_REL_38" source="AF2" target="DO3" xsi:type="Access" accessType="Read"/>
+    <relationship identifier="WH_REL_39" source="AF5" target="DO3" xsi:type="Access" accessType="ReadWrite"/>
+    <relationship identifier="WH_REL_40" source="AC2" target="AC3" xsi:type="Flow">
+      <name xml:lang="ru">Товар, поставка, задание</name>
+    </relationship>
+    <relationship identifier="WH_REL_41" source="AC3" target="AC4" xsi:type="Flow">
+      <name xml:lang="ru">Команды</name>
+    </relationship>
+    <relationship identifier="WH_REL_42" source="AC4" target="AC1" xsi:type="Flow">
+      <name xml:lang="ru">Преобразованные команды</name>
+    </relationship>
+    <relationship identifier="WH_REL_43" source="AC1" target="AC4" xsi:type="Flow">
+      <name xml:lang="ru">Складские факты</name>
+    </relationship>
+    <relationship identifier="WH_REL_44" source="AC4" target="AC3" xsi:type="Flow">
+      <name xml:lang="ru">События</name>
+    </relationship>
+    <relationship identifier="WH_REL_45" source="AC3" target="AC2" xsi:type="Flow">
+      <name xml:lang="ru">Учётные факты</name>
+    </relationship>
+    <relationship identifier="WH_REL_46" source="AC3" target="AC5" xsi:type="Flow">
+      <name xml:lang="ru">Доступность и статус</name>
+    </relationship>
+    <relationship identifier="WH_REL_47" source="AC3" target="AC6" xsi:type="Flow">
+      <name xml:lang="ru">Аналитические факты</name>
+    </relationship>
+  </relationships>
+  <views>
+    <diagrams>
+      <view identifier="WH_VIEW_APP_TOBE" xsi:type="Diagram">
+        <name xml:lang="ru">Application Layer — To-Be</name>
+        <node identifier="WH_VIEW_APP_TOBE_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AC4" elementRef="AC4" x="700" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AF3" elementRef="AF3" x="480" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AF4" elementRef="AF4" x="700" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AS3" elementRef="AS3" x="480" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AS4" elementRef="AS4" x="700" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_TOBE_DO4" elementRef="DO4" x="700" y="580" w="180" h="75" xsi:type="Element"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_8" relationshipRef="WH_REL_8" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF3" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AF5" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_10" relationshipRef="WH_REL_10" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_AS1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_AS2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_16" relationshipRef="WH_REL_16" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_AS3" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_17" relationshipRef="WH_REL_17" source="WH_VIEW_APP_TOBE_AF4" target="WH_VIEW_APP_TOBE_AS4" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_AS5" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_24" relationshipRef="WH_REL_24" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_25" relationshipRef="WH_REL_25" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_26" relationshipRef="WH_REL_26" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_27" relationshipRef="WH_REL_27" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC5" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_28" relationshipRef="WH_REL_28" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC6" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_35" relationshipRef="WH_REL_35" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO4" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_36" relationshipRef="WH_REL_36" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_TOBE_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
+      </view>
+      <view identifier="WH_VIEW_APP_ASIS" xsi:type="Diagram">
+        <name xml:lang="ru">Application Layer — As-Is по DOC-04/06</name>
+        <node identifier="WH_VIEW_APP_ASIS_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_APP_ASIS_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AF5" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_AS1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_AS2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_AS5" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_APP_ASIS_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
+      </view>
+      <view identifier="WH_VIEW_LAYERS" xsi:type="Diagram">
+        <name xml:lang="ru">Сквозные слои Warehouse</name>
+        <node identifier="WH_VIEW_LAYERS_BR1" elementRef="BR1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_BP2" elementRef="BP2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_BS1" elementRef="BS1" x="480" y="40" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_AC1" elementRef="AC1" x="40" y="240" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_AF2" elementRef="AF2" x="260" y="240" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_AS2" elementRef="AS2" x="480" y="240" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_N1" elementRef="N1" x="40" y="440" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_TF1" elementRef="TF1" x="260" y="440" w="180" h="75" xsi:type="Element"/>
+        <node identifier="WH_VIEW_LAYERS_TS1" elementRef="TS1" x="480" y="440" w="180" h="75" xsi:type="Element"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_3" relationshipRef="WH_REL_3" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_11" relationshipRef="WH_REL_11" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_13" relationshipRef="WH_REL_13" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_19" relationshipRef="WH_REL_19" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_23" relationshipRef="WH_REL_23" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship"/>
+        <connection identifier="WH_VIEW_LAYERS_rel_31" relationshipRef="WH_REL_31" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1" xsi:type="Relationship"/>
+      </view>
+    </diagrams>
+  </views>
+</model>
