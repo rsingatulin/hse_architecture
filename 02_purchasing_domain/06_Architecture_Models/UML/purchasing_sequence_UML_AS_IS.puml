@@ -1,0 +1,96 @@
+@startuml purchasing_sequence_UML_AS_IS
+
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 240
+autonumber
+
+title BP-02 «Закупка товаров»\nUML: диаграмма последовательности (AS-IS)\nПо BPMN-purchasing-process-v1 + проблемы PR-01…PR-11
+
+' Участники — как в BPMN (lanes / participants)
+
+actor "Менеджер\nпо закупкам" as Buyer
+actor "Финансовый\nотдел" as Finance
+actor "Сотрудник\nсклада" as WarehouseUser
+actor "Поставщик" as Supplier
+
+participant "ERP" as ERP
+participant "WMS" as WMS
+
+note over Buyer, WMS
+  Источник сценария: BPMN As-Is.
+  Замечания PR-* — из problems-v1.md
+  и DOC-05 (INT-05, INT-06).
+end note
+
+== Анализ остатков и потребность (BPMN: ERP) ==
+
+ERP -> ERP : Анализ остатков товаров\n(по таймеру)
+note right of ERP
+  PR-01 / PR-11: отдельного
+  ML-прогноза нет; анализ
+  остатков не заменяет прогноз
+  спроса по продажам/сезонности
+end note
+
+ERP -> Buyer : уведомление о потребности\nв закупке
+
+== Выбор поставщика и заказ (BPMN: менеджер → поставщик) ==
+
+Buyer -> Buyer : Выбрать поставщика
+Buyer -> Buyer : Сформировать заказ поставщику
+note right of Buyer
+  PR-03: много ручных операций
+  при изменении условий поставки
+end note
+
+Buyer -> Supplier : уведомление о заказе поставщику
+
+Supplier -> Supplier : Подтвердить заказ
+Supplier -> Finance : уведомление о подтверждении заказа
+
+== Согласование оплаты (BPMN: финансовый отдел) ==
+
+Finance -> Finance : Согласовать оплату
+note right of Finance
+  PR-02: согласование вручную,
+  авто-правил нет
+end note
+
+alt Оплата согласована? — да
+  Finance -> Supplier : уведомление об оплате заказа
+else Оплата согласована? — нет
+  Finance -> Finance : Окончание обработки заявки
+end
+
+== Отгрузка и приёмка (BPMN: поставщик → склад → ERP → WMS) ==
+
+Supplier -> Supplier : Отправить заказ
+Supplier -> WarehouseUser : уведомление о доставке товара
+
+WarehouseUser -> WarehouseUser : Принять товар на склад
+WarehouseUser -> ERP : уведомление о приёмке товара
+
+ERP -> ERP : Обновить остатки
+note right of ERP
+  PR-04 / DOC-05 INT-05:
+  синхронизация ERP ↔ WMS
+  даёт расхождения остатков
+end note
+
+ERP -> WMS : уведомление о необходимости\nпринятия товара на хранение
+
+WMS -> WMS : Принять товар на хранение
+WMS --> WMS : Товар получен
+
+note over ERP, WMS
+  PR-06 / DOC-05: часть интеграций
+  идёт не через единую платформу;
+  PR-07: нет сквозного статуса
+  заказа «от создания до приёмки»
+  в одном контуре для менеджера.
+end note
+
+@enduml

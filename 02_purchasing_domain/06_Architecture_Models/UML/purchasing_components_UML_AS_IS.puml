@@ -1,0 +1,73 @@
+@startuml purchasing_components_UML_AS_IS
+
+left to right direction
+
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultTextAlignment center
+skinparam nodesep 40
+skinparam ranksep 45
+skinparam ArrowColor #444444
+
+title BP-02 «Закупка товаров»\nUML: компонентная диаграмма (AS-IS)\nПо ArchiMate / DOC-04 / DOC-05
+
+' Внешние системы из каталога ИС (DOC-04)
+
+component "WMS\n(IS-05)" as WMS
+component "BI\n(IS-06)" as BI
+component "Integration Platform\n(IS-07)" as IP
+
+package "ERP (IS-01) — контур закупок As-Is" {
+
+  component "Рабочее место\nзакупок" as UI
+
+  ' Имена сервисов — как в ArchiMate purchasing_as_is
+  component "Сервис управления\nзаказами" as Orders
+  component "Сервис финансового\nсогласования" as FinanceSvc
+  component "Сервис приёмки\nтоваров" as Receiving
+
+  database "База данных ERP" as DB
+}
+
+UI --> Orders : оформление заказа\nпоставщику
+UI --> FinanceSvc : согласование оплаты
+Orders --> FinanceSvc : заказ на оплату
+Receiving --> Orders : факт приёмки\nв учёт закупки
+
+Orders --> DB
+FinanceSvc --> DB
+Receiving --> DB
+
+' DOC-05: ERP ↔ WMS (INT-05), ERP → BI (INT-06)
+Orders <--> WMS : поступления / остатки\n<<INT-05 REST>>
+note bottom of WMS
+  DOC-05 INT-05: REST,
+  «почти real-time», но
+  ошибки синхронизации →
+  расхождение остатков (PR-04)
+end note
+
+Orders --> BI : закупки, остатки\n<<INT-06 ETL, 1 раз/сутки>>
+note bottom of BI
+  DOC-05 INT-06 / PR-09:
+  суточная выгрузка,
+  прогнозных моделей нет (PR-11)
+end note
+
+note top of IP
+  DOC-05: платформа есть,
+  но не все потоки через неё
+  (PR-06). Для закупок
+  ERP↔WMS описан как INT-05.
+end note
+
+note bottom of Orders
+  Нет отдельного сервиса
+  прогнозирования потребности
+  (PR-01, интервью DOC-11).
+  «Анализ остатков» в BPMN —
+  задача ERP, не ML-прогноз.
+end note
+
+@enduml
