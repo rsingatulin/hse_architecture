@@ -1,0 +1,15 @@
+@startuml AM-EC-001-application-bridge
+!pragma layout smetana
+!include <archimate/Archimate>
+skinparam backgroundColor white
+title ArchiMate — связь BP-04, IS-03 и SRV-04 (As-Is)
+left to right direction
+Business_Process(bp, "BP-04\nИнтернет-продажи")
+Application_Service(service, "SRV-04\nУправление заказами")
+Application_Component(shop, "IS-03\nИнтернет-магазин")
+Application_Function(function, "Оформление и сопровождение заказа")
+Rel_Assignment(shop, function, "выполняет")
+Rel_Realization(function, service, "реализует")
+Rel_Serving(service, bp, "поддерживает")
+footer Фрагмент по DOC-03/04/15. Не заменяет полную модель предприятия
+@enduml

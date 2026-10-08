@@ -1,0 +1,138 @@
+@startuml UML-EC-002-checkout-sequence
+title UML Sequence — оформление интернет-заказа (As-Is)
+hide footbox
+autonumber
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam sequenceMessageAlign center
+actor "Покупатель" as buyer
+box "Web Application [A-UML-01]" #EAF3FC
+  participant "Web Interface" as web
+  participant "Catalog Module" as catalog
+  participant "Customer Module" as customer
+  participant "Order Module" as order
+  participant "Shop Repository" as repo
+  participant "Payment Adapter" as payment
+  participant "ERP Adapter" as erpadapter
+  participant "CRM Adapter" as crmadapter
+end box
+participant "Система оплаты\n[A-C4-03]" as pay
+participant "IS-01 ERP" as erp
+participant "IS-02 CRM" as crm
+participant "IS-05 WMS" as wms
+actor "Оператор" as operator
+note over buyer,operator
+  SC-EC-01: от выбора товара до регистрации заказа в ERP и передачи задания в WMS.
+  Внутренние вызовы — логическая реконструкция. Прямые REST-обмены выбраны по DOC-05.
+end note
+group 1. Выбор товара и оформление
+  buyer -> web : выбрать товар / запросить наличие
+  web -> catalog : getProduct(productId)
+  catalog -> repo : readCatalogCopy(productId)
+  repo --> catalog : товар, цена, остаток из копии
+  catalog --> web : данные товара и доступность
+  web --> buyer : показать товар и наличие
+  note over catalog,erp
+    Каталог обновляется из ERP каждые 15 минут (INT-03).
+    Это отдельный обмен, не ожидание внутри каждого заказа.
+    Резервирование до оплаты не описано.
+  end note
+  buyer -> web : оформить заказ
+  web -> order : prepareOrder(cart)
+  order -> catalog : validateCartByLocalCopy(cart)
+  catalog --> order : позиции и сумма [A-UML-01]
+  order --> web : запрос регистрации / авторизации
+  web --> buyer : регистрация / вход
+  buyer -> web : данные регистрации / входа
+  web -> customer : registerOrAuthenticate()
+  customer -> repo : readOrSaveCustomer()
+  repo --> customer : customerId
+  customer --> web : customerId
+  web -> order : submitOrder(cart, customerId)
+  order -> repo : saveOrder()
+  repo --> order : orderId [A-UML-01]
+end
+group 2. Оплата
+  order -> payment : requestPayment(orderId, amount)
+  payment -> pay : выполнить оплату [протокол неизвестен]
+  note over buyer,pay
+    Покупатель выполняет платежное действие.
+    Экран, перенаправление и callback не специфицированы.
+  end note
+  pay --> payment : успешная / неуспешная оплата
+  payment --> order : результат оплаты
+  break Оплата не выполнена [BPMN A4]
+    order --> web : попытка оформления не завершена
+    web --> buyer : сообщение о неуспешной оплате
+  end
+end
+group 3. Передача клиента и заказа в CRM [BPMN A3]
+  order -> crmadapter : sendCustomerAndOrder(customerId, orderId)
+  crmadapter -> crm : передать клиента и заказ [REST]
+  crm --> crmadapter : результат обмена
+  crmadapter --> order : результат
+  opt Ошибка CRM
+    order -> operator : ручной разбор [BPMN A2/A3]
+    note over order,crm
+      Независимость CRM от исполнения — допущение BPMN A3.
+      Ошибка CRM сама по себе не означает отмену заказа.
+    end note
+  end
+end
+group 4. Передача и регистрация заказа в ERP
+  order -> erpadapter : sendOrder(orderId, items, amount)
+  erpadapter -> erp : передать оплаченный заказ [REST]
+  alt Заказ принят ERP
+    erp -> erp : зарегистрировать заказ
+    erp --> erpadapter : подтверждение регистрации
+    erpadapter --> order : результат регистрации
+  else Ошибка / неизвестный результат [BPMN A2]
+    erpadapter --> order : результат не подтвержден
+    order -> operator : ручной разбор передачи заказа
+    operator -> erp : сверить наличие заказа
+    erp --> operator : результат сверки
+    opt Заказ отсутствует и повтор возможен
+      operator -> order : вручную повторить передачу
+      order -> erpadapter : sendOrder(orderId, items, amount)
+      erpadapter -> erp : повторить передачу
+      erp --> erpadapter : результат регистрации
+      erpadapter --> order : результат
+    end
+    break Регистрация не подтверждена после разбора
+      operator -> buyer : сообщить о проблеме / ручное урегулирование
+    end
+  end
+end
+group 5. Передача задания на комплектацию
+  erp -> wms : передать задание [REST / DOC-05]
+  alt Задание получено
+    wms --> erp : задание принято
+  else Ошибка передачи [BPMN A2]
+    erp -> operator : ручной разбор
+    operator -> wms : сверить наличие задания
+    wms --> operator : результат сверки
+    opt Задание отсутствует и повтор возможен
+      operator -> erp : вручную повторить сбойный шаг
+      erp -> wms : повторить передачу задания
+      wms --> erp : результат
+    end
+    break Задание не подтверждено после разбора
+      operator -> buyer : проблема / ручное урегулирование
+    end
+  end
+end
+note over buyer,operator
+  Конец сценария: ERP зарегистрировала заказ, WMS получила задание.
+  Далее BP-04: проверка фактического наличия складом, комплектация, доставка,
+  затем история покупки в CRM. Оплаченный заказ может оказаться без товара.
+  Автоматические повторы и защита от дублей в As-Is не подтверждены.
+end note
+legend bottom
+  -> вызов / действие    --> результат / ответ
+  alt альтернативы    opt условный шаг    break завершение сценария
+  Асинхронные протоколы не определены. Пунктирный ответ не является событием.
+endlegend
+footer EC-HW-04 • v1.0 • 08.10.2026 • Реконструкция As-Is
+@enduml

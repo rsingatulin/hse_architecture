@@ -1,0 +1,61 @@
+@startuml UML-EC-001-order-components
+!pragma layout smetana
+title UML Component — Web Application интернет-магазина (As-Is)
+top to bottom direction
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam componentBackgroundColor #EAF3FC
+skinparam componentBorderColor #2869A6
+skinparam packageBackgroundColor #F7FAFD
+component "IS-01 ERP" as erp #E6E9ED
+component "IS-02 CRM" as crm #E6E9ED
+component "Система оплаты\n[A-C4-03]" as pay #E6E9ED
+database "Shop Data Store" as db #E6E9ED
+package "Web Application\nЛогические компоненты As-Is [A-UML-01]" {
+  component "Web Interface\nprovides IWebUI" as web
+  component "Catalog Module\nprovides ICatalog" as catalog
+  component "Customer Module\nprovides ICustomer" as customer
+  component "Order Module\nprovides IOrder" as order
+  component "Payment Adapter\nprovides IPayment" as payment
+  component "ERP Adapter\nprovides IERPExchange" as erpadapter
+  component "CRM Adapter\nprovides ICRMExchange" as crmadapter
+  component "Shop Repository\nprovides IShopData" as repo
+  web ..> catalog : ICatalog
+  web ..> customer : ICustomer
+  web ..> order : IOrder
+  order ..> catalog : ICatalog
+  order ..> customer : ICustomer
+  order ..> payment : IPayment
+  order ..> erpadapter : IERPExchange
+  order ..> crmadapter : ICRMExchange
+  order ..> repo : IShopData
+  catalog ..> erpadapter : IERPExchange
+  catalog ..> repo : IShopData
+  customer ..> repo : IShopData
+  customer ..> crmadapter : ICRMExchange
+}
+interface "ERP REST API" as erpapi
+interface "CRM REST API" as crmapi
+interface "Payment Interface" as payapi
+interface "Data Access" as dataapi
+erp -- erpapi
+crm -- crmapi
+pay -- payapi
+db -- dataapi
+erpadapter ..> erpapi : uses / INT-03
+crmadapter ..> crmapi : uses / INT-04
+payment ..> payapi : uses / A-C4-03
+repo ..> dataapi : uses
+legend bottom
+  provides: предоставляемый внутренний интерфейс (явное имя контракта).
+  Пунктирная зависимость: использование указанного интерфейса компонента.
+  Круглый интерфейс и сплошная связь: внешний предоставляемый интерфейс.
+  Модули и контракты — логическая реконструкция [A-UML-01].
+  Наличие берется из копии сайта, обновляемой из ERP каждые 15 минут.
+  IS-07 не детализирована: маршруты требуют обследования [A-C4-02].
+endlegend
+footer EC-HW-04 • v1.0 • 08.10.2026 • Черновик As-Is
+@enduml
