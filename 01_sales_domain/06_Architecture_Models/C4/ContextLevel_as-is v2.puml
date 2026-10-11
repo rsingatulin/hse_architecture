@@ -44,7 +44,7 @@ Person(admin, "Администратор магазина", "Выполняет
 System(erp, "Enterprise Resource Planning (ERP)", "Основная корпоративная система планирования ресурсов предприятия", $tags="gray+api")
 System(pos, "Point of Sale (POS)", "Система автоматизации продаж в розничных магазинах. [Обработка информации, оформление чека]", $tags="pos+cart")
 System(integration, "Integration Platform (IP)", "Интеграция информационных систем. Обеспечивает передачу информации между приложениями", $tags="gray+cog")
-System(crm, "CRM", "Управление клиентской базой и программами лояльности", $tags="api+gray")
+System(crm, "Customer Relationship Management (CRM)", "Управление клиентской базой и программами лояльности", $tags="api+gray")
 
 ' --- Связи с явным указанием направления ---
 Rel_D(cashier, pos, "Сканирование \nтоваров")
