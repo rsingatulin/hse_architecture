@@ -1,0 +1,30 @@
+@startuml seq_04_batch_etl
+title SEQ-04. Пакетная ETL-загрузка и обновление аналитических витрин (As-Is, nightly)\n(ArchiMate R-21..R-27; C4 Container As-Is: ETL-процессы CRM/ERP -> БД BI)
+
+autonumber
+skinparam responseMessageBelowArrow true
+
+participant "Планировщик\n(расписание)" as Sched
+participant "CRM" as CRM
+database "БД CRM\n(карточки клиентов,\nбонусные счета,\nистория покупок, акции)" as CRMDB
+participant "ERP\n<<внешняя система>>" as ERP
+database "БД BI\n(аналитические витрины)" as BIDB
+participant "BI-система" as BI
+actor "Аналитик" as Analyst
+actor "Маркетолог" as Marketer
+
+== Ночное окно загрузки ==
+Sched -> CRM : Запуск ETL по расписанию
+CRM -> CRMDB : Выборка изменений за период
+CRM -> BIDB : ETL-процесс передачи данных\nо клиентах и бонусах
+ERP -> BIDB : ETL-процесс передачи данных\nо продажах и закупках
+BIDB --> CRM : Подтверждение загрузки
+BIDB --> ERP : Подтверждение загрузки
+
+== Построение отчетности ==
+Sched -> BI : Запуск формирования отчетов
+BI -> BIDB : Чтение аналитических витрин
+BI -> BI : Расчет метрик (retention, RFM,\nсегменты, показатели кампаний)
+BI --> Analyst : Отчеты и дашборды
+BI --> Marketer : Аналитика по клиентам и кампаниям
+@enduml

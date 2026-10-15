@@ -1,0 +1,44 @@
+@startuml seq_01_purchase_to_offer
+title SEQ-01. Покупка на кассе -> обновление метрик -> персональное предложение\n(порт BPMN 04_1_bpmn/retention.bpmn; участники по C4 Container As-Is)
+
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 10
+
+actor "Клиент" as Client
+actor "Кассир" as Cashier
+participant "POS\n<<внешняя система>>" as POS
+participant "Интеграционная\nплатформа" as GW
+participant "CRM" as CRM
+database "БД CRM\n(профиль, бонусы,\nистория покупок)" as CRMDB
+database "БД BI\n(аналитические витрины)" as BIDB
+participant "BI-система" as BI
+participant "Каналы коммуникаций\n(email / SMS / push)" as CH
+
+== Совершение покупки ==
+Client -> Cashier : Покупка, предъявляет карту лояльности
+Cashier -> POS : Проведение чека
+POS -> GW : Передача данных о покупке (чек + карта лояльности)
+GW -> CRM : Маршрутизация запроса к CRM
+CRM -> CRMDB : Сохранение чека,\nначисление/списание бонусов
+CRM --> GW : Подтверждение
+GW --> POS : Подтверждение
+POS --> Cashier : Чек закрыт
+
+== Обновление аналитического контура ==
+GW -> BIDB : Обновление аналитических витрин
+BI -> BIDB : Пересчет метрик (retention, RFM),\nAI-скоринг клиента
+BI --> CRM : Сохранение метрик в профиль клиента
+CRM -> CRMDB : Запись метрик и сегмента в профиль
+
+alt Условия назначения персонального предложения выполнены (BPMN Gateway_1bnhmx1 — «Да»)
+    CRM -> CRM : Формирование персонального предложения
+    CRM --> POS : Передача данных о предложении на кассу
+    CRM --> CH : Передача данных о предложении в приложение
+    CH -> Client : Сообщение клиенту о предложении (push / SMS / email)
+else Условия не выполнены («Нет»)
+    CRM --> GW : Завершение обмена данными
+end
+
+Cashier --> Client : Завершение обслуживания
+@enduml
