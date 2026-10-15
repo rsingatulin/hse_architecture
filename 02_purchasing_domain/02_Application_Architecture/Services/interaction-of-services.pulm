@@ -1,0 +1,104 @@
+@startuml purchasing_sequence_UML_TO_BE
+
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 260
+skinparam boxPadding 10
+autonumber
+
+title Архитектура To-Be: Процесс закупки товаров (BP-02)\nUML: диаграмма последовательности
+
+actor "Менеджер\nпо закупкам" as Buyer
+actor "Финансовый\nконтроллер" as Finance
+actor "Кладовщик\n(Сотрудник склада)" as WarehouseUser
+actor "Внешняя система\nПоставщика" as SupplierSystem
+
+participant "Веб-интерфейс\nзакупок (UI)" as UI
+
+box "Домен «Закупки» (Bounded Contexts)" #E8F4F8
+  participant "Сервис планирования\nи прогнозирования" as Planning
+  participant "Сервис управления\nзаказами (PO)" as PO
+  participant "Сервис интеграции\nс поставщиками" as Integration
+  participant "Сервис контроля\nисполнения и сверки" as Reconciliation
+end box
+
+participant "Шина событий\n(Kafka / RabbitMQ)" as EventBus
+participant "WMS\n(Склад)" as WMS
+participant "Финансовый\nмодуль (ERP)" as FinanceSystem
+participant "BI / DWH\n(Аналитика)" as BI
+
+== 1. Прогнозирование и формирование потребности ==
+
+Planning -> Planning : Фоновый расчет потребности\n(на основе продаж и остатков)
+Planning --> UI : Публикация рекомендаций\nк закупке
+
+Buyer -> UI : Просмотр рекомендаций,\nкорректировка и создание заказа
+UI -> PO : POST /api/v1/purchase-orders\n(Создать черновик заказа)
+PO --> UI : Заказ создан (Статус: Draft)
+
+== 2. Автоматическая отправка и подтверждение от Поставщика ==
+
+PO -> Integration : Команда: Отправить заказ поставщику
+Integration -> SupplierSystem : Отправка API сообщения\n(Заказ на поставку)
+note right of Integration
+  Реализация принципа API First.
+  Замена ручного файлового обмена.
+end note
+
+SupplierSystem --> Integration : Подтверждение заказа (ACK)\nи уведомление об отгрузке (ASN)
+Integration -> PO : Событие: ЗаказПодтвержденПоставщиком
+PO -> PO : Обновление статуса:\n"Согласован / Ожидается поставка"
+
+== 3. Финансовое согласование ==
+
+PO -> FinanceSystem : Запрос на резервирование\n/ согласование оплаты
+FinanceSystem --> UI : Уведомление о необходимости\nсогласования
+
+Finance -> UI : Подтверждение оплаты
+UI -> FinanceSystem : Решение контроллера
+FinanceSystem -> PO : Событие: ОплатаСогласована
+PO -> PO : Обновление статуса:\n"Готов к приёмке"
+
+== 4. Плановая отгрузка и физическая приёмка на складе ==
+
+PO -> WMS : Передача плана поставки\n(Inbound Order)
+note right of WMS
+  WMS получает данные для подготовки зоны приёмки и выделения ячеек.
+end note
+
+WarehouseUser -> WMS : Физическая приёмка товаров\n(сканирование ТСД)
+WMS -> WMS : Фиксация факта приёмки,\nразмещение на ячейках
+
+== 5. Сверка факта и плана (Event-Driven) ==
+
+WMS -> Reconciliation : POST /api/v1/reconciliation/receive-fact\n(Вебхук с фактом приёмки)
+note right of Reconciliation
+  Синхронная сверка факта (из WMS) 
+  с планом (из PO).
+end note
+
+alt Есть расхождения (недовоз, пересорт)
+  Reconciliation -> Reconciliation : Фиксация расхождения
+  Reconciliation -> PO : Событие: ВыявленоРасхождение
+  PO --> UI : Уведомление менеджера:\n"Требуется разбор расхождений"
+  Reconciliation -> Reconciliation : Создание черновика претензии
+else Приёмка без расхождений
+  Reconciliation -> PO : Событие: ЗаказПолностьюПринят
+  PO -> PO : Обновление статуса: "Закрыт"
+end
+
+== 6. Аналитика в реальном времени ==
+
+PO -> EventBus : Публикация события:\n"ЗаказЗакрыт", "ОстаткиОбновлены"
+Reconciliation -> EventBus : Публикация события:\n"ПретензияСоздана" (если была)
+
+EventBus -> BI : Потребление событий\nдля витрин данных
+note right of BI
+  Решение проблемы As-Is:
+  Аналитика обновляется почти 
+  в реальном времени, а не раз в сутки.
+end note
+
+@enduml

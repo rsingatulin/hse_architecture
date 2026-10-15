@@ -1,4 +1,4 @@
-@startuml CRM_AS_IS
+@startuml POS_AS_IS
 
 left to right direction
 
@@ -7,71 +7,69 @@ skinparam shadowing false
 skinparam packageStyle rectangle
 skinparam defaultTextAlignment center
 
-title RetailMax — CRM\nUML Component Diagram (AS-IS)
-
-' ==========================================
-' Домен Sales
-' ==========================================
-
-component "POS\n(IS-04)" as POS
-
-component "Integration Platform\n(IS-07)" as IP
+title RetailMax — POS\nUML Component Diagram (AS-IS)
 
 
-' ==========================================
-' Анализируемая система CRM
-' ==========================================
+' =========================================================
+' Целевая система POS
+' =========================================================
 
-package "CRM (IS-02)" {
+package "POS (IS-04)" {
 
-    component "Customer Management\n<<logical>>" as Customer
+    component "Sale Processing\n<<logical>>" as Sale
 
-    component "Loyalty Program\n<<logical>>" as Loyalty
-
-    component "Purchase History\n<<logical>>" as History
+    component "Discount & Loyalty\nHandling\n<<logical>>" as Loyalty
 }
 
 
-' ==========================================
-' Статические зависимости AS-IS
-' ==========================================
+' =========================================================
+' Внешние системы
+' =========================================================
 
-POS --> IP : REST API
+component "Integration Platform\n(IS-07)" as IP
 
-IP --> Customer : данные клиента
-
-IP --> Loyalty : бонусы и\nперсональные скидки
-
-IP --> History : история покупок
+component "CRM\n(IS-02)" as CRM
 
 
-' ==========================================
-' Контекст проблемы
-' ==========================================
+' =========================================================
+' Зависимости AS-IS
+' =========================================================
 
-note bottom of IP
-INT-02 POS ↔ CRM
+Sale --> Loyalty : применение\nскидок и бонусов
 
-Интеграция выполняется
-через Integration Platform
-по REST API.
-end note
+Loyalty --> IP : REST API\nзапрос данных клиента\nи программы лояльности
 
+IP --> CRM : запрос данных\nклиента и лояльности
+
+
+' =========================================================
+' Проблема
+' =========================================================
 
 note bottom of Loyalty
+
 Проблема AS-IS:
 
-задержки при получении данных
-программы лояльности из CRM
-увеличивают время обслуживания
+для применения бонусов и скидок
+POS обращается к CRM
+во время оформления продажи.
+
+При задержке или недоступности CRM
+увеличивается время обслуживания
 покупателя на кассе.
+
 end note
 
 
-note bottom of Customer
-Компоненты CRM показаны
+note bottom of Sale
+
+Компоненты POS представлены
 как логическая декомпозиция
-документированных функций CRM.
+документированных функций системы.
+
+Физическая внутренняя структура POS
+в исходных материалах не задана.
+
 end note
 
 @enduml

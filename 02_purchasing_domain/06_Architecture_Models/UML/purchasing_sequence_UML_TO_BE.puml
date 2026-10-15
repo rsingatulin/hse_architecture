@@ -1,0 +1,110 @@
+@startuml purchasing_sequence_UML_TO_BE
+
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 240
+autonumber
+
+title Система управления закупками (ERP)\nUML: диаграмма последовательности (TO-BE)\nОт анализа остатков до приёмки и выгрузки в BI
+
+actor "Менеджер\nпо закупкам" as Buyer
+actor "Финансовый\nконтроллер" as Finance
+actor "Сотрудник\nсклада" as WarehouseUser
+actor "Поставщик\n(контрагент)" as Supplier
+
+participant "Рабочее место\nзакупок\n(веб-интерфейс)" as UI
+
+box "Система управления закупками (ERP)" #F3F6FA
+  participant "Прогнозирование\nпотребности" as Forecast
+  participant "Управление\nзаказами\nпоставщикам" as PO
+  participant "Согласование\nоплаты" as Approval
+  participant "Выгрузка\nзакупок\n(ETL)" as ETL
+end box
+
+participant "Интеграционная\nплатформа" as IP
+participant "WMS\n(склад)" as WMS
+participant "BI / DWH\n(аналитика)" as BI
+
+== Анализ остатков и формирование заказа ==
+
+IP -> PO : обновление остатков\n(из WMS)
+PO --> UI : актуальные учётные остатки
+
+UI -> Forecast : запрос предложений закупки
+Forecast --> UI : предложения (+ факторы)
+
+Buyer -> UI : анализирует остатки,\nформирует заказ
+note right of Buyer
+  Канал: веб-интерфейс
+end note
+
+Buyer -> Supplier : согласование заказа,\nцен и сроков поставки
+note right of Buyer
+  Канал: почта / телефон\n(вне системного контура)
+end note
+Supplier --> Buyer : условия подтверждены
+
+Buyer -> UI : зафиксировать заказ в ERP
+UI -> PO : создать заказ
+PO -> PO : сохранить заказ\n(статус = Черновик)
+
+== Согласование оплаты ==
+
+PO -> Approval : запустить согласование
+
+alt заказ в пределах авто-правил
+  Approval -> Approval : авто-согласование
+  Approval --> PO : согласовано (авто)
+else требуется финансовый контроллер
+  Approval --> UI : эскалация
+  UI --> Finance : запрос на согласование оплаты
+  Finance -> UI : согласовывает оплату
+  note right of Finance
+    Канал: веб-интерфейс
+  end note
+  UI -> Approval : решение контроллера
+  alt оплата согласована
+    Approval --> PO : согласовано
+  else отклонено
+    Approval --> PO : отклонено
+    PO --> UI : заказ отклонён
+  end
+end
+
+== План поставки и приёмка ==
+
+PO -> IP : план поставки\n(заказ на приёмку)
+note right of IP
+  ERP ↔ платформа\nREST API / JSON
+end note
+IP -> WMS : заказ на приёмку
+note right of WMS
+  Платформа ↔ WMS\nREST API
+end note
+
+WarehouseUser -> WMS : физическая приёмка товаров
+note right of WarehouseUser
+  Канал: ТСД / интерфейс WMS
+end note
+WMS -> WMS : размещение, фиксация факта
+
+alt есть расхождения
+  WMS -> IP : акт расхождений
+  IP -> PO : акт расхождений
+  PO --> UI : уведомить менеджера
+else приёмка без расхождений
+  WMS -> IP : факт приёмки +\nобновление остатков
+  IP -> PO : обновление остатков
+  PO --> UI : поставка закрыта
+end
+
+== Выгрузка в аналитику ==
+
+ETL -> BI : выгрузка данных по закупкам
+note right of ETL
+  ERP → BI / DWH\nETL / пакетно
+end note
+
+@enduml
