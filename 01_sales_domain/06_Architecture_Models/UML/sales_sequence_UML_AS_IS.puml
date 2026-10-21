@@ -4,27 +4,33 @@ skinparam shadowing false
 skinparam defaultFontName DejaVu Sans
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
-skinparam maxMessageSize 230
+skinparam maxMessageSize 220
 autonumber
 
-title RetailMax — CRM\nUML Sequence Diagram (AS-IS)\nПрименение и начисление бонусов при оффлайн-продаже
+title
+RetailMax — Кассовое приложение
+UML Sequence Diagram (AS-IS)
+Взаимодействие компонентов при продаже по карте лояльности
+end title
 
 ' ==========================================
-' Участники (по C4 Context и UML Component)
+' Участники (по C4 Container и UML Component)
 ' ==========================================
 
-actor "Покупатель" as Customer
-actor "Старший продавец\nмагазина" as Seller
-participant "POS\n(IS-04)" as POS
-participant "Integration Platform\n(IS-07)" as IP
+actor "Кассир" as Cashier
 
-box "CRM (IS-02)" #F3F6FA
-  participant "Customer\nManagement" as CM
-  participant "Loyalty\nProgram" as LP
-  participant "Purchase\nHistory" as PH
+box "Кассовое приложение <<container>>" #F3F6FA
+  participant "Cashier UI" as UI
+  participant "Sale\nProcessing" as Sale
+  participant "Discount & Loyalty\nHandling" as Loyalty
+  participant "Integration\nAdapter" as Integration
+  participant "Fiscal\nAdapter" as FiscalAdapter
+  participant "POS Data\nAccess" as DataAccess
 end box
 
-participant "ERP\n(IS-01)" as ERP
+participant "Фискальный\nмодуль" as Fiscal
+database "БД POS" as POS_DB
+participant "Integration Platform\n(IS-07)\nCRM, ERP" as IP
 
 ' ==========================================
 ' 1. Сканирование товаров
@@ -32,112 +38,92 @@ participant "ERP\n(IS-01)" as ERP
 
 == Сканирование товаров ==
 
-Customer -> Seller : передает товары и карту лояльности
-Seller -> POS : сканирует товары
-POS -> IP : запрос цены и акций
-IP -> ERP : запрос цены
-ERP --> IP : цена
-IP --> POS : цена и действующие акции
+Cashier -> UI : сканирует товары
+UI -> Sale : начать продажу, добавить позиции
+Sale -> Integration : запросить цены и акции
+Integration -> IP : цены и акции (ERP), REST синхронно
+IP --> Integration : цены и акции
+Integration --> Sale : цены и акции
+Sale --> UI : состав и сумма чека
 
 ' ==========================================
-' 2. Проверка карты лояльности
+' 2. Карта лояльности
 ' ==========================================
 
-== Проверка карты лояльности (синхронно, INT-02) ==
+== Применение скидок и бонусов ==
 
-opt есть карта лояльности
-  Seller -> POS : сканирует карту
-  activate POS
-  POS -> IP : запрос бонусов и скидок\n(номер карты), REST
-  activate IP
-  IP -> CM : найти клиента по карте
-  CM --> IP : данные клиента
-  IP -> LP : запрос баланса\nи персональной скидки
+Cashier -> UI : сканирует карту лояльности
+UI -> Sale : добавить карту в чек
+Sale -> Loyalty : применить скидки и бонусы
+activate Loyalty
+Loyalty -> Integration : получить данные программы лояльности
+activate Integration
+Integration -> IP : уровень, баланс, скидка (CRM),\nREST синхронно
 
-  alt CRM ответила
-    LP --> IP : баланс бонусов, скидка
-    IP --> POS : баланс бонусов, скидка
-    POS --> Seller : скидка и доступные бонусы
-    Seller -> Customer : предлагает списать бонусы
-    Customer --> Seller : согласие или отказ
-  else CRM недоступна или отвечает медленно
-    note over LP
-      Ответа нет. Таймаута
-      и кэша на кассе нет
-    end note
-    Seller -> Seller : ждет ответа
-    Customer -> Customer : ждет у кассы
-    IP --> POS : ошибка
-    POS --> Seller : бонусы недоступны
-    note right of POS
-      Проблема AS-IS (INT-02, BP-01).
-      Продажа стоит, пока ждут CRM,
-      время обслуживания растет.
-      Если CRM не ответила, покупка
-      проходит без бонусов
-    end note
-  end
-  deactivate IP
-  deactivate POS
+alt CRM ответила
+  IP --> Integration : уровень, баланс, скидка
+  Integration --> Loyalty : данные лояльности
+  Loyalty -> Loyalty : рассчитать скидку\nи доступные бонусы
+  Loyalty --> Sale : скидка и бонусы
+else CRM отвечает медленно или недоступна
+  note over Integration, IP
+    Таймаута нет, локального
+    кэша данных лояльности нет
+  end note
+  IP --> Integration : ошибка после ожидания
+  Integration --> Loyalty : ошибка
+  Loyalty --> Sale : скидки и бонусы не применены
+  note right of Sale
+    Проблема AS-IS (INT-02).
+    Продажа стоит, пока ждут CRM,
+    затем покупка проходит без бонусов
+  end note
 end
+deactivate Integration
+deactivate Loyalty
+
+Sale --> UI : итог чека
+UI --> Cashier : сумма к оплате
 
 ' ==========================================
-' 3. Оплата и отправка продажи
+' 3. Закрытие чека
 ' ==========================================
 
-== Оплата и фиксация продажи ==
+== Оплата и закрытие чека ==
 
-Customer -> Seller : оплачивает покупку
-Seller -> POS : закрыть чек
-POS -> POS : оформить чек
-POS --> Customer : чек
+Cashier -> UI : оплата получена, закрыть чек
+UI -> Sale : завершить продажу
+Sale -> FiscalAdapter : сформировать фискальный чек
+FiscalAdapter -> Fiscal : печать и фискализация,\nAPI драйвера
+Fiscal --> FiscalAdapter : чек напечатан
+FiscalAdapter --> Sale : ok
+Sale -> DataAccess : сохранить продажу и чек
+DataAccess -> POS_DB : INSERT чек, операция
+POS_DB --> DataAccess : ok
 
-POS -> IP : факт продажи, REST
-IP -> ERP : факт продажи (INT-01)
+' ==========================================
+' 4. Передача продажи
+' ==========================================
 
-alt ERP приняла
-  ERP --> IP : ok
-  ERP -> ERP : уменьшить остатки
+== Передача факта продажи ==
+
+Sale -> Integration : передать факт продажи
+Integration -> IP : продажа (ERP), продажа по карте (CRM),\nREST без повторной отправки
+
+alt системы приняли
+  IP --> Integration : ok
 else ошибка или высокая нагрузка
-  ERP --> IP : ошибка
-  note right of ERP
+  IP --> Integration : ошибка
+  note right of Integration
     Проблема AS-IS (INT-01).
-    Повторной отправки нет,
-    продажа в ERP теряется
+    Повтора нет, продажа и бонусы
+    теряются, баланс в CRM
+    расходится с покупками
   end note
 end
 
-' ==========================================
-' 4. Списание и начисление бонусов
-' ==========================================
-
-== Списание и начисление бонусов ==
-
-opt продажа по карте лояльности
-  POS -> IP : продажа по карте\n(чек, сумма, списание бонусов), REST
-  IP -> LP : применить продажу
-
-  alt CRM приняла
-    LP -> LP : списать и начислить бонусы
-    LP -> PH : записать покупку в историю
-    PH --> LP : ok
-    LP --> IP : новый баланс
-    IP --> POS : подтверждение
-  else CRM недоступна
-    IP --> POS : ошибка
-    note right of POS
-      Повторной отправки нет.
-      Бонусы не начислены, уровень
-      и баланс в CRM расходятся
-      с реальными покупками клиента
-    end note
-  end
-end
-
-note over Customer, ERP
-  Итог AS-IS. Все обмены синхронные, событий нет, кэша на кассе нет.
-  Скорость продажи зависит от CRM, а при сбоях данные о бонусах
-  и уровне лояльности клиента рассинхронизируются
-end note
+Integration --> Sale : результат
+Sale --> UI : продажа завершена
+UI --> Cashier : продажа завершена
 
 @enduml

@@ -4,27 +4,49 @@ skinparam shadowing false
 skinparam defaultFontName DejaVu Sans
 skinparam sequenceMessageAlign center
 skinparam responseMessageBelowArrow true
-skinparam maxMessageSize 230
+skinparam maxMessageSize 220
 autonumber
 
-title RetailMax — CRM\nUML Sequence Diagram (TO-BE)\nПрименение и начисление бонусов при оффлайн-продаже
+title
+RetailMax — Кассовое приложение
+UML Sequence Diagram (TO-BE, ADR-001)
+Взаимодействие компонентов при продаже по карте лояльности
+end title
 
 ' ==========================================
-' Участники (по C4 Context и UML Component)
+' Участники (по C4 Container, UML Component и ADR-001)
 ' ==========================================
 
-actor "Покупатель" as Customer
-actor "Старший продавец\nмагазина" as Seller
-participant "POS\n(IS-04)" as POS
-participant "Integration Platform\n(IS-07)" as IP
+actor "Кассир" as Cashier
 
-box "CRM (IS-02)" #F3F6FA
-  participant "Customer\nManagement" as CM
-  participant "Loyalty\nProgram" as LP
-  participant "Purchase\nHistory" as PH
+box "Кассовое приложение <<container>>" #F3F6FA
+  participant "Cashier UI" as UI
+  participant "Sale\nProcessing" as Sale
+  participant "Discount & Loyalty\nHandling" as Loyalty
+  participant "Local Cache\n(новый, ADR-001)" as Cache #E8F5E9
+  participant "Integration\nAdapter" as Integration
+  participant "Fiscal\nAdapter" as FiscalAdapter
+  participant "POS Data\nAccess" as DataAccess
 end box
 
-participant "ERP\n(IS-01)" as ERP
+participant "Фискальный\nмодуль" as Fiscal
+database "БД POS" as POS_DB
+participant "Integration Platform\n(IS-07)\nCRM, ERP" as IP
+
+' ==========================================
+' 0. Периодическая подгрузка данных
+' ==========================================
+
+== Фоновая синхронизация (каждые 5 минут и по событиям) ==
+
+loop периодически, вне продажи
+  Cache -> Integration : запросить изменения\nцен, акций и бонусов
+  Integration -> IP : изменения с момента\nпоследней синхронизации
+  IP --> Integration : новые цены, акции,\nуровни и балансы
+  Integration --> Cache : изменения
+  Cache -> DataAccess : обновить локальный кэш
+  DataAccess -> POS_DB : UPSERT кэш
+end
 
 ' ==========================================
 ' 1. Сканирование товаров
@@ -32,86 +54,86 @@ participant "ERP\n(IS-01)" as ERP
 
 == Сканирование товаров ==
 
-Customer -> Seller : передает товары и карту лояльности
-Seller -> POS : сканирует товары
-POS -> POS : применить цены и акции\nиз локального справочника ERP
+Cashier -> UI : сканирует товары
+UI -> Sale : начать продажу, добавить позиции
+Sale -> Cache : цены и акции
+Cache --> Sale : цены и акции из кэша
+Sale --> UI : состав и сумма чека
 
 ' ==========================================
-' 2. Проверка карты лояльности
+' 2. Карта лояльности
 ' ==========================================
 
-== Проверка карты лояльности ==
+== Применение скидок и бонусов ==
 
-opt есть карта лояльности
-  Seller -> POS : сканирует карту
-  POS -> IP : запрос статуса карты\n(номер карты)
-  IP -> CM : найти клиента по карте
-  CM --> IP : клиент найден
-  IP -> LP : запрос уровня, баланса\nи персональной скидки
-  LP --> IP : уровень, баланс,\nскидка (версия N)
+Cashier -> UI : сканирует карту лояльности
+UI -> Sale : добавить карту в чек
+Sale -> Loyalty : применить скидки и бонусы
+Loyalty -> Integration : уточнить баланс в CRM\n(таймаут 2 секунды)
+Integration -> IP : уровень и баланс (CRM)
 
-  alt ответ получен за 2 секунды
-    IP --> POS : уровень, баланс, скидка
-    POS -> POS : обновить локальный кэш клиента
-  else CRM не ответила за 2 секунды
-    IP --> POS : таймаут
-    POS -> POS : взять уровень из кэша,\nпометить «не подтверждено»
-    note right of POS
-      Продажа не ждет CRM.
-      Закрывает проблему AS-IS INT-02
-      (задержки увеличивают время
-      обслуживания на кассе)
-    end note
-  end
-
-  POS --> Seller : скидка и доступные бонусы
-  Seller -> Customer : предлагает списать бонусы
-  Customer --> Seller : согласие или отказ
+alt CRM ответила за 2 секунды
+  IP --> Integration : уровень, баланс, скидка
+  Integration --> Loyalty : актуальные данные
+  Loyalty -> Cache : обновить карту клиента
+else CRM не ответила
+  IP --> Integration : таймаут
+  Integration --> Loyalty : таймаут
+  Loyalty -> Cache : уровень и баланс клиента
+  Cache --> Loyalty : данные из кэша,\nпометка «не подтверждено»
+  note right of Loyalty
+    Продажа не ждет CRM.
+    Закрывает проблему INT-02
+  end note
 end
 
-' ==========================================
-' 3. Оплата и отправка факта продажи
-' ==========================================
-
-== Оплата и фиксация продажи ==
-
-Customer -> Seller : оплачивает покупку
-Seller -> POS : закрыть чек
-POS -> POS : оформить чек, поставить продажу\nв очередь отправки\n(ключ = номер чека)
-POS --> Customer : чек
-
-POS -> IP : факт продажи
-IP ->> ERP : факт продажи (асинхронно)
+Loyalty -> Loyalty : рассчитать скидку\nи доступные бонусы
+Loyalty --> Sale : скидка и бонусы
+Sale --> UI : итог чека
+UI --> Cashier : сумма к оплате
 
 ' ==========================================
-' 4. Списание и начисление бонусов
+' 3. Закрытие чека
 ' ==========================================
 
-== Списание и начисление бонусов ==
+== Оплата и закрытие чека ==
 
-opt продажа по карте лояльности
-  loop пока CRM не подтвердит продажу
-    POS -> IP : продажа по карте\n(чек, сумма, списание бонусов, ключ)
-    IP -> LP : применить продажу
-    LP -> LP : проверить ключ чека
+Cashier -> UI : оплата получена, закрыть чек
+UI -> Sale : завершить продажу
+Sale -> FiscalAdapter : сформировать фискальный чек
+FiscalAdapter -> Fiscal : печать и фискализация,\nAPI драйвера
+Fiscal --> FiscalAdapter : чек напечатан
+FiscalAdapter --> Sale : ok
+Sale -> DataAccess : сохранить продажу и чек,\nпоставить в очередь отправки
+DataAccess -> POS_DB : INSERT чек, операция,\nзапись в очередь
+POS_DB --> DataAccess : ok
+Sale --> UI : продажа завершена
+UI --> Cashier : продажа завершена
 
-    alt чек уже обработан
-      LP --> IP : повтор, бонусы не меняются
-    else новый чек
-      LP -> LP : списать и начислить бонусы,\nпересчитать уровень (версия N+1)
-      LP -> PH : записать покупку в историю
-      PH --> LP : ok
-      LP --> IP : новый баланс и уровень
-    end
+' ==========================================
+' 4. Передача продажи
+' ==========================================
 
-    IP --> POS : подтверждение списания и начисления
-    POS -> POS : убрать продажу из очереди,\nобновить кэш клиента
+== Передача факта продажи (фоном) ==
+
+loop пока есть неотправленные продажи
+  Integration -> DataAccess : взять продажу из очереди
+  DataAccess --> Integration : продажа (ключ = номер чека)
+  Integration -> IP : продажа (ERP), продажа по карте (CRM)
+
+  alt системы приняли
+    IP --> Integration : ok, новый баланс бонусов
+    Integration -> DataAccess : отметить отправленной
+    Integration -> Cache : обновить баланс клиента
+  else ошибка или нет связи
+    IP --> Integration : ошибка
+    note right of Integration
+      Продажа остается в очереди
+      и уйдет при следующей попытке.
+      Повтор с тем же ключом не
+      задваивает бонусы (INT-01)
+    end note
   end
-  note right of POS
-    При сбое связи POS повторяет отправку
-    с тем же ключом. Бонусы не теряются
-    и не начисляются дважды
-  end note
 end
 
 @enduml
