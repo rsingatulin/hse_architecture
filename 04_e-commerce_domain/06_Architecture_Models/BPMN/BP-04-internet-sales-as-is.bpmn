@@ -1,0 +1,1047 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_BP04" targetNamespace="https://retailmax.example/bpmn" exporter="RetailMax architecture team" exporterVersion="As-Is 1.1">
+  <message id="Message_Browse" name="Запрос каталога" />
+  <message id="Message_Availability" name="Доступность по данным сайта" />
+  <message id="Message_PaidOrder" name="Оформленный заказ и сведения об оплате" />
+  <message id="Message_Issue" name="Проблема исполнения заказа" />
+  <message id="Message_CustomerData" name="Данные клиента, заказа или покупки" />
+  <message id="Message_Dispatch" name="Заказ и задание на доставку" />
+  <message id="Message_Goods" name="Товар передан покупателю" />
+  <message id="Message_Delivered" name="Подтверждение доставки" />
+  <error id="Error_Exchange" name="Сбой передачи / обработки данных" errorCode="EXCHANGE_FAILURE" />
+  <collaboration id="Collaboration_BP04">
+    <participant id="Participant_Buyer" name="Покупатель" processRef="Process_Buyer" />
+    <participant id="Participant_RetailMax" name="RetailMax · исполнение интернет-заказа" processRef="Process_RetailMax" />
+    <participant id="Participant_CRM" name="CRM · отдельный обмен данными [A3]" processRef="Process_CRM" />
+    <participant id="Participant_Delivery" name="Служба доставки" processRef="Process_Delivery" />
+    <messageFlow id="MessageFlow_Browse" sourceRef="Buyer_Browse" targetRef="Web_Browse" messageRef="Message_Browse" name="Запрос" />
+    <messageFlow id="MessageFlow_Availability" sourceRef="Web_Reply" targetRef="Buyer_Availability" messageRef="Message_Availability" name="Данные сайта" />
+    <messageFlow id="MessageFlow_Order" sourceRef="Buyer_SendOrder" targetRef="Order_Start" messageRef="Message_PaidOrder" name="Заказ / оплата" />
+    <messageFlow id="MessageFlow_CRM_Order" sourceRef="Order_CRM" targetRef="CRM_Start" messageRef="Message_CustomerData" name="Клиент / заказ" />
+    <messageFlow id="MessageFlow_CRM_Purchase" sourceRef="Order_PurchaseCRM" targetRef="CRM_Start" messageRef="Message_CustomerData" name="История покупки" />
+    <messageFlow id="MessageFlow_Dispatch" sourceRef="WH_Dispatch" targetRef="Delivery_Start" messageRef="Message_Dispatch" name="Сведения / задание" />
+    <messageFlow id="MessageFlow_Delivered" sourceRef="Delivery_Confirm" targetRef="Order_Delivered" messageRef="Message_Delivered" name="Подтверждение" />
+    <messageFlow id="MessageFlow_Goods" sourceRef="Delivery_Buyer" targetRef="Buyer_Received" messageRef="Message_Goods" name="Подтверждение передачи товара" />
+    <messageFlow id="MessageFlow_Issue" sourceRef="Notify_Issue" targetRef="Buyer_Issue" messageRef="Message_Issue" name="Проблема исполнения" />
+  </collaboration>
+  <process id="Process_Buyer" name="Действия покупателя" isExecutable="false">
+    <startEvent id="Buyer_Start" name="Возникла потребность">
+      <outgoing>Buyer_Flow_1</outgoing>
+    </startEvent>
+    <userTask id="Buyer_Select" name="Выбрать товар на сайте">
+      <incoming>Buyer_Flow_1</incoming>
+      <outgoing>Buyer_Flow_2</outgoing>
+    </userTask>
+    <sendTask id="Buyer_Browse" name="Запросить наличие товара" messageRef="Message_Browse">
+      <incoming>Buyer_Flow_2</incoming>
+      <outgoing>Buyer_Flow_3</outgoing>
+    </sendTask>
+    <intermediateCatchEvent id="Buyer_Availability" name="Получены данные сайта">
+      <incoming>Buyer_Flow_3</incoming>
+      <outgoing>Buyer_Flow_4</outgoing>
+      <messageEventDefinition id="Buyer_Availability_Message" messageRef="Message_Availability" />
+    </intermediateCatchEvent>
+    <exclusiveGateway id="Buyer_Available" name="Доступен по данным сайта?">
+      <incoming>Buyer_Flow_4</incoming>
+      <outgoing>Buyer_Flow_Available</outgoing>
+      <outgoing>Buyer_Flow_Unavailable</outgoing>
+    </exclusiveGateway>
+    <endEvent id="Buyer_NoStock" name="Покупка не оформлена">
+      <incoming>Buyer_Flow_Unavailable</incoming>
+    </endEvent>
+    <userTask id="Buyer_Create" name="Оформить заказ">
+      <incoming>Buyer_Flow_Available</incoming>
+      <outgoing>Buyer_Flow_6</outgoing>
+    </userTask>
+    <userTask id="Buyer_Auth" name="Зарегистрироваться / авторизоваться">
+      <incoming>Buyer_Flow_6</incoming>
+      <outgoing>Buyer_Flow_7</outgoing>
+    </userTask>
+    <userTask id="Buyer_Pay" name="Оплатить заказ">
+      <incoming>Buyer_Flow_7</incoming>
+      <outgoing>Buyer_Flow_8</outgoing>
+    </userTask>
+    <exclusiveGateway id="Buyer_Payment" name="Оплата успешна? [A4]">
+      <incoming>Buyer_Flow_8</incoming>
+      <outgoing>Buyer_Flow_Paid</outgoing>
+      <outgoing>Buyer_Flow_NotPaid</outgoing>
+    </exclusiveGateway>
+    <endEvent id="Buyer_NotPaid" name="Заказ не передан на исполнение">
+      <incoming>Buyer_Flow_NotPaid</incoming>
+    </endEvent>
+    <sendTask id="Buyer_SendOrder" name="Передать оформленный заказ и оплату" messageRef="Message_PaidOrder">
+      <incoming>Buyer_Flow_Paid</incoming>
+      <outgoing>Buyer_Flow_10</outgoing>
+    </sendTask>
+    <eventBasedGateway id="Buyer_Wait" name="Ожидать товар или сообщение о проблеме">
+      <incoming>Buyer_Flow_10</incoming>
+      <outgoing>Buyer_Flow_Goods</outgoing>
+      <outgoing>Buyer_Flow_Issue</outgoing>
+    </eventBasedGateway>
+    <intermediateCatchEvent id="Buyer_Received" name="Получить товар">
+      <incoming>Buyer_Flow_Goods</incoming>
+      <outgoing>Buyer_Flow_13</outgoing>
+      <messageEventDefinition id="Buyer_Received_Message" messageRef="Message_Goods" />
+    </intermediateCatchEvent>
+    <endEvent id="Buyer_Done" name="Товар получен">
+      <incoming>Buyer_Flow_13</incoming>
+    </endEvent>
+    <intermediateCatchEvent id="Buyer_Issue" name="Получено сообщение о проблеме">
+      <incoming>Buyer_Flow_Issue</incoming>
+      <outgoing>Buyer_Flow_14</outgoing>
+      <messageEventDefinition id="Buyer_Issue_Message" messageRef="Message_Issue" />
+    </intermediateCatchEvent>
+    <userTask id="Buyer_Discuss" name="Обсудить дальнейшие действия с оператором [A1/A2]">
+      <incoming>Buyer_Flow_14</incoming>
+      <outgoing>Buyer_Flow_15</outgoing>
+    </userTask>
+    <endEvent id="Buyer_Exception" name="Дальнейшее решение вне модели">
+      <incoming>Buyer_Flow_15</incoming>
+    </endEvent>
+    <sequenceFlow id="Buyer_Flow_1" sourceRef="Buyer_Start" targetRef="Buyer_Select" />
+    <sequenceFlow id="Buyer_Flow_2" sourceRef="Buyer_Select" targetRef="Buyer_Browse" />
+    <sequenceFlow id="Buyer_Flow_3" sourceRef="Buyer_Browse" targetRef="Buyer_Availability" />
+    <sequenceFlow id="Buyer_Flow_4" sourceRef="Buyer_Availability" targetRef="Buyer_Available" />
+    <sequenceFlow id="Buyer_Flow_6" sourceRef="Buyer_Create" targetRef="Buyer_Auth" />
+    <sequenceFlow id="Buyer_Flow_7" sourceRef="Buyer_Auth" targetRef="Buyer_Pay" />
+    <sequenceFlow id="Buyer_Flow_8" sourceRef="Buyer_Pay" targetRef="Buyer_Payment" />
+    <sequenceFlow id="Buyer_Flow_10" sourceRef="Buyer_SendOrder" targetRef="Buyer_Wait" />
+    <sequenceFlow id="Buyer_Flow_13" sourceRef="Buyer_Received" targetRef="Buyer_Done" />
+    <sequenceFlow id="Buyer_Flow_14" sourceRef="Buyer_Issue" targetRef="Buyer_Discuss" />
+    <sequenceFlow id="Buyer_Flow_15" sourceRef="Buyer_Discuss" targetRef="Buyer_Exception" />
+    <sequenceFlow id="Buyer_Flow_Available" sourceRef="Buyer_Available" targetRef="Buyer_Create" name="Да" />
+    <sequenceFlow id="Buyer_Flow_Unavailable" sourceRef="Buyer_Available" targetRef="Buyer_NoStock" name="Нет" />
+    <sequenceFlow id="Buyer_Flow_Paid" sourceRef="Buyer_Payment" targetRef="Buyer_SendOrder" name="Да" />
+    <sequenceFlow id="Buyer_Flow_NotPaid" sourceRef="Buyer_Payment" targetRef="Buyer_NotPaid" name="Нет" />
+    <sequenceFlow id="Buyer_Flow_Goods" sourceRef="Buyer_Wait" targetRef="Buyer_Received" />
+    <sequenceFlow id="Buyer_Flow_Issue" sourceRef="Buyer_Wait" targetRef="Buyer_Issue" />
+  </process>
+  <process id="Process_RetailMax" name="BP-04 Интернет-продажи As-Is" isExecutable="false">
+    <documentation>As-Is по DOC-03, DOC-05 и EC-PRB-001. Детализация исключений A1/A2 и независимость обмена с CRM A3 — допущения для согласования; см. BP-04-internet-sales-as-is.md. Критерии успеха исполнения и обмена с CRM различаются. Модель не задаёт целевую интеграционную платформу, гарантированные повторы или правила возврата оплаты.</documentation>
+    <laneSet id="Process_RetailMax_Lanes">
+      <lane id="Lane_Web" name="Интернет-магазин">
+        <flowNodeRef>Web_Browse</flowNodeRef>
+        <flowNodeRef>Web_Show</flowNodeRef>
+        <flowNodeRef>Web_Reply</flowNodeRef>
+        <flowNodeRef>Web_Shown</flowNodeRef>
+        <flowNodeRef>Order_Start</flowNodeRef>
+        <flowNodeRef>Order_CRM</flowNodeRef>
+        <flowNodeRef>Order_ERP</flowNodeRef>
+        <flowNodeRef>Error_ERP</flowNodeRef>
+        <flowNodeRef>Order_Delivered</flowNodeRef>
+        <flowNodeRef>Order_PurchaseCRM</flowNodeRef>
+        <flowNodeRef>Order_Done</flowNodeRef>
+      </lane>
+      <lane id="Lane_ERP" name="ERP">
+        <flowNodeRef>ERP_Register</flowNodeRef>
+        <flowNodeRef>ERP_WMS</flowNodeRef>
+        <flowNodeRef>Error_WMS</flowNodeRef>
+      </lane>
+      <lane id="Lane_Warehouse" name="Склад / WMS">
+        <flowNodeRef>WMS_Receive</flowNodeRef>
+        <flowNodeRef>WH_Check</flowNodeRef>
+        <flowNodeRef>WH_Available</flowNodeRef>
+        <flowNodeRef>WH_Pick</flowNodeRef>
+        <flowNodeRef>WH_Dispatch</flowNodeRef>
+      </lane>
+      <lane id="Lane_Operator" name="Оператор / сопровождение">
+        <flowNodeRef>Support_ERP</flowNodeRef>
+        <flowNodeRef>Retry_ERP</flowNodeRef>
+        <flowNodeRef>Support_WMS</flowNodeRef>
+        <flowNodeRef>Retry_WMS</flowNodeRef>
+        <flowNodeRef>Support_Stock</flowNodeRef>
+        <flowNodeRef>Notify_Issue</flowNodeRef>
+        <flowNodeRef>Order_Exception</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="Web_Browse" name="Запрос наличия">
+      <outgoing>Web_Flow_1</outgoing>
+      <messageEventDefinition id="Web_Browse_Message" messageRef="Message_Browse" />
+    </startEvent>
+    <serviceTask id="Web_Show" name="Показать наличие из копии данных">
+      <incoming>Web_Flow_1</incoming>
+      <outgoing>Web_Flow_2</outgoing>
+    </serviceTask>
+    <sendTask id="Web_Reply" name="Вернуть доступность по данным сайта" messageRef="Message_Availability">
+      <incoming>Web_Flow_2</incoming>
+      <outgoing>Web_Flow_3</outgoing>
+    </sendTask>
+    <endEvent id="Web_Shown" name="Данные показаны">
+      <incoming>Web_Flow_3</incoming>
+    </endEvent>
+    <sequenceFlow id="Web_Flow_1" sourceRef="Web_Browse" targetRef="Web_Show" />
+    <sequenceFlow id="Web_Flow_2" sourceRef="Web_Show" targetRef="Web_Reply" />
+    <sequenceFlow id="Web_Flow_3" sourceRef="Web_Reply" targetRef="Web_Shown" />
+    <dataStoreReference id="Data_Catalog" name="Копия каталога и остатков ERP" />
+    <startEvent id="Order_Start" name="Получен оформленный / оплаченный заказ">
+      <outgoing>Order_Flow_1</outgoing>
+      <messageEventDefinition id="Order_Start_Message" messageRef="Message_PaidOrder" />
+    </startEvent>
+    <sendTask id="Order_CRM" name="Передать данные клиента и заказа в CRM [A3]" messageRef="Message_CustomerData">
+      <incoming>Order_Flow_1</incoming>
+      <outgoing>Order_Flow_2</outgoing>
+    </sendTask>
+    <serviceTask id="Order_ERP" name="Передать заказ в ERP">
+      <incoming>Order_Flow_2</incoming>
+      <incoming>Retry_Flow_ERP</incoming>
+      <outgoing>Order_Flow_3</outgoing>
+    </serviceTask>
+    <boundaryEvent id="Error_ERP" name="Сбой обмена" attachedToRef="Order_ERP" cancelActivity="true">
+      <outgoing>Exception_ERP</outgoing>
+      <errorEventDefinition id="Error_ERP_Error" errorRef="Error_Exchange" />
+    </boundaryEvent>
+    <serviceTask id="ERP_Register" name="Зарегистрировать заказ в ERP">
+      <incoming>Order_Flow_3</incoming>
+      <outgoing>Order_Flow_4</outgoing>
+    </serviceTask>
+    <serviceTask id="ERP_WMS" name="Передать задание на комплектацию в WMS">
+      <incoming>Order_Flow_4</incoming>
+      <incoming>Retry_Flow_WMS</incoming>
+      <outgoing>Order_Flow_5</outgoing>
+    </serviceTask>
+    <boundaryEvent id="Error_WMS" name="Сбой обмена" attachedToRef="ERP_WMS" cancelActivity="true">
+      <outgoing>Exception_WMS</outgoing>
+      <errorEventDefinition id="Error_WMS_Error" errorRef="Error_Exchange" />
+    </boundaryEvent>
+    <serviceTask id="WMS_Receive" name="Получить задание в WMS">
+      <incoming>Order_Flow_5</incoming>
+      <outgoing>Order_Flow_6</outgoing>
+    </serviceTask>
+    <userTask id="WH_Check" name="Уточнить фактическое наличие при комплектации [A1]">
+      <incoming>Order_Flow_6</incoming>
+      <outgoing>Order_Flow_7</outgoing>
+    </userTask>
+    <exclusiveGateway id="WH_Available" name="Можно скомплектовать? [A1]">
+      <incoming>Order_Flow_7</incoming>
+      <outgoing>Order_Flow_8</outgoing>
+      <outgoing>Stock_Unavailable</outgoing>
+    </exclusiveGateway>
+    <userTask id="WH_Pick" name="Скомплектовать заказ с использованием WMS">
+      <incoming>Order_Flow_8</incoming>
+      <outgoing>Order_Flow_9</outgoing>
+    </userTask>
+    <sendTask id="WH_Dispatch" name="Передать сведения об отгрузке и доставке" messageRef="Message_Dispatch">
+      <incoming>Order_Flow_9</incoming>
+      <outgoing>Order_Flow_10</outgoing>
+    </sendTask>
+    <intermediateCatchEvent id="Order_Delivered" name="Получено подтверждение доставки">
+      <incoming>Order_Flow_10</incoming>
+      <outgoing>Order_Flow_11</outgoing>
+      <messageEventDefinition id="Order_Delivered_Message" messageRef="Message_Delivered" />
+    </intermediateCatchEvent>
+    <sendTask id="Order_PurchaseCRM" name="Передать историю покупки в CRM [A3]" messageRef="Message_CustomerData">
+      <incoming>Order_Flow_11</incoming>
+      <outgoing>Order_Flow_12</outgoing>
+    </sendTask>
+    <endEvent id="Order_Done" name="Исполнение заказа завершено">
+      <incoming>Order_Flow_12</incoming>
+    </endEvent>
+    <sequenceFlow id="Order_Flow_1" sourceRef="Order_Start" targetRef="Order_CRM" />
+    <sequenceFlow id="Order_Flow_2" sourceRef="Order_CRM" targetRef="Order_ERP" />
+    <sequenceFlow id="Order_Flow_3" sourceRef="Order_ERP" targetRef="ERP_Register" />
+    <sequenceFlow id="Order_Flow_4" sourceRef="ERP_Register" targetRef="ERP_WMS" />
+    <sequenceFlow id="Order_Flow_5" sourceRef="ERP_WMS" targetRef="WMS_Receive" />
+    <sequenceFlow id="Order_Flow_6" sourceRef="WMS_Receive" targetRef="WH_Check" />
+    <sequenceFlow id="Order_Flow_7" sourceRef="WH_Check" targetRef="WH_Available" />
+    <sequenceFlow id="Order_Flow_8" sourceRef="WH_Available" targetRef="WH_Pick" name="Да" />
+    <sequenceFlow id="Order_Flow_9" sourceRef="WH_Pick" targetRef="WH_Dispatch" />
+    <sequenceFlow id="Order_Flow_10" sourceRef="WH_Dispatch" targetRef="Order_Delivered" />
+    <sequenceFlow id="Order_Flow_11" sourceRef="Order_Delivered" targetRef="Order_PurchaseCRM" />
+    <sequenceFlow id="Order_Flow_12" sourceRef="Order_PurchaseCRM" targetRef="Order_Done" />
+    <userTask id="Support_ERP" name="Разобрать сбой передачи заказа вручную [A2]">
+      <incoming>Exception_ERP</incoming>
+      <outgoing>Exception_Check_ERP</outgoing>
+    </userTask>
+    <exclusiveGateway id="Retry_ERP" name="Передачу можно восстановить? [A2]">
+      <incoming>Exception_Check_ERP</incoming>
+      <outgoing>Retry_Flow_ERP</outgoing>
+      <outgoing>ERP_Unresolved</outgoing>
+    </exclusiveGateway>
+    <userTask id="Support_WMS" name="Разобрать сбой передачи задания вручную [A2]">
+      <incoming>Exception_WMS</incoming>
+      <outgoing>Exception_Check_WMS</outgoing>
+    </userTask>
+    <exclusiveGateway id="Retry_WMS" name="Передачу можно восстановить? [A2]">
+      <incoming>Exception_Check_WMS</incoming>
+      <outgoing>Retry_Flow_WMS</outgoing>
+      <outgoing>WMS_Unresolved</outgoing>
+    </exclusiveGateway>
+    <userTask id="Support_Stock" name="Уточнить расхождение остатков и варианты исполнения [A1]">
+      <incoming>Stock_Unavailable</incoming>
+      <outgoing>Stock_Issue</outgoing>
+    </userTask>
+    <sendTask id="Notify_Issue" name="Сообщить о проблеме исполнения [A1/A2]" messageRef="Message_Issue">
+      <incoming>ERP_Unresolved</incoming>
+      <incoming>WMS_Unresolved</incoming>
+      <incoming>Stock_Issue</incoming>
+      <outgoing>Issue_End</outgoing>
+    </sendTask>
+    <endEvent id="Order_Exception" name="Заказ передан на ручное урегулирование">
+      <incoming>Issue_End</incoming>
+    </endEvent>
+    <sequenceFlow id="Exception_ERP" sourceRef="Error_ERP" targetRef="Support_ERP" />
+    <sequenceFlow id="Exception_WMS" sourceRef="Error_WMS" targetRef="Support_WMS" />
+    <sequenceFlow id="Exception_Check_ERP" sourceRef="Support_ERP" targetRef="Retry_ERP" />
+    <sequenceFlow id="Exception_Check_WMS" sourceRef="Support_WMS" targetRef="Retry_WMS" />
+    <sequenceFlow id="Retry_Flow_ERP" sourceRef="Retry_ERP" targetRef="Order_ERP" name="Да · вручную" />
+    <sequenceFlow id="Retry_Flow_WMS" sourceRef="Retry_WMS" targetRef="ERP_WMS" name="Да · вручную" />
+    <sequenceFlow id="ERP_Unresolved" sourceRef="Retry_ERP" targetRef="Notify_Issue" name="Нет" />
+    <sequenceFlow id="WMS_Unresolved" sourceRef="Retry_WMS" targetRef="Notify_Issue" name="Нет" />
+    <sequenceFlow id="Stock_Unavailable" sourceRef="WH_Available" targetRef="Support_Stock" name="Нет" />
+    <sequenceFlow id="Stock_Issue" sourceRef="Support_Stock" targetRef="Notify_Issue" />
+    <sequenceFlow id="Issue_End" sourceRef="Notify_Issue" targetRef="Order_Exception" />
+    <association id="Catalog_Association" sourceRef="Data_Catalog" targetRef="Web_Show" associationDirection="One" />
+    <textAnnotation id="Note_Catalog">
+      <text>EC-P-01 · DOC-05 / INT-03
+Обновление каждые 15 минут.
+Показанный остаток может быть устаревшим.</text>
+    </textAnnotation>
+    <textAnnotation id="Note_Peak">
+      <text>EC-P-03 · DOC-11, интервью 5
+В акции сайт замедляется.
+Нет фиксированного времени ожидания.</text>
+    </textAnnotation>
+    <association id="Note_Peak_Association" sourceRef="Web_Show" targetRef="Note_Peak" associationDirection="None" />
+    <textAnnotation id="Note_Duration">
+      <text>EC-P-02 · DOC-10
+Средняя обработка — 30 минут.
+Границы замера не определены;
+это не время физической доставки.</text>
+    </textAnnotation>
+    <association id="Note_Duration_Association" sourceRef="Order_ERP" targetRef="Note_Duration" associationDirection="None" />
+    <textAnnotation id="Note_Integration">
+      <text>EC-P-04 / EC-P-06
+Задержки и ручной разбор обменов.
+Каналы DOC-05 и DOC-16 расходятся;
+точный механизм требует уточнения.</text>
+    </textAnnotation>
+    <association id="Note_Integration_Association" sourceRef="ERP_WMS" targetRef="Note_Integration" associationDirection="None" />
+    <textAnnotation id="Note_Stock">
+      <text>EC-P-01 · DOC-03/05
+Сайт показал «доступен», но фактического товара не хватает.
+[A1] Место выявления и урегулирование — допущение.</text>
+    </textAnnotation>
+    <association id="Note_Stock_Association" sourceRef="WH_Check" targetRef="Note_Stock" associationDirection="None" />
+    <textAnnotation id="Note_Manual">
+      <text>EC-P-06 · DOC-16
+[A2] Ручное восстановление и возврат к сбойному шагу — детализация для согласования.
+Автоматические повторы и возврат оплаты не утверждаются.</text>
+    </textAnnotation>
+  </process>
+  <process id="Process_CRM" name="Передача клиентских данных и истории" isExecutable="false">
+    <startEvent id="CRM_Start" name="Получены данные клиента / заказа / покупки">
+      <outgoing>CRM_Flow_1</outgoing>
+      <messageEventDefinition id="CRM_Start_Message" messageRef="Message_CustomerData" />
+    </startEvent>
+    <serviceTask id="CRM_Save" name="Сохранить данные в CRM">
+      <incoming>CRM_Flow_1</incoming>
+      <outgoing>CRM_Flow_2</outgoing>
+    </serviceTask>
+    <boundaryEvent id="CRM_Error" name="Сбой обмена" attachedToRef="CRM_Save" cancelActivity="true">
+      <outgoing>CRM_Flow_Error</outgoing>
+      <errorEventDefinition id="CRM_Error_Error" errorRef="Error_Exchange" />
+    </boundaryEvent>
+    <endEvent id="CRM_Done" name="Данные сохранены; возможен дубль">
+      <incoming>CRM_Flow_2</incoming>
+    </endEvent>
+    <userTask id="CRM_Manual" name="Разобрать ошибку обмена вручную [A2/A3]">
+      <incoming>CRM_Flow_Error</incoming>
+      <outgoing>CRM_Flow_Unresolved</outgoing>
+    </userTask>
+    <endEvent id="CRM_Unresolved" name="Сбой CRM передан на разбор">
+      <incoming>CRM_Flow_Unresolved</incoming>
+    </endEvent>
+    <sequenceFlow id="CRM_Flow_1" sourceRef="CRM_Start" targetRef="CRM_Save" />
+    <sequenceFlow id="CRM_Flow_2" sourceRef="CRM_Save" targetRef="CRM_Done" />
+    <sequenceFlow id="CRM_Flow_Error" sourceRef="CRM_Error" targetRef="CRM_Manual" />
+    <sequenceFlow id="CRM_Flow_Unresolved" sourceRef="CRM_Manual" targetRef="CRM_Unresolved" />
+    <textAnnotation id="Note_CRM">
+      <text>EC-P-05 · DOC-05 / INT-04
+Нет согласованного единого идентификатора;
+возможны дубли карточек.
+[A3] Независимость обмена требует подтверждения.</text>
+    </textAnnotation>
+    <association id="Note_CRM_Association" sourceRef="CRM_Save" targetRef="Note_CRM" associationDirection="None" />
+  </process>
+  <process id="Process_Delivery" name="Исполнение доставки" isExecutable="false">
+    <startEvent id="Delivery_Start" name="Получен товар и задание">
+      <outgoing>Delivery_Flow_1</outgoing>
+      <messageEventDefinition id="Delivery_Start_Message" messageRef="Message_Dispatch" />
+    </startEvent>
+    <manualTask id="Delivery_Transport" name="Доставить и передать товар покупателю">
+      <incoming>Delivery_Flow_1</incoming>
+      <outgoing>Delivery_Flow_2</outgoing>
+    </manualTask>
+    <sendTask id="Delivery_Buyer" name="Подтвердить передачу товара покупателю" messageRef="Message_Goods">
+      <incoming>Delivery_Flow_2</incoming>
+      <outgoing>Delivery_Flow_3</outgoing>
+    </sendTask>
+    <sendTask id="Delivery_Confirm" name="Сообщить RetailMax о доставке" messageRef="Message_Delivered">
+      <incoming>Delivery_Flow_3</incoming>
+      <outgoing>Delivery_Flow_4</outgoing>
+    </sendTask>
+    <endEvent id="Delivery_Done" name="Доставка выполнена">
+      <incoming>Delivery_Flow_4</incoming>
+    </endEvent>
+    <sequenceFlow id="Delivery_Flow_1" sourceRef="Delivery_Start" targetRef="Delivery_Transport" />
+    <sequenceFlow id="Delivery_Flow_2" sourceRef="Delivery_Transport" targetRef="Delivery_Buyer" />
+    <sequenceFlow id="Delivery_Flow_3" sourceRef="Delivery_Buyer" targetRef="Delivery_Confirm" />
+    <sequenceFlow id="Delivery_Flow_4" sourceRef="Delivery_Confirm" targetRef="Delivery_Done" />
+    <textAnnotation id="Note_Scope">
+      <text>EC-P-07: суточные загрузки ERP/CRM → BI — отдельный процесс аналитики.
+EC-P-08: выпуск функций и персонализация рассматриваются в архитектуре приложений.
+Подтверждения доставки [A5] — детализация стыка, протокол не установлен.</text>
+    </textAnnotation>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_BP04">
+    <bpmndi:BPMNPlane id="BPMNPlane_BP04" bpmnElement="Collaboration_BP04">
+      <bpmndi:BPMNShape id="Participant_Buyer_Shape" bpmnElement="Participant_Buyer" isHorizontal="true">
+        <dc:Bounds x="80" y="60" width="3530" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_RetailMax_Shape" bpmnElement="Participant_RetailMax" isHorizontal="true">
+        <dc:Bounds x="80" y="350" width="3530" height="900" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Web_Shape" bpmnElement="Lane_Web" isHorizontal="true">
+        <dc:Bounds x="110" y="350" width="3500" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ERP_Shape" bpmnElement="Lane_ERP" isHorizontal="true">
+        <dc:Bounds x="110" y="600" width="3500" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Warehouse_Shape" bpmnElement="Lane_Warehouse" isHorizontal="true">
+        <dc:Bounds x="110" y="770" width="3500" height="240" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Operator_Shape" bpmnElement="Lane_Operator" isHorizontal="true">
+        <dc:Bounds x="110" y="1010" width="3500" height="240" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_CRM_Shape" bpmnElement="Participant_CRM" isHorizontal="true">
+        <dc:Bounds x="80" y="1300" width="3530" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_Delivery_Shape" bpmnElement="Participant_Delivery" isHorizontal="true">
+        <dc:Bounds x="80" y="1580" width="3530" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Start_Shape" bpmnElement="Buyer_Start">
+        <dc:Bounds x="170" y="110" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="113.0" y="153" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Select_Shape" bpmnElement="Buyer_Select">
+        <dc:Bounds x="240" y="95" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Browse_Shape" bpmnElement="Buyer_Browse">
+        <dc:Bounds x="420" y="95" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Availability_Shape" bpmnElement="Buyer_Availability">
+        <dc:Bounds x="630" y="110" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="550" y="156" width="140" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Available_Shape" bpmnElement="Buyer_Available" isMarkerVisible="true">
+        <dc:Bounds x="710" y="103" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="710" y="157" width="160" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_NoStock_Shape" bpmnElement="Buyer_NoStock">
+        <dc:Bounds x="717" y="220" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="660.0" y="263" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Create_Shape" bpmnElement="Buyer_Create">
+        <dc:Bounds x="820" y="95" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Auth_Shape" bpmnElement="Buyer_Auth">
+        <dc:Bounds x="1000" y="95" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Pay_Shape" bpmnElement="Buyer_Pay">
+        <dc:Bounds x="1180" y="95" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Payment_Shape" bpmnElement="Buyer_Payment" isMarkerVisible="true">
+        <dc:Bounds x="1370" y="103" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1320.0" y="160" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_NotPaid_Shape" bpmnElement="Buyer_NotPaid">
+        <dc:Bounds x="1377" y="220" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1320.0" y="263" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_SendOrder_Shape" bpmnElement="Buyer_SendOrder">
+        <dc:Bounds x="1500" y="95" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Wait_Shape" bpmnElement="Buyer_Wait">
+        <dc:Bounds x="1710" y="103" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1660.0" y="160" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Received_Shape" bpmnElement="Buyer_Received">
+        <dc:Bounds x="3060" y="110" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3003.0" y="153" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Done_Shape" bpmnElement="Buyer_Done">
+        <dc:Bounds x="3310" y="110" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3253.0" y="153" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Issue_Shape" bpmnElement="Buyer_Issue">
+        <dc:Bounds x="1930" y="220" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1873.0" y="263" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Discuss_Shape" bpmnElement="Buyer_Discuss">
+        <dc:Bounds x="2050" y="205" width="190" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Exception_Shape" bpmnElement="Buyer_Exception">
+        <dc:Bounds x="2360" y="220" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2303.0" y="263" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Web_Browse_Shape" bpmnElement="Web_Browse">
+        <dc:Bounds x="320" y="420" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="263.0" y="463" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Web_Show_Shape" bpmnElement="Web_Show">
+        <dc:Bounds x="440" y="405" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Web_Reply_Shape" bpmnElement="Web_Reply">
+        <dc:Bounds x="700" y="405" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Web_Shown_Shape" bpmnElement="Web_Shown">
+        <dc:Bounds x="940" y="420" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="883.0" y="463" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Data_Catalog_Shape" bpmnElement="Data_Catalog">
+        <dc:Bounds x="450" y="520" width="70" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Catalog_Shape" bpmnElement="Note_Catalog">
+        <dc:Bounds x="540" y="505" width="340" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Peak_Shape" bpmnElement="Note_Peak">
+        <dc:Bounds x="180" y="500" width="240" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Order_Start_Shape" bpmnElement="Order_Start">
+        <dc:Bounds x="1120" y="525" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1063.0" y="568" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Order_CRM_Shape" bpmnElement="Order_CRM">
+        <dc:Bounds x="1290" y="510" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Order_ERP_Shape" bpmnElement="Order_ERP">
+        <dc:Bounds x="1510" y="510" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Error_ERP_Shape" bpmnElement="Error_ERP">
+        <dc:Bounds x="1560" y="562" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ERP_Register_Shape" bpmnElement="ERP_Register">
+        <dc:Bounds x="1740" y="650" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ERP_WMS_Shape" bpmnElement="ERP_WMS">
+        <dc:Bounds x="1960" y="650" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Error_WMS_Shape" bpmnElement="Error_WMS">
+        <dc:Bounds x="2010" y="702" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WMS_Receive_Shape" bpmnElement="WMS_Receive">
+        <dc:Bounds x="2160" y="815" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH_Check_Shape" bpmnElement="WH_Check">
+        <dc:Bounds x="2340" y="815" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH_Available_Shape" bpmnElement="WH_Available" isMarkerVisible="true">
+        <dc:Bounds x="2560" y="825" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2510.0" y="882" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH_Pick_Shape" bpmnElement="WH_Pick">
+        <dc:Bounds x="2670" y="815" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="WH_Dispatch_Shape" bpmnElement="WH_Dispatch">
+        <dc:Bounds x="2900" y="815" width="180" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Order_Delivered_Shape" bpmnElement="Order_Delivered">
+        <dc:Bounds x="3120" y="525" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3063.0" y="568" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Order_PurchaseCRM_Shape" bpmnElement="Order_PurchaseCRM">
+        <dc:Bounds x="3290" y="510" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Order_Done_Shape" bpmnElement="Order_Done">
+        <dc:Bounds x="3510" y="525" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3453.0" y="568" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Support_ERP_Shape" bpmnElement="Support_ERP">
+        <dc:Bounds x="1490" y="1080" width="180" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Retry_ERP_Shape" bpmnElement="Retry_ERP" isMarkerVisible="true">
+        <dc:Bounds x="1740" y="1090" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1690.0" y="1147" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Support_WMS_Shape" bpmnElement="Support_WMS">
+        <dc:Bounds x="1930" y="1080" width="180" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Retry_WMS_Shape" bpmnElement="Retry_WMS" isMarkerVisible="true">
+        <dc:Bounds x="2180" y="1090" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2130.0" y="1147" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Support_Stock_Shape" bpmnElement="Support_Stock">
+        <dc:Bounds x="2480" y="1080" width="210" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Notify_Issue_Shape" bpmnElement="Notify_Issue">
+        <dc:Bounds x="2900" y="1080" width="180" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Order_Exception_Shape" bpmnElement="Order_Exception">
+        <dc:Bounds x="3160" y="1097" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3103.0" y="1140" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Duration_Shape" bpmnElement="Note_Duration">
+        <dc:Bounds x="1120" y="640" width="320" height="105" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Integration_Shape" bpmnElement="Note_Integration">
+        <dc:Bounds x="2350" y="640" width="350" height="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Stock_Shape" bpmnElement="Note_Stock">
+        <dc:Bounds x="2680" y="930" width="390" height="75" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Manual_Shape" bpmnElement="Note_Manual">
+        <dc:Bounds x="200" y="1060" width="580" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_Start_Shape" bpmnElement="CRM_Start">
+        <dc:Bounds x="1290" y="1380" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1233.0" y="1423" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_Save_Shape" bpmnElement="CRM_Save">
+        <dc:Bounds x="1510" y="1365" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_Error_Shape" bpmnElement="CRM_Error">
+        <dc:Bounds x="1560" y="1417" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_Done_Shape" bpmnElement="CRM_Done">
+        <dc:Bounds x="1840" y="1380" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1783.0" y="1423" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_Manual_Shape" bpmnElement="CRM_Manual">
+        <dc:Bounds x="2040" y="1395" width="190" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_Unresolved_Shape" bpmnElement="CRM_Unresolved">
+        <dc:Bounds x="2380" y="1412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2323.0" y="1455" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_CRM_Shape" bpmnElement="Note_CRM">
+        <dc:Bounds x="300" y="1340" width="650" height="115" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Delivery_Start_Shape" bpmnElement="Delivery_Start">
+        <dc:Bounds x="2670" y="1650" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2613.0" y="1693" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Delivery_Transport_Shape" bpmnElement="Delivery_Transport">
+        <dc:Bounds x="2760" y="1635" width="180" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Delivery_Buyer_Shape" bpmnElement="Delivery_Buyer">
+        <dc:Bounds x="3000" y="1635" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Delivery_Confirm_Shape" bpmnElement="Delivery_Confirm">
+        <dc:Bounds x="3220" y="1635" width="170" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Delivery_Done_Shape" bpmnElement="Delivery_Done">
+        <dc:Bounds x="3500" y="1650" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3443.0" y="1693" width="150" height="42" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Note_Scope_Shape" bpmnElement="Note_Scope">
+        <dc:Bounds x="300" y="1620" width="1200" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Buyer_Flow_1_Edge" bpmnElement="Buyer_Flow_1">
+        <di:waypoint x="206" y="128.0" />
+        <di:waypoint x="240" y="130.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_2_Edge" bpmnElement="Buyer_Flow_2">
+        <di:waypoint x="390" y="130.0" />
+        <di:waypoint x="420" y="130.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_3_Edge" bpmnElement="Buyer_Flow_3">
+        <di:waypoint x="570" y="130.0" />
+        <di:waypoint x="630" y="128.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_4_Edge" bpmnElement="Buyer_Flow_4">
+        <di:waypoint x="666" y="128.0" />
+        <di:waypoint x="710" y="128.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_6_Edge" bpmnElement="Buyer_Flow_6">
+        <di:waypoint x="970" y="130.0" />
+        <di:waypoint x="1000" y="130.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_7_Edge" bpmnElement="Buyer_Flow_7">
+        <di:waypoint x="1150" y="130.0" />
+        <di:waypoint x="1180" y="130.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_8_Edge" bpmnElement="Buyer_Flow_8">
+        <di:waypoint x="1330" y="130.0" />
+        <di:waypoint x="1370" y="128.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_10_Edge" bpmnElement="Buyer_Flow_10">
+        <di:waypoint x="1650" y="130.0" />
+        <di:waypoint x="1710" y="128.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_13_Edge" bpmnElement="Buyer_Flow_13">
+        <di:waypoint x="3096" y="128.0" />
+        <di:waypoint x="3310" y="128.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_14_Edge" bpmnElement="Buyer_Flow_14">
+        <di:waypoint x="1966" y="238.0" />
+        <di:waypoint x="2050" y="240.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_15_Edge" bpmnElement="Buyer_Flow_15">
+        <di:waypoint x="2240" y="240.0" />
+        <di:waypoint x="2360" y="238.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_Available_Edge" bpmnElement="Buyer_Flow_Available">
+        <di:waypoint x="760" y="128.0" />
+        <di:waypoint x="820" y="130.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="770" y="105" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_Unavailable_Edge" bpmnElement="Buyer_Flow_Unavailable">
+        <di:waypoint x="735.0" y="153" />
+        <di:waypoint x="735.0" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="738" y="179" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_Paid_Edge" bpmnElement="Buyer_Flow_Paid">
+        <di:waypoint x="1420" y="128.0" />
+        <di:waypoint x="1500" y="130.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1435" y="105" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_NotPaid_Edge" bpmnElement="Buyer_Flow_NotPaid">
+        <di:waypoint x="1395.0" y="153" />
+        <di:waypoint x="1395.0" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1399" y="179" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_Goods_Edge" bpmnElement="Buyer_Flow_Goods">
+        <di:waypoint x="1760" y="128.0" />
+        <di:waypoint x="3060" y="128.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Buyer_Flow_Issue_Edge" bpmnElement="Buyer_Flow_Issue">
+        <di:waypoint x="1735.0" y="153" />
+        <di:waypoint x="1735" y="238" />
+        <di:waypoint x="1930" y="238.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Web_Flow_1_Edge" bpmnElement="Web_Flow_1">
+        <di:waypoint x="356" y="438.0" />
+        <di:waypoint x="440" y="440.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Web_Flow_2_Edge" bpmnElement="Web_Flow_2">
+        <di:waypoint x="610" y="440.0" />
+        <di:waypoint x="700" y="440.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Web_Flow_3_Edge" bpmnElement="Web_Flow_3">
+        <di:waypoint x="870" y="440.0" />
+        <di:waypoint x="940" y="438.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Catalog_Association_Edge" bpmnElement="Catalog_Association">
+        <di:waypoint x="485.0" y="520" />
+        <di:waypoint x="485" y="475" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Note_Peak_Association_Edge" bpmnElement="Note_Peak_Association">
+        <di:waypoint x="440" y="440" />
+        <di:waypoint x="425" y="440" />
+        <di:waypoint x="425" y="490" />
+        <di:waypoint x="300" y="490" />
+        <di:waypoint x="300" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_1_Edge" bpmnElement="Order_Flow_1">
+        <di:waypoint x="1156" y="543.0" />
+        <di:waypoint x="1290" y="545.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_2_Edge" bpmnElement="Order_Flow_2">
+        <di:waypoint x="1460" y="545.0" />
+        <di:waypoint x="1510" y="545.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_3_Edge" bpmnElement="Order_Flow_3">
+        <di:waypoint x="1680" y="545.0" />
+        <di:waypoint x="1705" y="545" />
+        <di:waypoint x="1705" y="685" />
+        <di:waypoint x="1740" y="685.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_4_Edge" bpmnElement="Order_Flow_4">
+        <di:waypoint x="1910" y="685.0" />
+        <di:waypoint x="1960" y="685.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_5_Edge" bpmnElement="Order_Flow_5">
+        <di:waypoint x="2130" y="685.0" />
+        <di:waypoint x="2140" y="685" />
+        <di:waypoint x="2140" y="850" />
+        <di:waypoint x="2160" y="850.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_6_Edge" bpmnElement="Order_Flow_6">
+        <di:waypoint x="2310" y="850.0" />
+        <di:waypoint x="2340" y="850.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_7_Edge" bpmnElement="Order_Flow_7">
+        <di:waypoint x="2510" y="850.0" />
+        <di:waypoint x="2560" y="850.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_8_Edge" bpmnElement="Order_Flow_8">
+        <di:waypoint x="2610" y="850.0" />
+        <di:waypoint x="2670" y="850.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2615" y="824" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_9_Edge" bpmnElement="Order_Flow_9">
+        <di:waypoint x="2840" y="850.0" />
+        <di:waypoint x="2900" y="850.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_10_Edge" bpmnElement="Order_Flow_10">
+        <di:waypoint x="3080" y="850.0" />
+        <di:waypoint x="3100" y="850" />
+        <di:waypoint x="3100" y="543" />
+        <di:waypoint x="3120" y="543.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_11_Edge" bpmnElement="Order_Flow_11">
+        <di:waypoint x="3156" y="543.0" />
+        <di:waypoint x="3290" y="545.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Order_Flow_12_Edge" bpmnElement="Order_Flow_12">
+        <di:waypoint x="3460" y="545.0" />
+        <di:waypoint x="3510" y="543.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Exception_ERP_Edge" bpmnElement="Exception_ERP">
+        <di:waypoint x="1578.0" y="598" />
+        <di:waypoint x="1580.0" y="1080" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Exception_WMS_Edge" bpmnElement="Exception_WMS">
+        <di:waypoint x="2028.0" y="738" />
+        <di:waypoint x="2020.0" y="1080" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Exception_Check_ERP_Edge" bpmnElement="Exception_Check_ERP">
+        <di:waypoint x="1670" y="1115.0" />
+        <di:waypoint x="1740" y="1115.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Exception_Check_WMS_Edge" bpmnElement="Exception_Check_WMS">
+        <di:waypoint x="2110" y="1115.0" />
+        <di:waypoint x="2180" y="1115.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Retry_Flow_ERP_Edge" bpmnElement="Retry_Flow_ERP">
+        <di:waypoint x="1765.0" y="1090" />
+        <di:waypoint x="1765" y="1035" />
+        <di:waypoint x="1720" y="1035" />
+        <di:waypoint x="1720" y="490" />
+        <di:waypoint x="1595" y="490" />
+        <di:waypoint x="1595.0" y="510" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1740" y="995" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Retry_Flow_WMS_Edge" bpmnElement="Retry_Flow_WMS">
+        <di:waypoint x="2205.0" y="1090" />
+        <di:waypoint x="2205" y="1045" />
+        <di:waypoint x="2148" y="1045" />
+        <di:waypoint x="2148" y="630" />
+        <di:waypoint x="2045" y="630" />
+        <di:waypoint x="2045.0" y="650" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2165" y="1005" width="110" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ERP_Unresolved_Edge" bpmnElement="ERP_Unresolved">
+        <di:waypoint x="1765.0" y="1140" />
+        <di:waypoint x="1765" y="1210" />
+        <di:waypoint x="2860" y="1210" />
+        <di:waypoint x="2860" y="1115" />
+        <di:waypoint x="2900" y="1115.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1860" y="1188" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="WMS_Unresolved_Edge" bpmnElement="WMS_Unresolved">
+        <di:waypoint x="2205.0" y="1140" />
+        <di:waypoint x="2205" y="1180" />
+        <di:waypoint x="2820" y="1180" />
+        <di:waypoint x="2820" y="1115" />
+        <di:waypoint x="2900" y="1115.0" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2310" y="1157" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Stock_Unavailable_Edge" bpmnElement="Stock_Unavailable">
+        <di:waypoint x="2585.0" y="875" />
+        <di:waypoint x="2585.0" y="1080" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2590" y="998" width="40" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Stock_Issue_Edge" bpmnElement="Stock_Issue">
+        <di:waypoint x="2690" y="1115.0" />
+        <di:waypoint x="2900" y="1115.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Issue_End_Edge" bpmnElement="Issue_End">
+        <di:waypoint x="3080" y="1115.0" />
+        <di:waypoint x="3160" y="1115.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Note_Duration_Association_Edge" bpmnElement="Note_Duration_Association">
+        <di:waypoint x="1510" y="545" />
+        <di:waypoint x="1475" y="545" />
+        <di:waypoint x="1475" y="670" />
+        <di:waypoint x="1440" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Note_Integration_Association_Edge" bpmnElement="Note_Integration_Association">
+        <di:waypoint x="2045" y="650" />
+        <di:waypoint x="2045" y="620" />
+        <di:waypoint x="2350" y="620" />
+        <di:waypoint x="2350" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Note_Stock_Association_Edge" bpmnElement="Note_Stock_Association">
+        <di:waypoint x="2425" y="885" />
+        <di:waypoint x="2425" y="955" />
+        <di:waypoint x="2680" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="CRM_Flow_1_Edge" bpmnElement="CRM_Flow_1">
+        <di:waypoint x="1326" y="1398.0" />
+        <di:waypoint x="1510" y="1400.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="CRM_Flow_2_Edge" bpmnElement="CRM_Flow_2">
+        <di:waypoint x="1680" y="1400.0" />
+        <di:waypoint x="1840" y="1398.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="CRM_Flow_Error_Edge" bpmnElement="CRM_Flow_Error">
+        <di:waypoint x="1578.0" y="1453" />
+        <di:waypoint x="1578" y="1490" />
+        <di:waypoint x="1990" y="1490" />
+        <di:waypoint x="1990" y="1430" />
+        <di:waypoint x="2040" y="1430.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="CRM_Flow_Unresolved_Edge" bpmnElement="CRM_Flow_Unresolved">
+        <di:waypoint x="2230" y="1430.0" />
+        <di:waypoint x="2380" y="1430.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Note_CRM_Association_Edge" bpmnElement="Note_CRM_Association">
+        <di:waypoint x="1595" y="1365" />
+        <di:waypoint x="1595" y="1325" />
+        <di:waypoint x="950" y="1325" />
+        <di:waypoint x="950" y="1350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Delivery_Flow_1_Edge" bpmnElement="Delivery_Flow_1">
+        <di:waypoint x="2706" y="1668.0" />
+        <di:waypoint x="2760" y="1670.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Delivery_Flow_2_Edge" bpmnElement="Delivery_Flow_2">
+        <di:waypoint x="2940" y="1670.0" />
+        <di:waypoint x="3000" y="1670.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Delivery_Flow_3_Edge" bpmnElement="Delivery_Flow_3">
+        <di:waypoint x="3170" y="1670.0" />
+        <di:waypoint x="3220" y="1670.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Delivery_Flow_4_Edge" bpmnElement="Delivery_Flow_4">
+        <di:waypoint x="3390" y="1670.0" />
+        <di:waypoint x="3500" y="1668.0" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Browse_Edge" bpmnElement="MessageFlow_Browse">
+        <di:waypoint x="495" y="165" />
+        <di:waypoint x="495" y="330" />
+        <di:waypoint x="338" y="330" />
+        <di:waypoint x="338" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Availability_Edge" bpmnElement="MessageFlow_Availability">
+        <di:waypoint x="785" y="405" />
+        <di:waypoint x="785" y="325" />
+        <di:waypoint x="648" y="325" />
+        <di:waypoint x="648" y="146" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Order_Edge" bpmnElement="MessageFlow_Order">
+        <di:waypoint x="1575" y="165" />
+        <di:waypoint x="1575" y="340" />
+        <di:waypoint x="1138" y="340" />
+        <di:waypoint x="1138" y="525" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_CRM_Order_Edge" bpmnElement="MessageFlow_CRM_Order">
+        <di:waypoint x="1375" y="580" />
+        <di:waypoint x="1375" y="610" />
+        <di:waypoint x="1000" y="610" />
+        <di:waypoint x="1000" y="1280" />
+        <di:waypoint x="1308" y="1280" />
+        <di:waypoint x="1308" y="1380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_CRM_Purchase_Edge" bpmnElement="MessageFlow_CRM_Purchase">
+        <di:waypoint x="3375" y="580" />
+        <di:waypoint x="3375" y="1270" />
+        <di:waypoint x="1308" y="1270" />
+        <di:waypoint x="1308" y="1380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Dispatch_Edge" bpmnElement="MessageFlow_Dispatch">
+        <di:waypoint x="2990" y="885" />
+        <di:waypoint x="2990" y="910" />
+        <di:waypoint x="3240" y="910" />
+        <di:waypoint x="3240" y="1550" />
+        <di:waypoint x="2688" y="1550" />
+        <di:waypoint x="2688" y="1650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Delivered_Edge" bpmnElement="MessageFlow_Delivered">
+        <di:waypoint x="3305" y="1635" />
+        <di:waypoint x="3305" y="1560" />
+        <di:waypoint x="3630" y="1560" />
+        <di:waypoint x="3630" y="480" />
+        <di:waypoint x="3138" y="480" />
+        <di:waypoint x="3138" y="525" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Goods_Edge" bpmnElement="MessageFlow_Goods">
+        <di:waypoint x="3085" y="1635" />
+        <di:waypoint x="3085" y="1555" />
+        <di:waypoint x="3650" y="1555" />
+        <di:waypoint x="3650" y="38" />
+        <di:waypoint x="3078" y="38" />
+        <di:waypoint x="3078" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_Issue_Edge" bpmnElement="MessageFlow_Issue">
+        <di:waypoint x="2990" y="1080" />
+        <di:waypoint x="2990" y="1025" />
+        <di:waypoint x="3670" y="1025" />
+        <di:waypoint x="3670" y="320" />
+        <di:waypoint x="1948" y="320" />
+        <di:waypoint x="1948" y="256" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
