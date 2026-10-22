@@ -91,4 +91,4 @@ As-Is реконструирует Web Application и Shop Data Store, но фи
 
 ## Основания и зависимости
 
-[DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-10](../../../00_Documentation/DOC-10.md), [DOC-11](../../../00_Documentation/DOC-11.md), [DOC-12](../../../00_Documentation/DOC-12.md), [DOC-17](../../../00_Documentation/DOC-17.md). Зависит от ADR-EC-001/003/004; персонализация — [ADR-EC-007](ADR-EC-007-analytics-recommendations.md). [К реестру ADR](../README.md).
+[DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-10](../../../00_Documentation/DOC-10.md), [DOC-11](../../../00_Documentation/DOC-11.md), [DOC-12](../../../00_Documentation/DOC-12.md), [DOC-17](../../../00_Documentation/DOC-17.md). Зависит от ADR-EC-001; персонализация — [ADR-EC-007](ADR-EC-007-analytics-recommendations.md). [К реестру ADR](../README.md).
