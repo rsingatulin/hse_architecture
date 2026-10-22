@@ -1,0 +1,77 @@
+# C4: контейнеры (TO-BE) — Система управления закупками (ERP)
+
+| Поле | Значение |
+| --- | --- |
+| Уровень | Контейнеры (**TO-BE**) |
+| Раскрывает | [Контекст TO-BE](ContextLevel_to-be.md) |
+| Сравнение | [Containers AS-IS](Containers_as-is.md) |
+
+## Диаграмма
+
+```mermaid
+flowchart LR
+  buyer["Человек: Менеджер по закупкам"]
+  finance["Человек: Финансовый отдел (Финансовый менеджер)"]
+  warehouse["Человек: Сотрудник склада"]
+  supplierPerson["Внешний человек: Поставщик"]
+
+  subgraph ERP["Система управления закупками (ERP)"]
+    direction TB
+    ui["Контейнер: Рабочее место закупок<br/>Веб-интерфейс<br/>АРМ: остатки, заказы, согласование"]
+    core["Контейнер: Сервисы и интеграция ERP\nСервис планирования (Procurement Planning), Сервис заказов (Purchase Order Management), Сервис сверки (Delivery Control), Сервис поставщиков (Supplier Management), Сервис интеграции (Supplier Integration)"]
+    db[("Контейнер: База данных ERP<br/>Поставщики, заказы, остатки, аудит")]
+  end
+
+  ip["Внешняя система: Integration Platform"]
+  wms["Внешняя система: WMS (склад)"]
+  bi["Внешняя система: BI / DWH"]
+  supplierSys["Внешняя система: Системы поставщиков"]
+
+  %% Взаимодействия людей с системой
+  buyer -->|"Анализирует остатки, формирует заказы<br/>[GUI / Web]"| ui
+  finance -->|"Согласовывает оплату (эскалация)<br/>[GUI]"| ui
+  warehouse -->|"Физическая приёмка товаров<br/>[ТСД / GUI]"| wms
+  buyer -->|"Согласование условий<br/>[Email / Телефон]"| supplierPerson
+
+  %% Взаимодействия внутри ERP
+  ui --> core
+  core --> db
+
+  %% Взаимодействия с внешними системами
+  core -->|"→ планы поставок и запросы остатков<br/>[REST API / JSON]"| ip
+  ip -->|"← обновление остатков и статусы<br/>[REST API / JSON]"| core
+  
+  ip -->|"→ заказы на приёмку<br/>[REST API]"| wms
+  wms -->|"← акты расхождений / факты приёмки<br/>[REST API]"| ip
+  
+  ip -->|"→ заказы поставщику<br/>[REST API / EDI]"| supplierSys
+  supplierSys -->|"← подтверждения и статусы поставки<br/>[REST API / EDI]"| ip
+  
+  core -->|"→ выгрузка данных по закупкам<br/>[ETL / пакетно]"| bi
+
+  %% Стили
+  style ERP fill:#FFFFFF,stroke:#1168BD,stroke-width:2px
+  style ui fill:#23A2D9,stroke:#1A7BA8,color:#ffffff
+  style core fill:#23A2D9,stroke:#1A7BA8,color:#ffffff
+  style db fill:#23A2D9,stroke:#1A7BA8,color:#ffffff
+  
+  style buyer fill:#08427B,stroke:#052E56,color:#ffffff
+  style finance fill:#08427B,stroke:#052E56,color:#ffffff
+  style warehouse fill:#08427B,stroke:#052E56,color:#ffffff
+  style supplierPerson fill:#6B6477,stroke:#4A4453,color:#ffffff
+  
+  style ip fill:#999999,stroke:#666666,color:#ffffff
+  style wms fill:#999999,stroke:#666666,color:#ffffff
+  style bi fill:#999999,stroke:#666666,color:#ffffff
+  style supplierSys fill:#999999,stroke:#666666,color:#ffffff
+```
+
+## Что появилось относительно AS-IS
+
+| AS-IS | TO-BE |
+| --- | --- |
+| Нет прогноза | Прогнозирование потребности (ML) |
+| Только ручное согласование | Авто-правила + эскалация |
+| Нет адаптера / смешанные связи | Адаптер → только через IP |
+| Нет систем поставщиков | Системы поставщиков ↔ IP |
+| Прямая ERP↔WMS (часть потоков) | Только IP ↔ WMS |

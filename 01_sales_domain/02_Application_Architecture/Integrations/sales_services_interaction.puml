@@ -1,0 +1,95 @@
+@startuml sales_services_interaction
+
+left to right direction
+hide stereotype
+skinparam shadowing false
+skinparam defaultFontName DejaVu Sans
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam ArrowFontSize 11
+skinparam ArrowColor #455A64
+skinparam nodesep 40
+skinparam ranksep 70
+
+skinparam rectangle {
+  BackgroundColor<<pos>> #E8F5E9
+  BorderColor<<pos>> #2E7D32
+  BackgroundColor<<ext>> #E3F2FD
+  BorderColor<<ext>> #1565C0
+  BackgroundColor<<sys>> #ECEFF1
+  BorderColor<<sys>> #546E7A
+  BackgroundColor<<dev>> #FFF8E1
+  BorderColor<<dev>> #F9A825
+}
+skinparam queue {
+  BackgroundColor #FFF3E0
+  BorderColor #EF6C00
+}
+
+title RetailMax — Продажи (BP-01)\nВзаимодействие сервисов (TO-BE)\nсплошная линия синхронный вызов, пунктир асинхронное событие
+
+actor "Старший продавец\nмагазина" as Seller
+
+package "POS (IS-04), магазин" {
+  rectangle "Checkout Service\n(Продажа)" <<pos>> as CHK
+  rectangle "Payment Service\n(Оплата)" <<pos>> as PAY
+  rectangle "Fiscal Service\n(Фискализация)" <<pos>> as FIS
+  rectangle "Local Cache Service\n(товары, цены, карты)" <<pos>> as CACHE
+  rectangle "Outbox Service\n(гарантированная доставка)" <<pos>> as OUT
+  rectangle "Recommendation Service\n(AI-рекомендации)" <<pos>> as REC
+}
+
+rectangle "Терминал\nэквайринга" <<dev>> as TERM
+rectangle "Фискальный\nрегистратор / ОФД" <<dev>> as FR
+
+package "Integration Platform (IS-07)" {
+  rectangle "API Gateway\n(REST)" <<sys>> as GW
+  queue "Шина событий" as BUS
+}
+
+package "Внешние сервисы, потребляемые POS" {
+  rectangle "Identity Service\n(SSO)" <<ext>> as IDP
+  rectangle "Product Catalog Service\n(Каталог товаров)" <<ext>> as CAT
+  rectangle "Pricing & Promotion Service\n(Цены и акции)" <<ext>> as PRC
+  rectangle "Loyalty Service\n(Клиент и лояльность, CRM)" <<ext>> as LOY
+  rectangle "Inventory Service\n(Запасы, WMS)" <<ext>> as INV
+}
+
+rectangle "ERP (IS-01)" <<sys>> as ERP
+rectangle "BI (IS-06)" <<sys>> as BI
+
+' ---------- синхронные вызовы ----------
+Seller --> CHK : 1. вход, сканирование\nтоваров и карты
+CHK --> GW : 2-4. REST\n(таймаут 2 с)
+GW --> IDP : 2. роль кассира (SSO)
+GW --> PRC : 3. цены и акции
+GW --> LOY : 4. баланс, уровень, скидка
+CHK --> CACHE : 5. фолбэк при таймауте\nили потере связи
+CHK --> PAY : 6. оплата
+PAY --> TERM : авторизация платежа
+CHK --> FIS : 7. фискальный чек
+FIS --> FR : передача чека
+CHK ..> REC : 8. рекомендации\n(не блокирует продажу)
+CHK --> OUT : 9. SaleCompleted\n(ключ = номер чека)
+
+' ---------- асинхронные события ----------
+OUT ..> BUS : SaleCompleted\n(повтор до подтверждения)
+BUS ..> LOY : SaleCompleted\n(списание и начисление бонусов)
+BUS ..> INV : SaleCompleted\n(списание остатков)
+BUS ..> ERP : SaleCompleted\n(учет продажи)
+BUS ..> BI : SaleCompleted
+
+ERP ..> CAT : мастер-данные товара
+CAT ..> BUS : ProductChanged
+PRC ..> BUS : PriceChanged,\nPromotionChanged
+LOY ..> BUS : LoyaltyLevelChanged,\nBonusBalanceChanged
+BUS ..> CACHE : обновление кэша
+
+legend right
+  Зеленые сервисы работают в магазине и продают без центра (REQ-BR-02)
+  Синие сервисы принадлежат другим доменам и вызываются только через Integration Platform
+  Продажа уходит в ERP, CRM, WMS и BI одним событием через Outbox,
+  поэтому сбой одной системы не останавливает кассу и не теряет данные (INT-01, INT-02)
+endlegend
+
+@enduml

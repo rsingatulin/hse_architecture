@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_08qwxqw">
     <bpmn:participant id="Participant_1cykfy7" name="Менеджер по закупкам" processRef="Process_0dkdbqa" />
     <bpmn:participant id="Participant_19csb21" name="Сотрудник склада" processRef="Process_17x2mqw" />
-    <bpmn:participant id="Participant_09n1z9k" name="Финансовый отдел" processRef="Process_1x6g2hu" />
+    <bpmn:participant id="Participant_09n1z9k" name="Финансовый контроллер" processRef="Process_1x6g2hu" />
     <bpmn:participant id="Participant_1dyog9e" name="Поставщик" processRef="Process_0ww8lsb" />
     <bpmn:participant id="Participant_09ra5qh" name="ERP" processRef="Process_16bye9t" />
     <bpmn:participant id="Participant_0kn2eyk" name="WMS" processRef="Process_1mmkus9" />

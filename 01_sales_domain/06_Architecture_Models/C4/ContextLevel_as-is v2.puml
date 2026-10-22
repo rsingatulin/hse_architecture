@@ -1,0 +1,65 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' --- Настройки макета для предотвращения наложений и корректного крепления стрелок к краям ---
+skinparam linetype ortho
+skinparam nodesep 370     ' Горизонтальное расстояние между блоками
+skinparam ranksep 20      ' Вертикальное расстояние между блоками
+skinparam padding 20       ' Внутренние отступы в блоках (критично для outward-стрелок)
+skinparam arrowThickness 1.5
+hide stereotype
+' Increase spacing between horizontal nodes
+skinparam nodesep 120 
+' Increase spacing between vertical ranks
+skinparam ranksep 110 
+skinparam maxMessageSize 120
+skinparam sequenceMessageAlign center
+!include <C4/C4_Context>
+
+' Подключаем FontAwesome 5 и иконку сервера/базы данных из стандартной библиотеки
+!include <tupadr3/font-awesome-5/server>
+!include <tupadr3/font-awesome-5/database>
+!include <tupadr3/font-awesome-5/shopping_cart>
+!include <tupadr3/font-awesome-5/cog>
+
+' Задаем стили с новыми иконками через теги
+AddElementTag("api", $sprite="server")
+AddElementTag("db", $sprite="database")
+AddElementTag("cart", $sprite="shopping_cart")
+AddElementTag("cog", $sprite="cog")
+
+skinparam arrowFontSize 10
+' Скрываем подписи типов элементов (Person, System и т.д.)
+skinparam stereotypeFontColor #FFFFFF
+
+' Теги для стилизации
+AddElementTag("pos", $bgColor="#4CAF50", $fontColor="#FFFFFF", $borderColor="#2E7D32")
+AddElementTag("gray", $bgColor="#9E9E9E", $fontColor="#FFFFFF", $borderColor="#616161")
+AddRelTag("async_link", $lineStyle=DashedLine(), $lineColor="#333333")
+' --- Акторы ---
+Person(cashier, "Кассир", "Работает за кассой, принимает выбранные товары \nот покупателя")
+Person(admin, "Администратор магазина", "Выполняет административные операции", $tags="gray")
+
+' --- Системы ---
+System(erp, "Enterprise Resource Planning (ERP)", "Основная корпоративная система планирования ресурсов предприятия", $tags="gray+api")
+System(pos, "Point of Sale (POS)", "Система автоматизации продаж в розничных магазинах. [Обработка информации, оформление чека]", $tags="pos+cart")
+System(integration, "Integration Platform (IP)", "Интеграция информационных систем. Обеспечивает передачу информации между приложениями", $tags="gray+cog")
+System(crm, "Customer Relationship Management (CRM)", "Управление клиентской базой и программами лояльности", $tags="api+gray")
+
+' --- Связи с явным указанием направления ---
+Rel_D(cashier, pos, "Сканирование \nтоваров")
+Rel_D(admin, pos, "Управление \nпроцессами", $tags="async_link")
+
+Rel_L(pos, erp, "Передает\n информацию\n о заказах \nи завершенной\n продаже", $tags="cart")
+
+' Добавлен перенос строки (\n) для лучшего расчета bounding box и избежания наложений
+BiRel_D(pos, integration, "Запрос цены товара, действующих акций, бонусов")
+
+' Скрытые связи для жесткого задания сетки макета (Grid Layout)
+pos -[hidden]r- crm
+
+BiRel_D(crm, integration, "Возвращает информацию \nо бонусах и скидках")
+
+BiRel(erp, integration, "Возвращает \nцену на товар")
+
+@enduml

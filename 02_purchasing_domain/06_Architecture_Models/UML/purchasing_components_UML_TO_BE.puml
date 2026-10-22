@@ -1,0 +1,75 @@
+@startuml purchasing_components_UML
+
+left to right direction
+
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultTextAlignment center
+skinparam nodesep 40
+skinparam ranksep 45
+skinparam ArrowColor #444444
+
+title Домен «Закупки» (Bounded Contexts)\nUML: компонентная диаграмма (TO-BE)
+
+' =========================================================
+' Внешние системы
+' =========================================================
+
+component "BI / DWH\n(аналитика)" as BI
+component "Integration Platform" as IP
+component "WMS\n(управление складом)" as WMS
+
+' =========================================================
+' ERP
+' =========================================================
+
+package "Домен «Закупки» (Bounded Contexts)" {
+
+  component "Рабочее место\nзакупок\n<<веб-интерфейс>>" as UI
+
+  package "Сервисы домена закупок" as Domain {
+    component "Сервис планирования и прогнозирования\n(Procurement Planning)" as Forecast
+    component "Сервис управления заказами поставщикам\n(Purchase Order Management)" as PO
+    component "Согласование\nоплаты" as Approval
+    component "Сервис управления поставщиками\n(Supplier Management)" as SupplierMgmt
+    component "Сервис контроля исполнения и сверки\n(Delivery Control)" as StockSync
+  }
+
+  component "Сервис интеграции с поставщиками\n(Supplier Integration)\n<<REST / JSON>>" as Adapter
+  component "Выгрузка\nзакупок\n<<пакетная / ETL>>" as ETL
+  database "База данных ERP" as DB
+}
+
+' UI → логика
+UI --> Forecast : предложения
+UI --> PO : заказы
+UI --> Approval : согласование оплаты
+UI --> SupplierMgmt : поставщики
+
+' внутри логики
+PO --> SupplierMgmt : условия поставки
+PO --> Approval : маршрут согласования
+StockSync --> PO : факт приёмки /\nрасхождения
+
+' логика ↔ адаптер
+PO --> Adapter : план поставки
+Adapter --> Forecast : остатки
+Adapter --> StockSync : обновления
+
+' данные
+Domain ..> DB : чтение / запись
+Adapter ..> DB
+ETL ..> DB
+
+' внешние связи
+ETL --> BI : выгрузка закупок\n<<ETL / пакетно>>
+Adapter <--> IP : планы поставок\nи остатки\n<<REST / JSON>>
+IP <--> WMS : приёмка и\nакты расхождений\n<<REST>>
+
+note bottom of UI
+  Логическая декомпозиция ERP.
+  Взаимодействие с поставщиками — через Supplier Integration Service (см. ADR-001).
+end note
+
+@enduml

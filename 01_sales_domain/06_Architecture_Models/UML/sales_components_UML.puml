@@ -1,4 +1,4 @@
-@startuml POS_AS_IS
+@startuml POS_APP_COMPONENTS_AS_IS
 
 left to right direction
 
@@ -7,68 +7,136 @@ skinparam shadowing false
 skinparam packageStyle rectangle
 skinparam defaultTextAlignment center
 
-title RetailMax — POS\nUML Component Diagram (AS-IS)
+title
+RetailMax — Кассовое приложение
+UML Component Diagram (AS-IS)
+Внутренняя структура контейнера POS Application
+end title
 
 
 ' =========================================================
-' Целевая система POS
+' ВНЕШНИЙ ПОЛЬЗОВАТЕЛЬ
 ' =========================================================
 
-package "POS (IS-04)" {
+actor "Кассир" as Cashier
 
-    component "Sale Processing\n<<logical>>" as Sale
 
-    component "Discount & Loyalty\nHandling\n<<logical>>" as Loyalty
+' =========================================================
+' ВЫБРАННЫЙ КОНТЕЙНЕР
+' =========================================================
+
+package "Кассовое приложение\n<<container>>" {
+
+    component "Cashier UI\n<<component>>" as UI
+
+    component "Sale Processing\n<<component>>" as Sale
+
+    component "Discount & Loyalty\nHandling\n<<component>>" as Loyalty
+
+    component "Integration Adapter\n<<component>>" as Integration
+
+    component "Fiscal Adapter\n<<component>>" as FiscalAdapter
+
+    component "POS Data Access\n<<component>>" as DataAccess
 }
 
 
 ' =========================================================
-' Внешние системы
+' ВНЕШНИЕ КОНТЕЙНЕРЫ / СИСТЕМЫ
 ' =========================================================
 
-component "Integration Platform\n(IS-07)" as IP
+component "Фискальный модуль\n<<container>>" as Fiscal
 
-component "CRM\n(IS-02)" as CRM
+database "БД POS\n<<container>>" as POS_DB
 
-
-' =========================================================
-' Зависимости AS-IS
-' =========================================================
-
-Sale --> Loyalty : применение\nскидок и бонусов
-
-Loyalty --> IP : REST API\nзапрос данных клиента\nи программы лояльности
-
-IP --> CRM : запрос данных\nклиента и лояльности
+component "Integration Platform\n(IS-07)\n<<external system>>" as IP
 
 
 ' =========================================================
-' Проблема
+' ВНУТРЕННИЕ ЗАВИСИМОСТИ
 ' =========================================================
 
-note bottom of Loyalty
+Cashier --> UI : действия кассира
 
-Проблема AS-IS:
+UI --> Sale : начать / изменить /\nзавершить продажу
 
-для применения бонусов и скидок
-POS обращается к CRM
-во время оформления продажи.
+Sale --> Loyalty : применить скидки\nи бонусы
 
-При задержке или недоступности CRM
-увеличивается время обслуживания
-покупателя на кассе.
+Sale --> FiscalAdapter : сформировать\nфискальный чек
+
+Sale --> DataAccess : сохранить\nпродажу и чек
+
+Sale --> Integration : запросить данные /\nпередать факт продажи
+
+Loyalty --> Integration : получить данные\nпрограммы лояльности
+
+
+' =========================================================
+' ВНЕШНИЕ ВЗАИМОДЕЙСТВИЯ
+' =========================================================
+
+Integration --> IP : REST API
+
+FiscalAdapter --> Fiscal : API драйвера
+
+DataAccess --> POS_DB : SQL
+
+
+' =========================================================
+' ПОЯСНЕНИЯ
+' =========================================================
+
+note bottom of Sale
+
+Основная ответственность:
+координация процесса продажи,
+формирование состава и итогов чека,
+завершение операции.
 
 end note
 
 
-note bottom of Sale
+note bottom of Loyalty
 
-Компоненты POS представлены
-как логическая декомпозиция
-документированных функций системы.
+AS-IS:
 
-Физическая внутренняя структура POS
-в исходных материалах не задана.
+для применения бонусов
+и персональных скидок
+компонент использует данные,
+получаемые через Integration Adapter.
+
+При задержке внешнего ответа
+оформление продажи задерживается.
+
+end note
+
+
+note bottom of Integration
+
+Единая точка взаимодействия
+компонентов кассового приложения
+с Integration Platform.
+
+Через неё выполняются запросы
+к корпоративным системам.
+
+end note
+
+
+note bottom of FiscalAdapter
+
+Изолирует Sale Processing
+от конкретного интерфейса
+фискального модуля.
+
+end note
+
+
+note bottom of DataAccess
+
+Отвечает за доступ
+кассового приложения
+к БД POS.
 
 end note
 
