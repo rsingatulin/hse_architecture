@@ -10,7 +10,7 @@ skinparam nodesep 40
 skinparam ranksep 45
 skinparam ArrowColor #444444
 
-title Система управления закупками (ERP)\nUML: компонентная диаграмма (TO-BE)
+title Домен «Закупки» (Bounded Contexts)\nUML: компонентная диаграмма (TO-BE)
 
 ' =========================================================
 ' Внешние системы
@@ -24,19 +24,19 @@ component "WMS\n(управление складом)" as WMS
 ' ERP
 ' =========================================================
 
-package "Система управления закупками (ERP)" {
+package "Домен «Закупки» (Bounded Contexts)" {
 
   component "Рабочее место\nзакупок\n<<веб-интерфейс>>" as UI
 
-  package "Бизнес-логика закупок" as Domain {
-    component "Прогнозирование\nпотребности" as Forecast
-    component "Управление\nзаказами\nпоставщикам" as PO
+  package "Сервисы домена закупок" as Domain {
+    component "Сервис планирования и прогнозирования\n(Procurement Planning)" as Forecast
+    component "Сервис управления заказами поставщикам\n(Purchase Order Management)" as PO
     component "Согласование\nоплаты" as Approval
-    component "Управление\nпоставщиками" as SupplierMgmt
-    component "Синхронизация\nостатков" as StockSync
+    component "Сервис управления поставщиками\n(Supplier Management)" as SupplierMgmt
+    component "Сервис контроля исполнения и сверки\n(Delivery Control)" as StockSync
   }
 
-  component "Адаптер\nинтеграции ERP\n<<REST / JSON>>" as Adapter
+  component "Сервис интеграции с поставщиками\n(Supplier Integration)\n<<REST / JSON>>" as Adapter
   component "Выгрузка\nзакупок\n<<пакетная / ETL>>" as ETL
   database "База данных ERP" as DB
 }
@@ -69,8 +69,7 @@ IP <--> WMS : приёмка и\nакты расхождений\n<<REST>>
 
 note bottom of UI
   Логическая декомпозиция ERP.
-  Поставщик — вне систем
-  (почта / телефон).
+  Взаимодействие с поставщиками — через Supplier Integration Service (см. ADR-001).
 end note
 
 @enduml
