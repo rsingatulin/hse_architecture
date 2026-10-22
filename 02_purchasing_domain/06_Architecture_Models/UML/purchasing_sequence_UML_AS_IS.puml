@@ -12,7 +12,7 @@ title BP-02 «Закупка товаров»\nUML: диаграмма посл�
 ' Участники — как в BPMN (lanes / participants)
 
 actor "Менеджер\nпо закупкам" as Buyer
-actor "Финансовый\nотдел" as Finance
+actor "Финансовый\nконтроллер" as Finance
 actor "Сотрудник\nсклада" as WarehouseUser
 actor "Поставщик" as Supplier
 
