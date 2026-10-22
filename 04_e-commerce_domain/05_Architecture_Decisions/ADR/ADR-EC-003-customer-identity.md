@@ -1,4 +1,4 @@
-# ADR-EC-004. Профиль клиента в CRM без общего MDM
+# ADR-EC-003. Профиль клиента в CRM без общего MDM
 
 | Поле | Значение |
 |---|---|
@@ -95,4 +95,4 @@ CRM уже определена источником клиента и бону�
 
 ## Основания и зависимости
 
-[DOC-05](../../../00_Documentation/DOC-05.md), [DOC-06](../../../00_Documentation/DOC-06.md), [DOC-12](../../../00_Documentation/DOC-12.md), [DOC-16](../../../00_Documentation/DOC-16.md), [DOC-17](../../../00_Documentation/DOC-17.md); [требования Retention](../../../05_retention_domain/01_business_context/Архитектурные_требования.md). Зависит от ADR-EC-001; использование данных — [ADR-EC-005](ADR-EC-005-product-recommendations.md). [К реестру ADR](../README.md).
+[DOC-05](../../../00_Documentation/DOC-05.md), [DOC-06](../../../00_Documentation/DOC-06.md), [DOC-12](../../../00_Documentation/DOC-12.md), [DOC-16](../../../00_Documentation/DOC-16.md), [DOC-17](../../../00_Documentation/DOC-17.md); [требования Retention](../../../05_retention_domain/01_business_context/Архитектурные_требования.md). Зависит от ADR-EC-001; использование данных — [ADR-EC-004](ADR-EC-004-product-recommendations.md). [К реестру ADR](../README.md).
