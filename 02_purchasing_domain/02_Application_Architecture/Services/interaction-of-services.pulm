@@ -12,16 +12,16 @@ title Архитектура To-Be: Процесс закупки товаров
 
 actor "Менеджер\nпо закупкам" as Buyer
 actor "Финансовый\nконтроллер" as Finance
-actor "Кладовщик\n(Сотрудник склада)" as WarehouseUser
+actor "Сотрудник\nсклада" as WarehouseUser
 actor "Внешняя система\nПоставщика" as SupplierSystem
 
 participant "Веб-интерфейс\nзакупок (UI)" as UI
 
 box "Домен «Закупки» (Bounded Contexts)" #E8F4F8
-  participant "Сервис планирования\nи прогнозирования" as Planning
-  participant "Сервис управления\nзаказами (PO)" as PO
-  participant "Сервис интеграции\nс поставщиками" as Integration
-  participant "Сервис контроля\nисполнения и сверки" as Reconciliation
+  participant "Сервис планирования и прогнозирования\n(Procurement Planning)" as Planning
+  participant "Сервис управления заказами поставщикам\n(Purchase Order Management)" as PO
+  participant "Сервис интеграции с поставщиками\n(Supplier Integration)" as Integration
+  participant "Сервис контроля исполнения и сверки\n(Delivery Control)" as Reconciliation
 end box
 
 participant "Шина событий\n(Kafka / RabbitMQ)" as EventBus
