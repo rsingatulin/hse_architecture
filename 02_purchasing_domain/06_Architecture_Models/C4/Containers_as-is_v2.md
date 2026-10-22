@@ -19,7 +19,7 @@ flowchart LR
   subgraph ERP["Система управления закупками (ERP)"]
     direction TB
     ui["Контейнер: Рабочее место закупок<br/>GUI / Web"]
-    backend["Контейнер: Сервисы ERP<br/>Заказы, согласование, приёмка"]
+    backend["Контейнер: Сервисы ERP\nУправление заказами (Purchase Order Management), Сверка (Delivery Control)"]
     db[("Контейнер: База данных ERP")]
   end
 

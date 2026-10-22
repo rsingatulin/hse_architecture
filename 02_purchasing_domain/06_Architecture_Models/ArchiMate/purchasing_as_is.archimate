@@ -18,7 +18,7 @@
     <folder name="Закупки" id="id-998be842a2de4d22be601de935582a5d">
       <element xsi:type="archimate:BusinessActor" name="Продавец-консультант" id="id-3360ce8dbb4f481eabe3e81f5c1f8a0b"/>
       <element xsi:type="archimate:BusinessRole" name="Сотрудник склада" id="id-1592c1ea0b524c92a0be957ec950d32d"/>
-      <element xsi:type="archimate:BusinessRole" name="Финансовый менеджер" id="id-b6a110fae9e44040a80abd5d6e60a841"/>
+      <element xsi:type="archimate:BusinessRole" name="Финансовый контроллер" id="id-b6a110fae9e44040a80abd5d6e60a841"/>
       <element xsi:type="archimate:BusinessRole" name="Менеджер по закупкам" id="id-30abb72a282a49a8b60d3a2c565cdf3e"/>
       <element xsi:type="archimate:BusinessRole" name="Поставщик" id="id-6a1e2f59fa574090b5e3e7d06703554f"/>
       <element xsi:type="archimate:BusinessService" name="Оформление заказа поставщику" id="id-276c2fbe0ce44c2da0603910bdc21d62"/>

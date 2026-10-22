@@ -7,7 +7,7 @@ skinparam responseMessageBelowArrow true
 skinparam maxMessageSize 240
 autonumber
 
-title Система управления закупками (ERP)\nUML: диаграмма последовательности (TO-BE)\nОт анализа остатков до приёмки и выгрузки в BI
+title title Домен «Закупки» (Bounded Contexts)\nUML: диаграмма последовательности (TO-BE)\nОт анализа остатков до приёмки и выгрузки в BI
 
 actor "Менеджер\nпо закупкам" as Buyer
 actor "Финансовый\nконтроллер" as Finance
@@ -16,9 +16,9 @@ actor "Поставщик\n(контрагент)" as Supplier
 
 participant "Рабочее место\nзакупок\n(веб-интерфейс)" as UI
 
-box "Система управления закупками (ERP)" #F3F6FA
-  participant "Прогнозирование\nпотребности" as Forecast
-  participant "Управление\nзаказами\nпоставщикам" as PO
+box "Домен «Закупки» (Bounded Contexts)" #F3F6FA
+  participant "Сервис планирования и прогнозирования\n(Procurement Planning)" as Forecast
+  participant "Сервис управления заказами поставщикам\n(Purchase Order Management)" as PO
   participant "Согласование\nоплаты" as Approval
   participant "Выгрузка\nзакупок\n(ETL)" as ETL
 end box
