@@ -1,0 +1,24 @@
+@startuml seq_03_pos_loyalty_request
+title SEQ-03. Запрос баланса бонусов и персональных предложений на кассе (синхронный)\n(C4 Context: «Запрос баланса бонусов и персональных предложений», «Предъявляет карту лояльности»)
+
+autonumber
+skinparam responseMessageBelowArrow true
+
+actor "Клиент" as Client
+actor "Кассир" as Cashier
+participant "POS\n<<внешняя система>>" as POS
+participant "Интеграционная\nплатформа" as GW
+participant "CRM" as CRM
+database "БД CRM\n(профиль, бонусы,\nистория покупок, акции)" as CRMDB
+
+Client -> Cashier : Предъявляет карту лояльности
+Cashier -> POS : Идентификация клиента
+POS -> GW : Запрос данных о клиенте и бонусах
+GW -> CRM : Маршрутизация запроса к CRM
+CRM -> CRMDB : Чтение профиля клиента,\nбонусного счета, активных акций,\nперсональных предложений
+CRMDB --> CRM : Профиль, баланс, предложения
+CRM --> GW : Ответ (синхронный)
+GW --> POS : Баланс бонусов, доступные предложения
+POS --> Cashier : Отображение данных клиента
+Cashier --> Client : Информирование о бонусах и предложениях
+@enduml
