@@ -5,12 +5,12 @@ skinparam shadowing false
 skinparam maxMessageSize 190
 hide footbox
 autonumber
-title Магазин и его склад ↔ WMS ↔ закупки\nINT-SEQ-005 · проект 1.2 · обязательный контур D-06
+title Магазин и его склад ↔ WMS ↔ закупки\nINT-SEQ-005 · проект 1.3 · обязательный контур D-06
 participant "POS / сотрудник\nсклада магазина" as Store #DDEEFF
 participant "Локальный Inventory/Outbox\nмодуль логистики" as Local
 participant "IS-07\nустойчивая доставка" as IP #D8F0EC
 participant "WMS\nCENTRAL + STORE" as WMS
-participant "Закупки / ERP\nпланирование пополнения" as ERP #E5EDFF
+participant "Закупки / ERP\nчтение WMS и план пополнения" as ERP #E5EDFF
 == Продажа, возврат, приёмка, списание ==
 Store -> Local: Первичный факт: документ, lineId, товар, количество
 Local -> Local: Транзакция: movementId + sourceSequence\nоперативный остаток + outbox
@@ -33,7 +33,7 @@ loop Каждое движение в порядке журнала
  WMS --> IP: APPLIED, stockVersion, appliedThroughSequence
  IP --> Local: Бизнес-подтверждение; повтор не меняет запас
  WMS -> IP: EVT-25: полный подтверждённый STORE-остаток
- IP -> ERP: Товар / магазин / onHand / reserved / available
+ IP -> ERP: Сигнал изменения; количества в ERP не сохранять
 end
 note over Local,WMS: Разрыв или противоречие → LAGGING / RECONCILIATION_REQUIRED;\nфакт сохраняется для разбора, граница не перескакивает. CENTRAL от продажи не уменьшается.
 Local -> IP: API-20: контрольный STORE-снимок и watermark
@@ -44,6 +44,11 @@ Local -> IP: API-30: свежий heartbeat + результат сверки sn
 IP -> WMS: Проверить границу, пропуски и результат сверки
 WMS -> IP: EVT-27: SYNCED после устранения пропусков/расхождений
 IP -> ERP: Магазин синхронизирован; известна свежесть данных
+ERP -> IP: API-04: запросить остатки магазина и товар в пути
+IP -> WMS: Прочитать текущие количества и свежесть
+WMS --> IP: onHand / reserved / blocked / available / inTransit
+IP --> ERP: Использовать в текущем просмотре / расчёте
+note over WMS,ERP: В ERP нет таблицы или постоянного кэша остатков.\nWMS недоступна → данные недоступны, автоматическое пополнение приостановлено.
 == Пополнение магазина ==
 ERP -> IP: API-31: transferId, CENTRAL → STORE, 10 шт.
 IP -> WMS: Подтвердить план пополнения
@@ -59,7 +64,7 @@ IP -> WMS: Уникальная приёмка по отгруженному tra
 WMS -> WMS: STORE +8; в пути 2; PARTIALLY_RECEIVED
 WMS -> IP: APPLIED + EVT-25/26
 IP -> Local: Подтверждение приёмки и граница журнала
-IP -> ERP: Принято 8; в пути/расхождении 2
+IP -> ERP: Статус приёмки: принято 8 из 10; остатки перечитать по API-04
 note over Store,ERP: Приёмка оставшихся 2 — новый receiptId/movementId. Повтор A не даёт второй приход.\nEVT-16/26 описывают факты; проекцию STORE меняет только EVT-25.
 footer Источник: INT-001 §8.1, INT-002 API-29–31 / EVT-25–27. Все межсистемные связи через IS-07; локальные вызовы внутри магазина не требуют сети.
 @enduml
