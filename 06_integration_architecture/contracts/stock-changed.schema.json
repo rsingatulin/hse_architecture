@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "warehouse.stock.changed.v1 — proposed payload",
+  "type": "object",
+  "required": ["productId", "warehouseId", "locationType", "unitCode", "onHand", "reserved", "blocked", "available", "asOf"],
+  "properties": {
+    "productId": {"type": "string", "minLength": 1},
+    "warehouseId": {"type": "string", "minLength": 1},
+    "locationType": {"const": "CENTRAL"},
+    "unitCode": {"type": "string", "minLength": 1},
+    "onHand": {"$ref": "#/$defs/quantity"},
+    "reserved": {"$ref": "#/$defs/quantity"},
+    "blocked": {"$ref": "#/$defs/quantity"},
+    "available": {"$ref": "#/$defs/quantity"},
+    "asOf": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "quantity": {"type": "string", "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"}
+  },
+  "$comment": "Full snapshot. Business validation: available = onHand - reserved - blocked >= 0; reserved includes paid holds and allocated stock until handover. Piece quantities must be integral. aggregateVersion belongs to productId+warehouseId, not to Order or Shipment.",
+  "additionalProperties": true
+}

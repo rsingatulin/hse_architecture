@@ -1,0 +1,26 @@
+{
+  "eventId": "evt-store-stock-example-0042",
+  "eventType": "warehouse.store-stock.changed.v1",
+  "schemaVersion": "1.0",
+  "source": "wms",
+  "aggregateType": "StoreStock",
+  "aggregateId": "STORE-017-BACKROOM:SKU-001",
+  "aggregateVersion": 42,
+  "occurredAt": "2026-11-12T10:05:00Z",
+  "correlationId": "corr-store-sale-1001",
+  "causationId": "movement-store-sale-1001-line-1",
+  "payload": {
+    "productId": "SKU-001",
+    "storeId": "STORE-017",
+    "locationId": "STORE-017-BACKROOM",
+    "locationType": "STORE",
+    "unitCode": "PCE",
+    "onHand": "8",
+    "reserved": "0",
+    "blocked": "1",
+    "available": "7",
+    "asOf": "2026-11-12T10:05:00Z",
+    "journalId": "store-017-backroom-journal-01",
+    "appliedThroughSequence": 1042
+  }
+}
