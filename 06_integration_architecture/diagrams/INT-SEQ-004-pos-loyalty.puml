@@ -5,25 +5,40 @@ skinparam shadowing false
 skinparam maxMessageSize 180
 hide footbox
 autonumber
-title POS, бонусы и единый финансовый факт\nINT-SEQ-004 · проект 1.0 · предложения D-05/06/08
+title POS: цены ERP, персональные скидки, бонусы и учёт\nINT-SEQ-004 · проект 1.1 · предложения D-05/06/07/08
 participant "POS\nCheckout / Cache / Outbox" as POS #DDEEFF
 participant "IS-07" as IP #D8F0EC
 participant "Loyalty / CRM" as Loyalty
 participant "ERP" as ERP
 participant "Inventory STORE" as Inv
 participant "DWH" as BI
-alt Есть связь и покупатель списывает бонусы
- POS -> IP: API-17: hold по customerId и sourceSaleId
- IP -> Loyalty: Проверить права; атомарный hold
- Loyalty --> IP: bonusHoldId и разрешённая сумма
- IP --> POS: Подтверждение в согласованном бюджете 200 мс
- note over POS,Loyalty: UNKNOWN → проверка прежнего hold. Без результата нельзя вычитать бонусы из суммы.
+POS -> POS: Сохранить устойчивый sourceSaleId
+alt Есть связь и подтверждения получены до deadline
+ POS -> IP: API-03: цены по строкам чека
+ IP -> ERP: sourceSaleId, товары, количества, storeId
+ ERP --> IP: priceSnapshotId, цены / общие акции, validUntil
+ IP --> POS: Подтверждённые цены ERP
+ opt Клиент идентифицирован по карте
+  POS -> IP: API-28: персональная скидка
+  IP -> Loyalty: customerId, sourceSaleId, строки и priceSnapshotId
+  Loyalty --> IP: discountQuoteId, скидки по строкам (либо 0), validUntil
+  IP --> POS: Персональная скидка подтверждена
+ end
+ opt Идентифицированный покупатель списывает бонусы
+  POS -> IP: API-17: hold по customerId, sourceSaleId и скидке
+  IP -> Loyalty: Проверить совместимость; атомарный hold
+  Loyalty --> IP: bonusHoldId и redemptionAmountMinor
+  IP --> POS: Подтверждённая денежная часть бонусов
+ end
+ note over POS,Loyalty: Персональная скидка и списание бонусов — разные операции. UNKNOWN не равен скидке 0; прежний hold сверяется.
 else Нет связи / нет подтверждения к deadline
- POS -> POS: Допустимые локальные цены; продажа без списания бонусов
- note right of POS: Кэш баланса не даёт права на списание.
+ POS -> POS: Ожидание либо допустимые локальные цены без неподтверждённой персональной скидки и без списания бонусов
+ note right of POS: Режим без скидки требует явного согласия покупателя. Неприменённый hold сверить и освободить.
 end
+POS -> POS: Показать цены, персональную скидку, бонусы и итог; покупатель подтверждает
+note over POS,IP: До оплаты подтверждения действуют для этого состава; сохранить снимок и priceConfirmedAt.
 POS -> POS: Оплата и фискализация; неизвестный платёж сначала сверить
-opt Был подтверждённый bonusHoldId
+opt В итог покупки включён подтверждённый bonusHoldId
  POS -> IP: API-18: commit прежнего hold
  IP -> Loyalty: Подтвердить бонусную часть
  Loyalty --> IP: bonusOperationId / результат
@@ -34,7 +49,7 @@ note over POS,IP: При offline outbox доставляется после во
 POS -> IP: EVT-16: pos.sale.completed
 IP -> Inv: STORE-локация, saleId, строки
 Inv -> Inv: Однократное списание STORE; CENTRAL не затрагивается
-IP -> ERP: Факт продажи с источником и payment/fiscal references
+IP -> ERP: Продажа: цены, персональная скидка, основания, итог, payment/fiscal/bonus references
 ERP -> ERP: Однократное финансовое отражение
 ERP -> IP: EVT-17: erp.sale.posted, sourceSaleId
 IP -> Loyalty: Единственный триггер начисления

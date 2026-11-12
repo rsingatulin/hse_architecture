@@ -54,13 +54,22 @@ checks.append('Draft 2020-12: 2 schemas valid; example, quantity invariant and 2
 catalog = (root / 'INT-002-contract-catalog.md').read_text()
 api_ids = set(re.findall(r'^\| (API-\d+) \|', catalog, re.M))
 evt_ids = set(re.findall(r'^\| (EVT-\d+) \|', catalog, re.M))
-assert api_ids == {f'API-{i:02}' for i in range(1, 28)}
+assert api_ids == {f'API-{i:02}' for i in range(1, 29)}
 assert evt_ids == {f'EVT-{i:02}' for i in range(1, 25)}
 for source in sources:
     for identifier in re.findall(r'\b(?:API|EVT)-\d{2}\b', source.read_text()):
         if identifier not in api_ids | evt_ids:
             errors.append(f'Unknown contract: {source.name}: {identifier}')
-checks.append('27 API/command IDs and 24 event IDs: complete; diagram references resolved')
+checks.append('28 API/command IDs and 24 event IDs: complete; diagram references resolved')
+
+for document in [*root.glob('*.md'), *sources]:
+    if re.search(r'\bPricing\b', document.read_text(), re.I):
+        errors.append(f'Unexpected separate price service: {document.name}')
+for diagram in ['INT-SEQ-001-online-order', 'INT-SEQ-004-pos-loyalty']:
+    rendered_text = ''.join(ET.parse(root / 'diagrams' / f'{diagram}.svg').getroot().itertext())
+    if 'API-28' not in rendered_text or 'персональн' not in rendered_text.lower():
+        errors.append(f'Personal discount flow missing from rendered diagram: {diagram}')
+checks.append('Price ownership: no separate price service in package sources; personal discount API-28 visible in online and POS SVGs')
 
 html = (root / 'output/RetailMax_Integration_ToBe.html').read_text()
 assert '<html lang="ru">' in html
@@ -77,7 +86,7 @@ if browser_report.exists():
 else:
     checks.append('Browser check: not recorded; run tools/check-html.cjs')
 
-report = '\n'.join(['RetailMax Integration To-Be 1.0 — document checks', 'Date: 2026-11-12', '', *checks,
+report = '\n'.join(['RetailMax Integration To-Be 1.1 — document checks', 'Date: 2026-11-12', '', *checks,
                     '', 'Scope: documentation and examples only; no ERP/WMS/CRM integration runtime was tested.',
                     *errors, '', 'PASS' if not errors else 'FAIL']) + '\n'
 (root / 'output/validation.txt').write_text(report)

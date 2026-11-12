@@ -6,7 +6,7 @@ skinparam sequenceMessageAlign center
 skinparam maxMessageSize 195
 hide footbox
 autonumber
-title Поздняя оплата и восстановление неизвестного результата\nINT-SEQ-002 · проект 1.0 · предлагаемая политика D-02–04
+title Поздняя оплата и восстановление неизвестного результата\nINT-SEQ-002 · проект 1.1 · предлагаемая политика D-02–04
 participant "Онлайн / владелец заказа" as EC #DDEEFF
 participant "IS-07 / координатор" as IP #D8F0EC
 participant "WMS" as WMS

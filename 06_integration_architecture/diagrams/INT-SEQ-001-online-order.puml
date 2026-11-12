@@ -5,15 +5,14 @@ skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam maxMessageSize 145
 hide footbox
-title Онлайн-заказ: резерв → оплата → удержание → ERP → исполнение\nINT-SEQ-001 · проект 1.0 · все межсистемные вызовы через IS-07
+title Онлайн-заказ: резерв → оплата → удержание → ERP → исполнение\nINT-SEQ-001 · проект 1.1 · все межсистемные вызовы через IS-07
 autonumber
 participant "Интернет-магазин" as EC #DDEEFF
 participant "IS-07\nAPI + координатор + транспорт" as IP #D8F0EC
 participant "CRM / Loyalty" as CRM
-participant "Pricing" as Price
+participant "ERP\nцены и учёт заказа" as ERP
 participant "WMS" as WMS
 participant "Платёжный\nпровайдер" as Pay
-participant "ERP" as ERP
 participant "Перевозчик" as Delivery
 == Подтверждения до оплаты ==
 EC -> IP: API-01: профиль / связь учётной записи
@@ -21,24 +20,29 @@ IP -> CRM: Поддерживаемая запись/поиск
 CRM --> IP: customerId подтверждён
 IP --> EC: customerId
 EC -> EC: Сохранить orderId/orderVersion
-EC -> IP: API-03: price quote
-IP -> Price: Строки и контекст
-Price --> IP: quoteId, сумма, validUntil
-IP --> EC: Цена для подтверждения покупателем
+EC -> IP: API-03: запросить цены ERP
+IP -> ERP: Строки, канал, orderId/version
+ERP --> IP: priceSnapshotId, цены / общие акции, validUntil
+IP --> EC: Подтверждённые цены ERP
+EC -> IP: API-28: персональная скидка по customerId
+IP -> CRM: Состав заказа + priceSnapshotId + общие акции
+CRM --> IP: discountQuoteId, скидки по строкам, ruleVersion, validUntil
+IP --> EC: Подтверждённая персональная скидка (либо 0)
+note over EC,CRM: Скидка привязана к клиенту и составу. API-28 не списывает бонусы; при сбое — ожидание или разрешённый режим без скидки и бонусов с явным согласием.
 opt Покупатель использует бонусы
- EC -> IP: API-17: hold бонусов
+ EC -> IP: API-17: hold бонусов с учётом персональной скидки
  IP -> CRM: Loyalty: атомарный hold в CRM
- CRM --> IP: bonusHoldId, сумма, expiresAt
+ CRM --> IP: bonusHoldId, redemptionAmountMinor, expiresAt
  IP --> EC: Подтверждённая бонусная часть
 end
-EC -> EC: Сохранить снимок цены и bonusHoldId при наличии
+EC -> EC: Сохранить цены ERP, персональную скидку, бонусы и итог; получить согласие покупателя
 EC -> IP: API-05: атомарный резерв всех строк
 IP -> WMS: Стабильный ключ + orderId/version
 WMS --> IP: reservationId, ACTIVE, expiresAt, version
 IP --> EC: Резерв подтверждён
-note over EC,IP: Если резерв/профиль/цена не подтверждены — оплаты нет.
+note over EC,IP: До оплаты действуют цена, условия скидки и резерв. Изменение состава/суммы требует новых подтверждений и согласия.
 == Оплата и защищённое удержание ==
-EC -> IP: API-09: создать платёжную сессию
+EC -> IP: API-09: платёжная сессия по снимку; priceConfirmedAt
 IP -> Pay: Адаптер: paymentAttemptId, сумма, ключ
 Pay --> IP: paymentId / сессия
 IP --> EC: Платёжная сессия
@@ -53,7 +57,8 @@ opt Есть bonusHoldId
  CRM --> IP: bonusOperationId / SUCCEEDED
 end
 == Регистрация и исполнение ==
-IP -> ERP: API-10: устойчиво зарегистрировать оплаченный заказ
+IP -> ERP: API-10: заказ с ценами, скидками, основаниями и итогом оплаты
+ERP -> ERP: Сохранить историческую стоимость; не пересчитывать по новому прайсу
 ERP --> IP: EVT-06: erpOrderId, зарегистрирован
 IP -> EC: Подтверждённый статус ERP
 ERP -> IP: API-11: создать задание с прежним reservationId

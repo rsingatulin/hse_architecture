@@ -5,7 +5,7 @@ skinparam shadowing false
 skinparam maxMessageSize 190
 hide footbox
 autonumber
-title Закупка и частичная приёмка\nINT-SEQ-003 · проект 1.0
+title Закупка и частичная приёмка\nINT-SEQ-003 · проект 1.1
 participant "Закупки / ERP\nPO + Delivery Control" as PO #E5EDFF
 participant "IS-07\nтранспорт и адаптеры" as IP #D8F0EC
 participant "Поставщик" as Supplier

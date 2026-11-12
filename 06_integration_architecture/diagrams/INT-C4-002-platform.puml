@@ -4,7 +4,7 @@
 LAYOUT_TOP_DOWN()
 skinparam defaultFontName Arial
 skinparam backgroundColor white
-title Общая платформа — логические контейнеры To-Be\nINT-C4-002 · проект 1.0
+title Общая платформа — логические контейнеры To-Be\nINT-C4-002 · проект 1.1
 System_Ext(caller, "Домены и каналы", "Инициаторы запросов/команд и потребители фактов")
 System_Boundary(ip, "IS-07 — одна корпоративная Integration Platform") {
  Container(gw, "API Gateway", "Управляемые API", "Права сервисов, маршруты, квоты; отдельные политики внешнего входа")

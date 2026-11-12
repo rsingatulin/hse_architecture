@@ -1,10 +1,11 @@
-RetailMax Integration To-Be 1.0 — document checks
+RetailMax Integration To-Be 1.1 — document checks
 Date: 2026-11-12
 
 Relative links in the five package documents: checked
 8 PlantUML diagrams: SVG present, XML valid, no renderer error, source freshness checked
 Draft 2020-12: 2 schemas valid; example, quantity invariant and 2 rejection cases passed
-27 API/command IDs and 24 event IDs: complete; diagram references resolved
+28 API/command IDs and 24 event IDs: complete; diagram references resolved
+Price ownership: no separate price service in package sources; personal discount API-28 visible in online and POS SVGs
 Standalone HTML: 5 documents, 8 gallery diagrams, no remote JS/CSS dependency
 Browser check of this HTML hash: desktop 1440px, mobile 390px, images, zoom and navigation passed
 
