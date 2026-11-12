@@ -5,15 +5,24 @@ skinparam shadowing false
 skinparam maxMessageSize 180
 hide footbox
 autonumber
-title POS: цены ERP, персональные скидки, бонусы и учёт\nINT-SEQ-004 · проект 1.2 · предложения D-05/06/07/08
+title POS: цены ERP, персональные скидки, бонусы и учёт\nINT-SEQ-004 · проект 1.3 · предложения D-05/06/07/08
 participant "POS\nCheckout / Cache / Outbox" as POS #DDEEFF
 participant "IS-07" as IP #D8F0EC
 participant "Loyalty / CRM" as Loyalty
 participant "ERP" as ERP
 participant "Локальный Inventory/Outbox\nмодуль логистики в магазине" as Inv
 participant "WMS\nподтверждённый STORE" as WMS
-participant "Закупки\nпроекция по магазинам" as Procurement
+participant "Закупки / ERP\nчтение остатков WMS" as Procurement
 participant "DWH" as BI
+== Заранее при наличии связи ==
+Loyalty -> IP: EVT-28: обновлён пакет персональных скидок для магазина
+IP -> POS: Загрузить новую версию условий
+POS -> IP: API-32: получить пакет / изменения
+IP -> Loyalty: Пакет для разрешённого магазина
+Loyalty --> IP: Условия по карте клиента, версия, validUntil, подпись
+IP --> POS: Персональные скидки для локального применения
+POS -> POS: Проверить пакет; атомарно обновить локальный кэш
+== Покупка ==
 POS -> POS: Сохранить устойчивый sourceSaleId
 alt Есть связь и подтверждения получены до deadline
  POS -> IP: API-03: цены по строкам чека
@@ -34,11 +43,17 @@ alt Есть связь и подтверждения получены до dead
  end
  note over POS,Loyalty: Персональная скидка и списание бонусов — разные операции. UNKNOWN не равен скидке 0; прежний hold сверяется.
 else Нет связи / нет подтверждения к deadline
- POS -> POS: Ожидание либо допустимые локальные цены без неподтверждённой персональной скидки и без списания бонусов
- note right of POS: Режим без скидки требует явного согласия покупателя. Неприменённый hold сверить и освободить.
+ alt Карта клиента и действующий пакет CRM доступны локально
+  POS -> POS: Проверить срок, карту, товары, цены и совместимость акций
+  POS -> POS: Применить персональную скидку без интернета
+  POS -> POS: Сохранить packageId/version, ruleId и суммы в чеке
+ else Пакет отсутствует, истёк или правило неприменимо
+  POS -> POS: Ожидание либо явно согласованная покупка без персональной скидки
+ end
+ note right of POS: Цены берутся из действующего кэша ERP.\nБонусы без связи не списываются; прежний hold сверяется.
 end
 POS -> POS: Показать цены, персональную скидку, бонусы и итог; покупатель подтверждает
-note over POS,IP: До оплаты подтверждения действуют для этого состава; сохранить снимок и priceConfirmedAt.
+note over POS,IP: До оплаты действуют онлайн-подтверждения либо разрешённый офлайн-пакет скидки и цены.\nСохранить снимок, основание скидки и priceConfirmedAt.
 POS -> POS: Оплата и фискализация; неизвестный платёж сначала сверить
 opt В итог покупки включён подтверждённый bonusHoldId
  POS -> IP: API-18: commit прежнего hold
@@ -57,11 +72,16 @@ WMS -> WMS: Однократно уменьшить STORE; CENTRAL не меня
 WMS --> IP: APPLIED, movementId, appliedThroughSequence
 IP --> Inv: Подтверждение WMS; сверить локальную копию
 WMS -> IP: EVT-25/27: STORE-остаток и статус синхронизации
-IP -> Procurement: Обязательно: магазин, товар, остаток, свежесть
+IP -> Procurement: Изменение магазина: перечитать WMS
+Procurement -> IP: API-04: запрос остатков и свежести
+IP -> WMS: Прочитать подтверждённый остаток магазина
+WMS --> IP: Количества и состояние синхронизации
+IP --> Procurement: Ответ для просмотра; в ERP не сохраняется
 note over Inv,Procurement: Нет сети: локальная очередь сохраняется; закупки видят OFFLINE. Подробности и пополнение — INT-SEQ-005.
 else Независимая доставка факта продажи
 POS -> IP: EVT-16: pos.sale.completed
-IP -> ERP: Продажа: цены, персональная скидка, основания, итог, payment/fiscal/bonus references
+IP -> ERP: Продажа: цены, скидка, онлайн-quote или offline package/rule, итог и подтверждения
+IP -> Loyalty: EVT-16: история покупки и основания скидки; без начисления бонусов
 ERP -> ERP: Однократное финансовое отражение
 ERP -> IP: EVT-17: erp.sale.posted, sourceSaleId
 IP -> Loyalty: Единственный триггер начисления
