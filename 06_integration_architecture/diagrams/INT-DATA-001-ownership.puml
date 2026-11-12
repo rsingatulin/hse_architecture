@@ -1,0 +1,47 @@
+@startuml INT-DATA-001-ownership
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam rectangleRoundCorner 12
+skinparam defaultTextAlignment center
+left to right direction
+title Авторитетные данные и проекции To-Be\nINT-DATA-001 · логические потоки через IS-07 · проект 1.0
+package "Авторитетные источники" #EAF0FB {
+ rectangle "ERP\nProduct / Purchase / FinancialSale\nУчётный Order" as ERP
+ rectangle "WMS\nStock CENTRAL / Reservation\nReceipt / Task / Shipment" as WMS
+ rectangle "CRM\nCustomer / BonusAccount\nLoyalty применяет операции" as CRM
+ rectangle "Pricing / Campaign\nИтоговая цена / версии акций\nБазовая цена остаётся в ERP" as PRICE
+ rectangle "POS\nSale / Stock STORE*" as POS
+ rectangle "Провайдеры\nPayment / Refund / Delivery" as EXT
+ rectangle "Интернет-магазин\nOrder канала / корзина\nPrice snapshot / связи ID" as EC
+}
+rectangle "IS-07\nКонтракты / права / версии\nКоманды и факты / сверка\nТехническое состояние обмена" as IP #D8F0EC
+package "Разрешённые проекции" #FFF4DF {
+ rectangle "Каталог и доступность\nPOS / интернет-магазин\nsourceVersion + asOf" as CAT
+ rectangle "История и статусы\nCRM / канал / ERP\nСохранённые ссылки на факты" as HISTORY
+ rectangle "DWH / витрины\nРаздельные факты и связи\nBI читает только витрины" as DWH
+ rectangle "Recommendation Service\nГотовые списки в PostgreSQL\ngenerationId / validUntil" as REC
+}
+ERP --> IP : EVT-01/06/14/17/18
+WMS --> IP : EVT-04/05/07/08/12/13
+CRM --> IP : EVT-19/20/22
+PRICE --> IP : EVT-02/03
+POS --> IP : EVT-16
+EXT --> IP : EVT-09/10/11/24
+EC --> IP : EVT-21/23
+IP --> CAT : Товар / цена / Stock
+IP --> HISTORY : customerId / orderId / saleId\nФакты разных стадий
+IP --> DWH : Независимые подписки\n+ снимки с watermark
+DWH --> IP : Разрешённые подготовленные данные\nчерез поддерживаемый интерфейс
+IP --> REC : Фоновый расчёт по ADR-EC-004
+REC --> IP : API-19: действующий набор
+IP --> EC : productId / rank / validUntil
+note bottom of IP
+  Нет общего MDM и общей бизнес-БД.
+  Платформа не меняет авторитетные значения.
+  Команды записи возвращаются владельцам
+  по API-каталогу INT-002 (здесь не показаны).
+end note
+footer * STORE — предлагаемое разделение D-06. Только WMS Stock обновляет проекцию центрального количества; финансовая выручка — только ERP SalePosted.
+@enduml

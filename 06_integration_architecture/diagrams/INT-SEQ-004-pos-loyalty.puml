@@ -1,0 +1,48 @@
+@startuml INT-SEQ-004-pos-loyalty
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam maxMessageSize 180
+hide footbox
+autonumber
+title POS, бонусы и единый финансовый факт\nINT-SEQ-004 · проект 1.0 · предложения D-05/06/08
+participant "POS\nCheckout / Cache / Outbox" as POS #DDEEFF
+participant "IS-07" as IP #D8F0EC
+participant "Loyalty / CRM" as Loyalty
+participant "ERP" as ERP
+participant "Inventory STORE" as Inv
+participant "DWH" as BI
+alt Есть связь и покупатель списывает бонусы
+ POS -> IP: API-17: hold по customerId и sourceSaleId
+ IP -> Loyalty: Проверить права; атомарный hold
+ Loyalty --> IP: bonusHoldId и разрешённая сумма
+ IP --> POS: Подтверждение в согласованном бюджете 200 мс
+ note over POS,Loyalty: UNKNOWN → проверка прежнего hold. Без результата нельзя вычитать бонусы из суммы.
+else Нет связи / нет подтверждения к deadline
+ POS -> POS: Допустимые локальные цены; продажа без списания бонусов
+ note right of POS: Кэш баланса не даёт права на списание.
+end
+POS -> POS: Оплата и фискализация; неизвестный платёж сначала сверить
+opt Был подтверждённый bonusHoldId
+ POS -> IP: API-18: commit прежнего hold
+ IP -> Loyalty: Подтвердить бонусную часть
+ Loyalty --> IP: bonusOperationId / результат
+ IP --> POS: Подтверждённый итог (иначе урегулирование)
+end
+POS -> POS: Зафиксировать завершённую продажу + outbox; устойчивый saleId
+note over POS,IP: При offline outbox доставляется после восстановления связи; исходный eventId сохраняется.
+POS -> IP: EVT-16: pos.sale.completed
+IP -> Inv: STORE-локация, saleId, строки
+Inv -> Inv: Однократное списание STORE; CENTRAL не затрагивается
+IP -> ERP: Факт продажи с источником и payment/fiscal references
+ERP -> ERP: Однократное финансовое отражение
+ERP -> IP: EVT-17: erp.sale.posted, sourceSaleId
+IP -> Loyalty: Единственный триггер начисления
+Loyalty -> Loyalty: Одна бонусная операция в CRM по исходной покупке
+Loyalty -> IP: EVT-20: account changed
+IP -> POS: Обновить разрешённый кэш
+IP -> BI: EVT-16: операционный факт
+IP -> BI: EVT-17: финансовый факт со связью
+BI -> BI: Связать записи; выручка только по ERP, не сумма двух событий
+footer Размещение/владелец Inventory STORE требует согласования. Начисление по прежнему SaleCompleted отключается при переходе на EVT-17.
+@enduml

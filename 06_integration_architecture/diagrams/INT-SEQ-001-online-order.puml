@@ -1,0 +1,77 @@
+@startuml INT-SEQ-001-online-order
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 145
+hide footbox
+title Онлайн-заказ: резерв → оплата → удержание → ERP → исполнение\nINT-SEQ-001 · проект 1.0 · все межсистемные вызовы через IS-07
+autonumber
+participant "Интернет-магазин" as EC #DDEEFF
+participant "IS-07\nAPI + координатор + транспорт" as IP #D8F0EC
+participant "CRM / Loyalty" as CRM
+participant "Pricing" as Price
+participant "WMS" as WMS
+participant "Платёжный\nпровайдер" as Pay
+participant "ERP" as ERP
+participant "Перевозчик" as Delivery
+== Подтверждения до оплаты ==
+EC -> IP: API-01: профиль / связь учётной записи
+IP -> CRM: Поддерживаемая запись/поиск
+CRM --> IP: customerId подтверждён
+IP --> EC: customerId
+EC -> EC: Сохранить orderId/orderVersion
+EC -> IP: API-03: price quote
+IP -> Price: Строки и контекст
+Price --> IP: quoteId, сумма, validUntil
+IP --> EC: Цена для подтверждения покупателем
+opt Покупатель использует бонусы
+ EC -> IP: API-17: hold бонусов
+ IP -> CRM: Loyalty: атомарный hold в CRM
+ CRM --> IP: bonusHoldId, сумма, expiresAt
+ IP --> EC: Подтверждённая бонусная часть
+end
+EC -> EC: Сохранить снимок цены и bonusHoldId при наличии
+EC -> IP: API-05: атомарный резерв всех строк
+IP -> WMS: Стабильный ключ + orderId/version
+WMS --> IP: reservationId, ACTIVE, expiresAt, version
+IP --> EC: Резерв подтверждён
+note over EC,IP: Если резерв/профиль/цена не подтверждены — оплаты нет.
+== Оплата и защищённое удержание ==
+EC -> IP: API-09: создать платёжную сессию
+IP -> Pay: Адаптер: paymentAttemptId, сумма, ключ
+Pay --> IP: paymentId / сессия
+IP --> EC: Платёжная сессия
+note over EC,Pay: Пользователь оплачивает на странице провайдера; redirect не является подтверждением.
+Pay -> IP: Проверенный callback / сверенный результат
+IP -> IP: Устойчиво записать EVT-10; дедупликация
+IP -> WMS: API-07*: confirm-paid с expectedVersion
+WMS --> IP: HELD_FOR_FULFILLMENT, version
+note over IP,WMS: * Новый контракт: только действующий ACTIVE. При отказе/UNKNOWN — INT-SEQ-002.
+opt Есть bonusHoldId
+ IP -> CRM: API-18: commit прежнего hold
+ CRM --> IP: bonusOperationId / SUCCEEDED
+end
+== Регистрация и исполнение ==
+IP -> ERP: API-10: устойчиво зарегистрировать оплаченный заказ
+ERP --> IP: EVT-06: erpOrderId, зарегистрирован
+IP -> EC: Подтверждённый статус ERP
+ERP -> IP: API-11: создать задание с прежним reservationId
+IP -> WMS: Доставить команду ERP
+WMS --> IP: taskId; резерв ALLOCATED
+IP -> ERP: Подтверждённое задание
+IP -> EC: EVT-07: состояние исполнения
+WMS -> IP: EVT-07: READY_TO_HANDOVER
+IP -> Delivery: API-13: заявка доставки по shipmentId
+Delivery --> IP: trackingId, заявка принята
+IP -> WMS: API-26: план передачи, trackingId, expectedVersion
+note over WMS,Delivery: Сотрудник WMS подтверждает физическую передачу; она не следует автоматически из заявки.
+WMS -> IP: EVT-08: handed-over
+IP -> EC: Передан перевозчику
+Delivery -> IP: EVT-09: доставлен клиенту
+IP -> EC: Подтверждённая доставка
+EC -> IP: EVT-23: операционно завершён
+IP -> CRM: История заказа (без повторного начисления)
+note over ERP,CRM: ERP отдельно фиксирует финансовую продажу и EVT-17. Loyalty начисляет только по этому факту.
+footer Схема основного успеха. Все команды идемпотентны; транспортный ACK не равен бизнес-подтверждению. Источник: INT-001 §6–7, INT-002.
+@enduml

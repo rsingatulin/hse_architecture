@@ -1,0 +1,23 @@
+{
+  "eventId": "evt-stock-example-0008",
+  "eventType": "warehouse.stock.changed.v1",
+  "schemaVersion": "1.0",
+  "source": "wms-central",
+  "aggregateType": "Stock",
+  "aggregateId": "WH-CENTRAL:SKU-001",
+  "aggregateVersion": 8,
+  "occurredAt": "2026-11-12T09:00:00Z",
+  "correlationId": "corr-example-001",
+  "causationId": "cmd-reserve-example-001",
+  "payload": {
+    "productId": "SKU-001",
+    "warehouseId": "WH-CENTRAL",
+    "locationType": "CENTRAL",
+    "unitCode": "PCE",
+    "onHand": "10",
+    "reserved": "3",
+    "blocked": "1",
+    "available": "6",
+    "asOf": "2026-11-12T09:00:00Z"
+  }
+}

@@ -1,0 +1,13 @@
+RetailMax Integration To-Be 1.0 — document checks
+Date: 2026-11-12
+
+Relative links in the five package documents: checked
+8 PlantUML diagrams: SVG present, XML valid, no renderer error, source freshness checked
+Draft 2020-12: 2 schemas valid; example, quantity invariant and 2 rejection cases passed
+27 API/command IDs and 24 event IDs: complete; diagram references resolved
+Standalone HTML: 5 documents, 8 gallery diagrams, no remote JS/CSS dependency
+Browser check of this HTML hash: desktop 1440px, mobile 390px, images, zoom and navigation passed
+
+Scope: documentation and examples only; no ERP/WMS/CRM integration runtime was tested.
+
+PASS
