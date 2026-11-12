@@ -5,13 +5,17 @@ skinparam shadowing false
 skinparam maxMessageSize 190
 hide footbox
 autonumber
-title Закупка и частичная приёмка\nINT-SEQ-003 · проект 1.1
+title Закупка и частичная приёмка\nINT-SEQ-003 · проект 1.2
 participant "Закупки / ERP\nPO + Delivery Control" as PO #E5EDFF
 participant "IS-07\nтранспорт и адаптеры" as IP #D8F0EC
 participant "Поставщик" as Supplier
 participant "WMS" as WMS
 actor "Сотрудник склада" as Clerk
 participant "Онлайн / DWH" as Read
+WMS -> IP: EVT-25/26/27: магазины, остатки, товар в пути, свежесть
+IP -> PO: Обязательная проекция по товару / магазину
+PO -> PO: Проверить свежесть; учесть спрос и уже отправленное пополнение
+note over PO,WMS: Устаревшие STORE-данные не считаются нулём. Пополнение CENTRAL → STORE — INT-SEQ-005.
 PO -> PO: Согласовать PO: 10 шт., purchaseId, version
 PO -> IP: EVT-14 / API-16: отправить заказ поставщику
 IP -> Supplier: Перевести контракт; прежний purchaseId
@@ -27,6 +31,7 @@ WMS -> WMS: Транзакция: receipt A + движения + Stock + outbox
 WMS -> IP: EVT-12: receipt A / movementIds / принято 6
 IP -> PO: Приёмка A; PO остаётся открытым (6 из 10)
 WMS -> IP: EVT-04: полный снимок Stock, версия N
+IP -> PO: Обновить подтверждённый CENTRAL-остаток
 IP -> Read: Обновить проекцию количества по версии N
 WMS -> IP: Повтор EVT-12 с прежним eventId
 IP -> PO: Повтор receipt A
@@ -36,6 +41,7 @@ WMS -> WMS: receipt B + движения + Stock + outbox
 WMS -> IP: EVT-12: receipt B / принято 4
 IP -> PO: Уникальный факт B; принято 10, можно закрыть PO
 WMS -> IP: EVT-04: Stock, версия N+1
+IP -> PO: Обновить подтверждённый CENTRAL-остаток
 IP -> Read: Обновить количество; Receipt не списывает/начисляет повторно
 IP -> Read: Факты приёмок в отдельную аналитическую подписку
 footer Товар ERP загружается до приёмки; неизвестный productId отклоняется. Историческая загрузка и сверка — отдельный поток с watermark. Источник: INT-002.

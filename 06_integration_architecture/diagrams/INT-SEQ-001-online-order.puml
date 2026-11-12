@@ -5,7 +5,7 @@ skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam maxMessageSize 145
 hide footbox
-title Онлайн-заказ: резерв → оплата → удержание → ERP → исполнение\nINT-SEQ-001 · проект 1.1 · все межсистемные вызовы через IS-07
+title Онлайн-заказ: резерв → оплата → удержание → ERP → исполнение\nINT-SEQ-001 · проект 1.2 · все межсистемные вызовы через IS-07
 autonumber
 participant "Интернет-магазин" as EC #DDEEFF
 participant "IS-07\nAPI + координатор + транспорт" as IP #D8F0EC

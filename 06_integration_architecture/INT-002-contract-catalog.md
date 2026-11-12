@@ -1,6 +1,6 @@
 # INT-002 — каталог междоменных контрактов
 
-**Версия 1.1 · 12.11.2026 · Проект контрактов**
+**Версия 1.2 · 12.11.2026 · Проект контрактов**
 
 Идентификаторы API и EVT ниже — общие ссылки для схем всех команд. Endpoint — предлагаемый публичный путь **внутреннего** Gateway, а не существующий URL или обязательный путь внутри legacy-системы. Права определяются по потребителю и операции. Внешний браузер не вызывает ERP/WMS/CRM напрямую.
 
@@ -19,6 +19,8 @@
 | bonusHoldId, bonusOperationId | Авторитетная операция Loyalty/CRM; не вычисляется из локального баланса |
 | priceSnapshotId, discountQuoteId | Подтверждённые цены ERP и персональная скидка CRM/Loyalty, связанные с клиентом, составом и версией заказа; отдельно от бонусной операции |
 | locationType + locationId | CENTRAL/STORE и конкретное место хранения. Строка количества без места непригодна для междоменных обменов |
+| storeId, journalId, sourceSequence, appliedThroughSequence | Магазин, устойчивый журнал одной STORE-локации, последовательный номер движения и непрерывная граница применения в WMS. После переустановки journalId не переиспользуется; смена журнала требует сверки |
+| movementId, transferId, receiptId | Неизменный ID движения, сквозной ID перемещения CENTRAL → STORE и ID физической приёмки; saleId + lineId связывают продажу с единственным расходным движением |
 | commandId, eventId, operationId, correlationId | Поручение, неизменный ID факта, операция обработки, цепочка трассировки; эти четыре значения не взаимозаменяемы |
 
 Время передаётся в UTC с часовым поясом; деньги — целое число минимальных денежных единиц + currency. Количество — десятичная строка + unitCode, без двоичной плавающей арифметики. Для штучного товара дробное количество отклоняется. Телефон/email не используются в качестве общего бизнес-ключа.
@@ -65,6 +67,9 @@
 | API-26 | Координатор онлайн по согласованным правам → WMS | `PUT /warehouse/v1/fulfillment-tasks/{id}/handover-plan`; команда | shipmentId, trackingId, перевозчик, параметры передачи, expectedVersion → версия плана; не создаёт новое задание и не подтверждает физическую передачу |
 | API-27 | Владелец заказа/финансы → Loyalty → CRM | `POST /loyalty/v1/operations/{id}/reverse`; устойчиво | reversalId, исходный bonusOperationId, orderId/returnId, сумма/строки → подтверждённый возврат списанных бонусов; предел — невозвращённая часть исходного списания |
 | API-28 | Канал → Loyalty / CRM | `POST /loyalty/v1/discount-quotes`; синхронно | customerId из проверенной сессии/карты, orderId/orderVersion либо sourceSaleId, priceSnapshotId, строки/общие акции ERP → discountQuoteId, привязка к клиенту/составу/снимку цены, скидки и основания по lineId, totalDiscountMinor, currency, ruleVersion, validUntil, условия совместимости с бонусами; сумма 0 означает подтверждённое отсутствие скидки |
+| API-29 | Локальный Inventory/Outbox магазина → WMS | `PUT /warehouse/v1/store-movements/{movementId}`; устойчиво | storeId/locationId, journalId/sourceSequence, type (SALE/RECEIPT/RETURN/WRITE_OFF/ADJUSTMENT), productId, положительное quantity/unitCode, occurredAt, документ-основание; saleId/lineId или transferId/receiptId при применимости → APPLIED либо RECONCILIATION_REQUIRED, movementId, stockVersion, appliedThroughSequence; WMS задаёт направление движения по типу, для ADJUSTMENT нужны направление и утверждённое основание |
+| API-30 | Локальный Inventory/Outbox магазина → WMS | `POST /warehouse/v1/store-sync-status`; heartbeat / сверка | storeId/locationId, journalId, heartbeatId/sentAt, highestLocalSequence; при завершении сверки — snapshotId и результат → appliedThroughSequence, syncStatus, missingRanges, lastContactAt. WMS проверяет свежесть запроса и сама определяет статус; heartbeat не подтверждает применение движений |
+| API-31 | Закупки / ERP → WMS | `PUT /warehouse/v1/store-transfers/{transferId}`; устойчиво | fromLocationId=CENTRAL, toLocationId=STORE, storeId, строки, plannedAt, expectedVersion → подтверждённый план/статус перемещения. План не меняет физическое количество; отгрузка и приёмка подтверждаются отдельно |
 
 Внутренние складские confirm receipt/handover/inventory approve и локальные Payment/Fiscal POS сохраняются в каталогах владельцев. Публичный общий каталог не даёт онлайн-клиенту права выполнять эти функции. Протокол Identity/SSO и конкретные права включаются в системные контракты владельца идентификации; его события не являются источником клиентского профиля CRM.
 
@@ -76,13 +81,23 @@ API-03 выполняется ERP, API-28 — CRM/Loyalty; оба идут че�
 
 Backend канала сохраняет исходные цены ERP, суммы/основания персональных скидок, подтверждённую денежную часть бонусов и итог по строкам. Изменение customerId, количества, состава или priceSnapshotId требует нового API-28; перенос чужого подтверждения запрещён. До начала оплаты действуют сроки всех применяемых подтверждений, после оплаты сохраняется исторический снимок. ERP при регистрации сверяет исходные подтверждения и стоимость покупки, а не текущий прайс. Неизвестный результат Loyalty не равен скидке 0; режим без скидки требует явного выбора покупателя и допустимой политики канала.
 
+### Магазинный склад и закупки
+
+API-29–31 — обязательное расширение общего контура магазина/WMS, а не условие будущего самовывоза. Локальный Inventory — модуль логистики с журналом и оперативной копией, WMS — владелец подтверждённого остатка STORE. Перенос владения STORE в независимый сервис продаж отменён. В каталоге WH этих расширений пока нет: команда Warehouse должна включить их в свои контракты.
+
+WMS дедуплицирует movementId и пару исходный документ + lineId + тип операции; другой payload с прежним ID — конфликт. Для частичного возврата документом является returnId, для приёмки — receiptId, а не один общий saleId/transferId. Проверяются storeId/locationId и права отправителя; один журнал упорядочивает все движения локации. Пропуск sourceSequence сохраняется как ожидание, последующие движения не считаются применёнными; appliedThroughSequence не перескакивает через пропуск или расхождение. Физический факт с недостаточным/противоречивым учётным остатком сохраняется в журнале исключений, статус — RECONCILIATION_REQUIRED; его нельзя отбросить или повторить с новым ID. Исправление проходит с аудитом и последующей сверкой.
+
+API-20 дополнен контрольным снимком STORE: stock по locationId/productId, journalId, appliedThroughSequence и snapshotId на одной согласованной границе. Локальная копия восстанавливается из снимка и только ещё не применённых движений; старый снимок нельзя сочетать с более новым watermark из отдельного ответа. Полная сверка не является произвольной перезаписью WMS данными кассы. На приёмке по transferId WMS сверяет отгруженное и ранее принятое; превышение уходит в расхождение, а не в повторный приход.
+
+Закупки потребляют обязательные EVT-25/26/27 и EVT-16 для анализа спроса; остаток меняют только снимки WMS. Для каждой локации учитываются lastContactAt, syncStatus и граница журнала. EVT-27 обновляется по свежему heartbeat даже без новых движений, а также по смене статуса/таймеру; отсутствие самого потока тоже означает устаревание. При отсутствующем/устаревшем статусе синхронизации данные считаются неподтверждёнными. Новый heartbeat не снимает LAGGING/RECONCILIATION_REQUIRED до применения журнала и сверки; поздний heartbeat старого journalId не оживляет закрытый журнал. Heartbeat не накапливается для отложенного replay: просроченные sentAt/дубликаты heartbeatId не обновляют lastContactAt; допустимый возраст и рассинхронизация часов фиксируются до пилота.
+
 ## 4. Оболочка событий
 
 Обязательный минимум совместим с ADR-EC-001 и WH-API-001: eventId, eventType, schemaVersion, aggregateId, aggregateVersion, occurredAt, correlationId, payload. Для общей платформы добавляются обязательные source и aggregateType; causationId рекомендуется для связи с породившей командой. Это проектная оболочка RetailMax; соответствие CloudEvents не заявляется.
 
 Имена имеют формат `<domain>.<entity>.<fact>.v1`. В eventType находится major-версия семантики, schemaVersion — версия схемы. Новое необязательное поле совместимо только если потребители умеют игнорировать неизвестное. Изменение смысла, типа или обязательности требует новой major-версии и периода совместной поддержки с одним владельцем записи.
 
-Схемы и пример: [общая оболочка](contracts/event-envelope.schema.json), [Stock payload](contracts/stock-changed.schema.json), [пример Stock](contracts/stock-changed.example.json). Это образец уровня контракта; OpenAPI всех операций и схемы остальных payload выпускают владельцы до реализации.
+Схемы и примеры: [общая оболочка](contracts/event-envelope.schema.json), [Stock CENTRAL](contracts/stock-changed.schema.json), [пример CENTRAL](contracts/stock-changed.example.json), [Stock STORE](contracts/store-stock-changed.schema.json), [пример STORE](contracts/store-stock-changed.example.json). Существующий CENTRAL-контракт EVT-04 не расширяется несовместимым enum: STORE публикуется отдельным EVT-25. Это образцы уровня контракта; OpenAPI всех операций и схемы остальных payload выпускают владельцы до реализации.
 
 ## 5. Каталог событий
 
@@ -103,7 +118,7 @@ Backend канала сохраняет исходные цены ERP, сумм�
 | EVT-13 | `warehouse.inventory.adjusted.v1` | WMS → ERP, аудит/DWH | InventoryCount: основание, movementIds, version; количество в проекции всё равно меняет EVT-04 |
 | EVT-14 | `procurement.purchase.approved.v1` | ERP/закупки → Supplier Adapter/координатор, DWH | Purchase: purchaseId, version, supplierId, строки; инициирует доставку API-16, не заменяет команду API-15 |
 | EVT-15 | `supplier.order.acknowledged.v1` | Поставщик через адаптер → ERP/закупки | SupplierOrder: purchaseId, supplierOrderId, версия, согласованные строки/срок; расхождение требует решения закупок |
-| EVT-16 | `pos.sale.completed.v1` | POS → ERP, STORE Inventory, CRM/DWH | Sale: saleId, storeId/registerId, locationType=STORE, строки с ценами и применёнными скидками/основаниями, итог, payment/fiscal/bonus references, customerId при наличии; факт продажи канала |
+| EVT-16 | `pos.sale.completed.v1` | POS → ERP/закупки, CRM/DWH | Sale: saleId, storeId/registerId/locationId, locationType=STORE, строки с ценами и применёнными скидками/основаниями, итог, payment/fiscal/bonus references, customerId при наличии; факт продажи канала/спроса. Движение WMS передаётся отдельно API-29 с тем же saleId/lineId |
 | EVT-17 | `erp.sale.posted.v1` | ERP → Loyalty, CRM, DWH | FinancialSale: saleId ERP, sourceSaleId либо orderId, channelId, строки/сумма, финансовый статус; единственный триггер начисления в предлагаемой базовой модели |
 | EVT-18 | `erp.sale.reversed.v1` | ERP → Loyalty, CRM, DWH | SaleReversal: reversalId, originalSaleId, returnId, строки/сумма; частичный возврат сторнирует только соответствующую часть |
 | EVT-19 | `crm.customer.changed.v1` | CRM → разрешённые проекции каналов и DWH | Customer: customerId, version, разрешённый минимальный состав; контакты не широковещательно |
@@ -112,6 +127,9 @@ Backend канала сохраняет исходные цены ERP, сумм�
 | EVT-22 | `crm.personalization.permission-changed.v1` | CRM → Recommendations, Campaign, DWH, канальные проекции | Permission: customerId, scope, allowed, effectiveAt, version; запрет инвалидирует наборы и их откат |
 | EVT-23 | `commerce.order.completed.v1` | Онлайн после согласованных подтверждений → CRM/DWH | OnlineOrder: orderId, erpOrderId, paymentId, delivered shipment references; операционное завершение, не второй финансовый факт |
 | EVT-24 | `communications.message.status-changed.v1` | Провайдер через адаптер → Campaign/онлайн, DWH | Message: messageId, providerMessageId, status; «принято» и «доставлено» различаются |
+| EVT-25 | `warehouse.store-stock.changed.v1` | WMS → ERP/закупки, локальный Inventory, DWH | StoreStock: полный снимок storeId/locationId/productId, locationType=STORE, onHand/reserved/blocked/available, unitCode, asOf, journalId/appliedThroughSequence. Версия агрегата locationId + productId; свежесть дополнительно определяется EVT-27 |
+| EVT-26 | `warehouse.store-transfer.changed.v1` | WMS → ERP/закупки, магазин, DWH | StoreTransfer: transferId, from/toLocationId, storeId, status (PLANNED/DISPATCHED/PARTIALLY_RECEIVED/RECEIVED/DISCREPANCY/CANCELLED), строки planned/dispatched/received/inTransit, receiptIds/movementIds, расхождения. Остаток по нему повторно не меняется |
+| EVT-27 | `warehouse.store-sync.changed.v1` | WMS → ERP/закупки, магазин, мониторинг | StoreSync: storeId/locationId, journalId, syncStatus (SYNCED/LAGGING/OFFLINE/RECONCILIATION_REQUIRED), appliedThroughSequence, highestKnownLocalSequence, lastContactAt, checkedAt, reason. Версия по locationId; WMS публикует также переход OFFLINE по таймеру |
 
 Stock — полный снимок агрегата; более новая версия может заменить старую без суммирования дельт. Receipt, Sale и Movement — факты: их нельзя потерять по правилу «оставить последнюю версию». Для них дедуплицируется ID факта и контролируется полнота журнала/снимком. Отсутствие номера версии в отфильтрованной подписке не обязательно означает потерю сообщения; последовательность и курсор определены источником.
 
@@ -125,7 +143,9 @@ Stock — полный снимок агрегата; более новая ве
 |---|---|
 | Online → ERP → WMS | Один orderId/orderVersion; один ранний reservationId; одно активное исполнение; API-11 инициирует только ERP |
 | POS + ERP → Loyalty | EVT-16 сохраняет историю, EVT-17 начисляет. Старый обработчик начисления по SaleCompleted выключается при переключении; бизнес-уникальность по исходной покупке сохраняется при миграции |
-| WMS Stock + Shipment + Receipt | Количество обновляется только EVT-04. Receipt/Shipment используются как факты, а не дополнительные дельты остатка |
+| WMS Stock + Shipment + Receipt | Проекция CENTRAL обновляется только EVT-04, STORE — только EVT-25. Receipt/Shipment/Transfer используются как факты, а не дополнительные дельты остатка |
+| POS → локальный журнал → WMS → закупки | Одно расходное движение по saleId + lineId; API-29 применяет его один раз. EVT-16 и ERP-продажа не уменьшают запас повторно. Устаревший EVT-25 не откатывает новую версию; EVT-27 определяет свежесть отдельно |
+| CENTRAL → STORE | API-31 задаёт план. Отгрузка уменьшает CENTRAL и создаёт товар в пути; уникальная приёмка уменьшает путь и увеличивает STORE. Продажа POS уменьшает только STORE; transferId связывает шаги, receiptId/movementId различают частичные приёмки |
 | Повторная приёмка закупки | Уникальные receiptId/movementIds; purchaseId не является ключом дедупликации всей поставки |
 | Скидка + бонусы + деньги | Персональная скидка API-28 уменьшает стоимость один раз; API-17 отдельно подтверждает денежную часть бонусов. Итог и основания сохраняются; бонусный commit/refund не повторно применяет скидку |
 | Snapshot + stream | Зафиксировать boundary/watermark; догрузить события после границы; не начислять и не списывать по исторической проекции |
