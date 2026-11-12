@@ -1,0 +1,25 @@
+@startuml INT-C4-001-landscape
+!pragma layout smetana
+!include <C4/C4_Context>
+LAYOUT_LEFT_RIGHT()
+skinparam defaultFontName Arial
+skinparam backgroundColor white
+title RetailMax — общая интеграция To-Be\nINT-C4-001 · логический ландшафт · проект 1.1
+System(pos, "1. Продажи / POS", "Checkout, локальные Payment/Fiscal, Cache, Outbox; магазинный запас — D-06")
+System(shop, "4. Интернет-магазин", "Каталог, корзина, заказ канала, профиль, оплата и статусы")
+System(ip, "IS-07 Integration Platform", "Один общий слой: API, устойчивые команды, события, адаптеры и координация")
+System(erp, "2. Закупки / ERP", "Товары и цены, общие акции, закупка, учётный заказ с применёнными скидками; задание WMS")
+System(wms, "3. Warehouse / WMS", "Центральный остаток, резерв, приёмка, исполнение и физическая передача")
+System(ret, "5. Retention / CRM / аналитика", "Профили, персональные скидки и бонусы; Loyalty, Campaign, DWH, Recommendations")
+System(shared, "Identity / SSO", "Вход пользователей и роли; идентификация сервисов")
+System_Ext(ext, "Внешние системы", "Платёжный провайдер, перевозчики, поставщики, email/SMS/push")
+BiRel(pos, ip, "API и факты продаж; проекции справочников", "HTTPS / сообщения")
+BiRel(shop, ip, "Цены, персональная скидка, резерв, оплата и заказ", "HTTPS / сообщения")
+BiRel(ip, erp, "Цены: API-03; заказ: API-10; факты ERP", "Поддерживаемые API / журнал")
+BiRel(ip, wms, "INT API-04–08/11/12/15/25; EVT-04/05/07/08/12/13", "Поддерживаемые API / журнал")
+BiRel(ip, ret, "Персональные скидки: API-28; профиль, бонусы, рекомендации", "API / подписки")
+BiRel(ip, shared, "Идентификация и роли", "Защищённые API")
+BiRel(ip, ext, "Команды, проверенные callback и результаты", "Адаптеры провайдеров")
+SHOW_LEGEND()
+footer Все межсистемные связи через IS-07. Внутренние модули и локальные устройства POS не требуют обращения в центр. Источник: INT-001/002.
+@enduml

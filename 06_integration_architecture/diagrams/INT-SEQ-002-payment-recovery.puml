@@ -1,0 +1,67 @@
+@startuml INT-SEQ-002-payment-recovery
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 195
+hide footbox
+autonumber
+title Поздняя оплата и восстановление неизвестного результата\nINT-SEQ-002 · проект 1.1 · предлагаемая политика D-02–04
+participant "Онлайн / владелец заказа" as EC #DDEEFF
+participant "IS-07 / координатор" as IP #D8F0EC
+participant "WMS" as WMS
+participant "ERP" as ERP
+participant "Loyalty / CRM" as Loyalty
+participant "Провайдер через адаптер" as Pay
+Pay -> IP: Подтверждённый платёж, paymentId
+IP -> WMS: API-07: confirm-paid, прежний ключ
+alt Ответ потерян
+ IP -> WMS: API-06: прочитать резерв / повторить тот же ключ
+ WMS --> IP: Текущее состояние и версия
+ note over IP,WMS: UNKNOWN сохраняется до установления результата. Новый reserve и refund по одному timeout запрещены.
+end
+alt Доказанно EXPIRED / REJECTED, задания нет
+ IP -> EC: Оплата есть, наличие не подтверждено
+ EC -> IP: Политика: отменить исполнение, API-14 refund
+ opt Есть несписанный bonus hold
+  IP -> Loyalty: API-18: release прежнего hold
+  Loyalty --> IP: Освобождение подтверждено
+ end
+ IP -> Pay: refundId + прежний paymentId + сумма
+ alt Ответ возврата потерян
+  IP -> Pay: API-24: проверить прежний refundId
+ end
+ Pay --> IP: EVT-11: возврат подтверждён
+ IP -> EC: REFUNDED после всех подтверждений
+else HELD_FOR_FULFILLMENT, ERP временно недоступна
+ IP -> ERP: API-10: зарегистрировать заказ
+ ERP --> IP: 503 / UNKNOWN
+ IP -> IP: Сохранить шаг, ограниченный retry, alert по deadline
+ note over IP,WMS: Обычный TTL не освобождает оплаченное удержание.
+ alt ERP восстановилась в согласованном окне
+  IP -> ERP: Повтор с тем же ключом
+  ERP --> IP: Тот же erpOrderId
+  ERP -> IP: API-11: задание с прежним резервом
+  IP -> WMS: Доставить команду ERP
+ else Владелец решил компенсировать
+  EC -> IP: Запрос согласованной отмены
+  IP -> ERP: API-21: запрет нового исполнения / статус уже созданного
+  ERP --> IP: Отмена подтверждена + taskId если создан
+  opt Задание уже создано
+   IP -> WMS: API-12: cancel task от ERP
+   WMS --> IP: CANCELLED после физического возврата
+  end
+  IP -> WMS: API-08: release, expectedVersion
+  WMS --> IP: RELEASED / терминальное подтверждение
+  opt Бонусы были списаны
+   IP -> Loyalty: API-27: вернуть списание по bonusOperationId
+   Loyalty --> IP: Возврат бонусов подтверждён
+  end
+  note over IP,Loyalty: Несписанный hold освобождается API-18. UNKNOWN остаётся ожидающим; результат проверяется.
+  IP -> Pay: API-14: refund по прежнему paymentId
+  Pay --> IP: EVT-11: результат
+  IP -> EC: Итоги всех компенсаций
+ end
+end
+footer После handover действует отдельный возврат. При недоступной ERP/WMS компенсация остаётся PENDING до проверки результата; запоздалый create не должен обойти отмену.
+@enduml
