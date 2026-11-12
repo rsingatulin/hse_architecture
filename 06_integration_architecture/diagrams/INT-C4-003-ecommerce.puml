@@ -4,7 +4,7 @@
 LAYOUT_TOP_DOWN()
 skinparam defaultFontName Arial
 skinparam backgroundColor white
-title Интернет-магазин — контейнеры To-Be\nINT-C4-003 · проект 1.1
+title Интернет-магазин — контейнеры To-Be\nINT-C4-003 · проект 1.2
 Person(buyer, "Покупатель", "Выбор товара и оформление")
 Person(operator, "Оператор", "Сопровождение и урегулирование")
 System_Boundary(ec, "IS-03 — домен интернет-продаж") {

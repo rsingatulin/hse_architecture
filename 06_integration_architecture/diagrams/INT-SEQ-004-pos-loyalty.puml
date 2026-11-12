@@ -5,12 +5,14 @@ skinparam shadowing false
 skinparam maxMessageSize 180
 hide footbox
 autonumber
-title POS: цены ERP, персональные скидки, бонусы и учёт\nINT-SEQ-004 · проект 1.1 · предложения D-05/06/07/08
+title POS: цены ERP, персональные скидки, бонусы и учёт\nINT-SEQ-004 · проект 1.2 · предложения D-05/06/07/08
 participant "POS\nCheckout / Cache / Outbox" as POS #DDEEFF
 participant "IS-07" as IP #D8F0EC
 participant "Loyalty / CRM" as Loyalty
 participant "ERP" as ERP
-participant "Inventory STORE" as Inv
+participant "Локальный Inventory/Outbox\nмодуль логистики в магазине" as Inv
+participant "WMS\nподтверждённый STORE" as WMS
+participant "Закупки\nпроекция по магазинам" as Procurement
 participant "DWH" as BI
 POS -> POS: Сохранить устойчивый sourceSaleId
 alt Есть связь и подтверждения получены до deadline
@@ -45,10 +47,20 @@ opt В итог покупки включён подтверждённый bonus
  IP --> POS: Подтверждённый итог (иначе урегулирование)
 end
 POS -> POS: Зафиксировать завершённую продажу + outbox; устойчивый saleId
+POS -> Inv: Локальный журнал: saleId, lineId, locationId, quantity
+Inv -> Inv: Один movementId; оперативный STORE и outbox
 note over POS,IP: При offline outbox доставляется после восстановления связи; исходный eventId сохраняется.
+par Обязательный складской обмен
+Inv -> IP: API-29: движение SALE; API-30: граница журнала
+IP -> WMS: Устойчиво доставить движение магазина
+WMS -> WMS: Однократно уменьшить STORE; CENTRAL не менять
+WMS --> IP: APPLIED, movementId, appliedThroughSequence
+IP --> Inv: Подтверждение WMS; сверить локальную копию
+WMS -> IP: EVT-25/27: STORE-остаток и статус синхронизации
+IP -> Procurement: Обязательно: магазин, товар, остаток, свежесть
+note over Inv,Procurement: Нет сети: локальная очередь сохраняется; закупки видят OFFLINE. Подробности и пополнение — INT-SEQ-005.
+else Независимая доставка факта продажи
 POS -> IP: EVT-16: pos.sale.completed
-IP -> Inv: STORE-локация, saleId, строки
-Inv -> Inv: Однократное списание STORE; CENTRAL не затрагивается
 IP -> ERP: Продажа: цены, персональная скидка, основания, итог, payment/fiscal/bonus references
 ERP -> ERP: Однократное финансовое отражение
 ERP -> IP: EVT-17: erp.sale.posted, sourceSaleId
@@ -59,5 +71,6 @@ IP -> POS: Обновить разрешённый кэш
 IP -> BI: EVT-16: операционный факт
 IP -> BI: EVT-17: финансовый факт со связью
 BI -> BI: Связать записи; выручка только по ERP, не сумма двух событий
-footer Размещение/владелец Inventory STORE требует согласования. Начисление по прежнему SaleCompleted отключается при переходе на EVT-17.
+end
+footer WMS — владелец подтверждённого STORE; продажи поступают в складской учёт только через API-29. Начисление по прежнему SaleCompleted отключается при переходе на EVT-17.
 @enduml

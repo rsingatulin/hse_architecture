@@ -1,0 +1,65 @@
+@startuml INT-SEQ-005-store-wms-procurement
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam maxMessageSize 190
+hide footbox
+autonumber
+title Магазин и его склад ↔ WMS ↔ закупки\nINT-SEQ-005 · проект 1.2 · обязательный контур D-06
+participant "POS / сотрудник\nсклада магазина" as Store #DDEEFF
+participant "Локальный Inventory/Outbox\nмодуль логистики" as Local
+participant "IS-07\nустойчивая доставка" as IP #D8F0EC
+participant "WMS\nCENTRAL + STORE" as WMS
+participant "Закупки / ERP\nпланирование пополнения" as ERP #E5EDFF
+== Продажа, возврат, приёмка, списание ==
+Store -> Local: Первичный факт: документ, lineId, товар, количество
+Local -> Local: Транзакция: movementId + sourceSequence\nоперативный остаток + outbox
+opt Связи нет
+ Local -> Local: Сохранить очередь; допустимые локальные операции
+ WMS -> WMS: Нет heartbeat к deadline → OFFLINE
+ WMS -> IP: EVT-27: последнее подтверждение и статус OFFLINE
+ IP -> ERP: Данные магазина устарели; это не нулевой остаток
+ ERP -> ERP: Приостановить автоматическое пополнение\nлибо ручное решение по согласованной политике
+end
+== Есть связь / связь восстановлена ==
+Local -> IP: API-30: heartbeat, journalId, highestLocalSequence
+IP -> WMS: Сверить непрерывную границу журнала
+WMS --> IP: appliedThroughSequence / missingRanges / LAGGING
+IP --> Local: Доставить недостающие движения с прежними ID
+loop Каждое движение в порядке журнала
+ Local -> IP: API-29: movementId, STORE locationId, основание
+ IP -> WMS: Применить движение; транспортный ACK недостаточен
+ WMS -> WMS: Проверка / дедупликация + STORE Stock + outbox
+ WMS --> IP: APPLIED, stockVersion, appliedThroughSequence
+ IP --> Local: Бизнес-подтверждение; повтор не меняет запас
+ WMS -> IP: EVT-25: полный подтверждённый STORE-остаток
+ IP -> ERP: Товар / магазин / onHand / reserved / available
+end
+note over Local,WMS: Разрыв или противоречие → LAGGING / RECONCILIATION_REQUIRED;\nфакт сохраняется для разбора, граница не перескакивает. CENTRAL от продажи не уменьшается.
+Local -> IP: API-20: контрольный STORE-снимок и watermark
+IP -> WMS: Снимок на согласованной границе
+WMS --> IP: stock + journalId + appliedThroughSequence
+IP --> Local: Сверить основу; поверх неё только неприменённые движения
+Local -> IP: API-30: свежий heartbeat + результат сверки snapshotId
+IP -> WMS: Проверить границу, пропуски и результат сверки
+WMS -> IP: EVT-27: SYNCED после устранения пропусков/расхождений
+IP -> ERP: Магазин синхронизирован; известна свежесть данных
+== Пополнение магазина ==
+ERP -> IP: API-31: transferId, CENTRAL → STORE, 10 шт.
+IP -> WMS: Подтвердить план пополнения
+WMS --> IP: План принят; физический запас не изменён
+IP --> ERP: Подтверждённый план
+WMS -> WMS: Физическая отгрузка: CENTRAL −10; в пути 10
+WMS -> IP: EVT-04 + EVT-26: остаток CENTRAL и DISPATCHED
+IP -> ERP: Видно отправленное пополнение; не заказывать повторно
+IP -> Local: transferId, ожидаемые строки и количество
+Store -> Local: Физически принять 8 шт.; receiptId A
+Local -> IP: API-29: RECEIPT, movementId, transferId, 8 шт.
+IP -> WMS: Уникальная приёмка по отгруженному transfer
+WMS -> WMS: STORE +8; в пути 2; PARTIALLY_RECEIVED
+WMS -> IP: APPLIED + EVT-25/26
+IP -> Local: Подтверждение приёмки и граница журнала
+IP -> ERP: Принято 8; в пути/расхождении 2
+note over Store,ERP: Приёмка оставшихся 2 — новый receiptId/movementId. Повтор A не даёт второй приход.\nEVT-16/26 описывают факты; проекцию STORE меняет только EVT-25.
+footer Источник: INT-001 §8.1, INT-002 API-29–31 / EVT-25–27. Все межсистемные связи через IS-07; локальные вызовы внутри магазина не требуют сети.
+@enduml

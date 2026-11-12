@@ -6,13 +6,13 @@ skinparam shadowing false
 skinparam rectangleRoundCorner 12
 skinparam defaultTextAlignment center
 left to right direction
-title Авторитетные данные и проекции To-Be\nINT-DATA-001 · логические потоки через IS-07 · проект 1.1
+title Авторитетные данные и проекции To-Be\nINT-DATA-001 · логические потоки через IS-07 · проект 1.2
 package "Авторитетные источники" #EAF0FB {
  rectangle "ERP\nТовар и цены / Purchase / FinancialSale\nУчётный Order с применённой скидкой" as ERP
- rectangle "WMS\nStock CENTRAL / Reservation\nReceipt / Task / Shipment" as WMS
+ rectangle "WMS\nПодтверждённый Stock CENTRAL / STORE\nReservation / Receipt / Transfer / StoreSync" as WMS
  rectangle "CRM / Loyalty\nПрофиль / персональная скидка\nБонусный счёт и операции" as CRM
  rectangle "Campaign\nКампании и версии акций" as CAMPAIGN
- rectangle "POS\nSale / Stock STORE*" as POS
+ rectangle "Магазин / POS + локальный Inventory\nSale / первичный журнал движений\nОперативная копия STORE" as POS
  rectangle "Провайдеры\nPayment / Refund / Delivery" as EXT
  rectangle "Интернет-магазин\nOrder / корзина / итог\nСнимки цен и скидки / связи ID" as EC
 }
@@ -22,17 +22,22 @@ package "Разрешённые проекции" #FFF4DF {
  rectangle "История и статусы\nCRM / канал / ERP\nСохранённые ссылки на факты" as HISTORY
  rectangle "DWH / витрины\nРаздельные факты и связи\nBI читает только витрины" as DWH
  rectangle "Recommendation Service\nГотовые списки в PostgreSQL\ngenerationId / validUntil" as REC
+ rectangle "Закупки / ERP\nОстатки и спрос по магазинам\nТовар в пути / свежесть / расхождения" as PROC
 }
 ERP --> IP : Цены: API-03 / EVT-02\nEVT-01/06/14/17/18
-WMS --> IP : EVT-04/05/07/08/12/13
+WMS --> IP : CENTRAL: EVT-04; STORE: EVT-25\nПеремещения / синхронизация: EVT-26/27
 CRM --> IP : Персональная скидка: API-28\nEVT-19/20/22
 CAMPAIGN --> IP : EVT-03: общие акции
-POS --> IP : EVT-16
+POS --> IP : Движения / heartbeat: API-29/30\nПродажи: EVT-16
+IP --> WMS : Применить движения STORE\nПодтвердить план пополнения API-31
+IP --> POS : Подтверждения WMS / граница журнала\nEVT-25/26/27; сверка API-20
 EXT --> IP : EVT-09/10/11/24
 EC --> IP : EVT-21/23
 IP --> CAT : Товар / цена / Stock
 IP --> HISTORY : customerId / orderId / saleId\nФакты разных стадий
 IP --> DWH : Независимые подписки\n+ снимки с watermark
+IP --> PROC : EVT-25/26/27 + продажи EVT-16\nОбязательная видимость магазинов
+PROC --> IP : API-31: план пополнения\ntransferId / CENTRAL → STORE
 DWH --> IP : Разрешённые подготовленные данные\nчерез поддерживаемый интерфейс
 IP --> REC : Фоновый расчёт по ADR-EC-004
 REC --> IP : API-19: действующий набор
@@ -40,8 +45,12 @@ IP --> EC : Цены ERP + персональная скидка Loyalty\nРек
 note bottom of IP
   Нет общего MDM и общей бизнес-БД.
   Платформа не меняет авторитетные значения.
-  Команды записи возвращаются владельцам
-  по API-каталогу INT-002 (здесь не показаны).
+  Количество подтверждает только WMS.
+  Локальная копия не становится вторым мастером.
 end note
-footer * STORE — предлагаемое разделение D-06. Только WMS Stock обновляет проекцию центрального количества; финансовая выручка — только ERP SalePosted.
+footer
+
+Остаток CENTRAL — EVT-04, STORE — EVT-25; свежесть STORE — EVT-27.
+Продажа, приёмка и перемещение не меняют проекции количества второй раз.
+end footer
 @enduml
