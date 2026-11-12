@@ -21,7 +21,7 @@ for doc in sorted(root.glob('*.md')):
 checks.append('Relative links in the five package documents: checked')
 
 sources = sorted((root / 'diagrams').glob('*.puml'))
-assert len(sources) == 8
+assert len(sources) == 9
 for source in sources:
     svg = source.with_suffix('.svg')
     document = ET.parse(svg)
@@ -30,10 +30,10 @@ for source in sources:
         errors.append(f'Render error: {svg.name}')
     if svg.stat().st_mtime < source.stat().st_mtime:
         errors.append(f'Stale SVG: {svg.name}')
-checks.append('8 PlantUML diagrams: SVG present, XML valid, no renderer error, source freshness checked')
+checks.append('9 PlantUML diagrams: SVG present, XML valid, no renderer error, source freshness checked')
 
 schemas = [json.loads((root / 'contracts' / name).read_text()) for name in
-           ['event-envelope.schema.json', 'stock-changed.schema.json']]
+           ['event-envelope.schema.json', 'stock-changed.schema.json', 'store-stock-changed.schema.json']]
 for schema in schemas:
     Draft202012Validator.check_schema(schema)
 validators = [Draft202012Validator(s, format_checker=FormatChecker()) for s in schemas]
@@ -49,18 +49,31 @@ invalid.pop('eventId')
 assert list(validators[0].iter_errors(invalid))
 invalid_payload = dict(p, locationType='STORE')
 assert list(validators[1].iter_errors(invalid_payload))
-checks.append('Draft 2020-12: 2 schemas valid; example, quantity invariant and 2 rejection cases passed')
+store_example = json.loads((root / 'contracts/store-stock-changed.example.json').read_text())
+validators[0].validate(store_example)
+validators[2].validate(store_example['payload'])
+store = store_example['payload']
+assert store_example['eventType'] == 'warehouse.store-stock.changed.v1'
+assert store_example['aggregateType'] == 'StoreStock'
+assert store_example['aggregateId'] == f"{store['locationId']}:{store['productId']}"
+assert Decimal(store['available']) == Decimal(store['onHand']) - Decimal(store['reserved']) - Decimal(store['blocked']) >= 0
+missing_store = dict(store)
+missing_store.pop('storeId')
+for invalid_store in [missing_store, dict(store, locationType='CENTRAL'),
+                      dict(store, appliedThroughSequence=-1), dict(store, onHand='-1')]:
+    assert list(validators[2].iter_errors(invalid_store))
+checks.append('Draft 2020-12: 3 schemas valid; CENTRAL/STORE examples, quantity/identity invariants and 6 rejection cases passed')
 
 catalog = (root / 'INT-002-contract-catalog.md').read_text()
 api_ids = set(re.findall(r'^\| (API-\d+) \|', catalog, re.M))
 evt_ids = set(re.findall(r'^\| (EVT-\d+) \|', catalog, re.M))
-assert api_ids == {f'API-{i:02}' for i in range(1, 29)}
-assert evt_ids == {f'EVT-{i:02}' for i in range(1, 25)}
+assert api_ids == {f'API-{i:02}' for i in range(1, 32)}
+assert evt_ids == {f'EVT-{i:02}' for i in range(1, 28)}
 for source in sources:
     for identifier in re.findall(r'\b(?:API|EVT)-\d{2}\b', source.read_text()):
         if identifier not in api_ids | evt_ids:
             errors.append(f'Unknown contract: {source.name}: {identifier}')
-checks.append('28 API/command IDs and 24 event IDs: complete; diagram references resolved')
+checks.append('31 API/command IDs and 27 event IDs: complete; diagram references resolved')
 
 for document in [*root.glob('*.md'), *sources]:
     if re.search(r'\bPricing\b', document.read_text(), re.I):
@@ -71,11 +84,18 @@ for diagram in ['INT-SEQ-001-online-order', 'INT-SEQ-004-pos-loyalty']:
         errors.append(f'Personal discount flow missing from rendered diagram: {diagram}')
 checks.append('Price ownership: no separate price service in package sources; personal discount API-28 visible in online and POS SVGs')
 
+store_diagram = root / 'diagrams/INT-SEQ-005-store-wms-procurement.svg'
+store_text = ''.join(ET.parse(store_diagram).getroot().itertext())
+for marker in ['API-29', 'API-30', 'API-31', 'EVT-25', 'EVT-26', 'EVT-27', 'OFFLINE', 'PARTIALLY_RECEIVED']:
+    if marker not in store_text:
+        errors.append(f'Store/WMS/procurement flow missing rendered marker: {marker}')
+checks.append('Store/WMS/procurement diagram: movement, heartbeat, replenishment, offline and partial receipt flows rendered')
+
 html = (root / 'output/RetailMax_Integration_ToBe.html').read_text()
 assert '<html lang="ru">' in html
 assert not re.search(r'(?:src|href)="https?://[^\"]+\.(?:js|css)', html)
-assert len(re.findall(r'<article id="INT-', html)) == 8
-checks.append('Standalone HTML: 5 documents, 8 gallery diagrams, no remote JS/CSS dependency')
+assert len(re.findall(r'<article id="INT-', html)) == 9
+checks.append('Standalone HTML: 5 documents, 9 gallery diagrams, no remote JS/CSS dependency')
 
 browser_report = root / 'output/browser-validation.json'
 if browser_report.exists():
@@ -86,7 +106,7 @@ if browser_report.exists():
 else:
     checks.append('Browser check: not recorded; run tools/check-html.cjs')
 
-report = '\n'.join(['RetailMax Integration To-Be 1.1 — document checks', 'Date: 2026-11-12', '', *checks,
+report = '\n'.join(['RetailMax Integration To-Be 1.2 — document checks', 'Date: 2026-11-12', '', *checks,
                     '', 'Scope: documentation and examples only; no ERP/WMS/CRM integration runtime was tested.',
                     *errors, '', 'PASS' if not errors else 'FAIL']) + '\n'
 (root / 'output/validation.txt').write_text(report)
