@@ -125,10 +125,10 @@
 
 | Источник | Артефакт |
 | --- | --- |
-| DOC-10 | [ТЭО, ROI, риски и Gantt](../financials.md), [развёрнутый расчёт](TCO_ROI/WH-ECO-001-business-case.md), [риски с оценками](Risks/WH-RSK-001-risks.md). Общая Google Таблица ожидает создания. |
+| DOC-10 | [ТЭО, ROI, риски и Gantt](../financials.md), [развёрнутый расчёт](TCO_ROI/WH-ECO-001-business-case.md), [матрица рисков](Risks/WH-RSK-001-risks.md#матрица-вероятности-и-влияния), [XLSX с формулами](TCO_ROI/Warehouse_Economics.xlsx). Общая Google Таблица ожидает создания. |
 | DOC-11/12 | [Реестр участников](../01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md) и [каталог требований](../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) с источниками и критериями. |
 | DOC-13/14 | [Видение и архитектурные принципы](../01_Business_Architecture/Business_Capabilities/WH-VIS-001-vision.md), [три ADR](../05_Architecture_Decisions/ADR) и [развёртывание](../04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md). |
-| DOC-15/16 | [Каталог сервисов](../02_Application_Architecture/Services/WH-SRV-001-services.md), [интеграции](../02_Application_Architecture/Integrations/WH-INT-001-integration.md), [контракты API](../02_Application_Architecture/APIs/WH-API-001-catalog.md). |
+| DOC-15/16 | [Карта контекстов](../02_Application_Architecture/Services/WH-DDD-001-context-map.md), [каталог сервисов](../02_Application_Architecture/Services/WH-SRV-001-services.md), [интеграции](../02_Application_Architecture/Integrations/WH-INT-001-integration.md), [контракты API](../02_Application_Architecture/APIs/WH-API-001-catalog.md). |
 | DOC-17 | [НФТ и сценарии приёмки](../04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md), [безопасность](../04_Technology_Architecture/Security/WH-SEC-001-security.md), [решение по размещению](../05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md). |
 | Регламент | [Модель Archi](../06_Architecture_Models/ArchiMate/Warehouse.archimate), [C4 C1–C3](../06_Architecture_Models/C4/workspace.dsl) с SVG в отчётах, [UML с PlantUML и SVG](../06_Architecture_Models/UML/WH-UML-001-components.md), [BPMN As-Is](../06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md) и [To-Be](../06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md) с XML и SVG. |
 
