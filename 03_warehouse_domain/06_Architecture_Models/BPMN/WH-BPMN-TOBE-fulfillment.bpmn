@@ -29,11 +29,11 @@
       <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_0</bpmn:outgoing>
       <bpmn:messageEventDefinition id="WH-BPMN-TOBE-fulfillment_message_def" messageRef="WH-BPMN-TOBE-fulfillment_message" />
     </bpmn:startEvent>
-    <bpmn:serviceTask id="WH-BPMN-TOBE-fulfillment_validate" name="Проверить hold, версию и уникальность задания ERP">
+    <bpmn:serviceTask id="WH-BPMN-TOBE-fulfillment_validate" name="Проверить резерв и уникальность задания">
       <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_0</bpmn:incoming>
       <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_1</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:exclusiveGateway id="WH-BPMN-TOBE-fulfillment_gate" name="Резерв допустим для задания?">
+    <bpmn:exclusiveGateway id="WH-BPMN-TOBE-fulfillment_gate" name="Резерв действителен?">
       <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_1</bpmn:incoming>
       <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_2</bpmn:outgoing>
       <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_4</bpmn:outgoing>
@@ -45,7 +45,7 @@
     <bpmn:endEvent id="WH-BPMN-TOBE-fulfillment_endno" name="Задание не принято">
       <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_3</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="WH-BPMN-TOBE-fulfillment_allocate" name="Закрепить reserve на подбор: ALLOCATED">
+    <bpmn:serviceTask id="WH-BPMN-TOBE-fulfillment_allocate" name="Закрепить резерв и назначить маршрут">
       <bpmn:incoming>WH-BPMN-TOBE-fulfillment_flow_4</bpmn:incoming>
       <bpmn:outgoing>WH-BPMN-TOBE-fulfillment_flow_5</bpmn:outgoing>
     </bpmn:serviceTask>

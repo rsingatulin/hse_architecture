@@ -2,28 +2,28 @@
 
 | Поле | Значение |
 | --- | --- |
-| Идентификатор / версия | WH-PM-004 / 1.3 |
-| Дата | 12.11.2026 |
+| Идентификатор / версия | WH-PM-004 / 1.0 |
+| Дата | 04.10.2026 |
 | Ответственная группа | Команда 3 — Warehouse |
-| Статус | Проект для согласования |
-| Источники | [DOC-01](../../00_Documentation/DOC-01.md), [DOC-08](../../00_Documentation/DOC-08.md), [DOC-09](../../00_Documentation/DOC-09.md); [INT-001/1.3](../../06_integration_architecture/INT-001-target-model.md) |
+| Статус | Проект для согласования; не свидетельствует о внедрении |
+| Источники | [DOC-01](../../00_Documentation/DOC-01.md), [DOC-08](../../00_Documentation/DOC-08.md), [DOC-09](../../00_Documentation/DOC-09.md) |
 | Связанные требования | WH-R-01–20 — [каталог](../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
 
 ## Основной тезис
 
-WMS RetailMax должна обеспечивать подтверждённые CENTRAL/STORE, устойчивую доставку магазинных движений и пополнение. Существующий центральный склад уже имеет WMS, но ошибки синхронизации, ручное размещение и неоптимальный подбор мешают достоверному обещанию наличия и быстрому исполнению. Предлагается сохранить WMS/ERP, закрепить единственный источник складского остатка и резерва, организовать восстановимый обмен через платформу и улучшить управление заданиями.
+Склад RetailMax уже имеет WMS, но ошибки синхронизации, ручное размещение и неоптимальный подбор мешают достоверному обещанию наличия и быстрому исполнению. Предлагается сохранить WMS/ERP, закрепить единственный источник складского остатка и резерва, организовать восстановимый обмен через платформу и улучшить управление заданиями.
 
-## Сценарий выступления на 7 минут + 3 минуты вопросов
+## Сценарий выступления на 7–10 минут
 
 | Время | Что показать | Тезис и доказательство |
 | --- | --- | --- |
-| 0:00–0:45 | [Границы и участники](../01_Business_Architecture/Business_Process/WH-BP-001-process.md) | Команда отвечает за BP-03; заказ/оплата/закупка вне домена |
-| 0:45–1:30 | [Проблемы](../01_Business_Architecture/Requirements/WH-PRB-001-problems.md) и [BPMN As-Is](../06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md) | Отделены факты, причины и гипотезы; источники DOC-03/05/11 |
-| 1:30–2:45 | [To-Be процесса](../06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md) и [данные](../03_Data_Architecture/Data_Entities/WH-DAT-001-data-model.md) | Один резерв, однократные движения, исключения и контроль отмены |
-| 2:45–4:15 | [C4](../06_Architecture_Models/C4/WH-C4-002-containers.md), [ArchiMate](../06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md), [ADR](../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md) | Контракты и события устраняют связанность; адаптер не ведёт второй запас |
-| 4:15–5:00 | [Технологии](../04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md) и [проверки](../04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md) | Контейнеризируются новые компоненты; HA зависит от всей цепочки |
-| 5:00–6:00 | [ТЭО](TCO_ROI/WH-ECO-001-business-case.md) и [риски](Risks/WH-RSK-001-risks.md) | Вариант B: ROI 35,14%, NPV 26 488, IRR 13,50%, PI 1,1071 — условные, чувствительные к реальной экономии |
-| 6:00–7:00 | [План](Roadmap/WH-ROAD-001-roadmap.md) и [стыки](WH-PM-002-coordination.md) | Поэтапный переход; перечислены решения, требующие подтверждения |
+| 0:00–1:00 | [Границы и участники](../01_Business_Architecture/Business_Process/WH-BP-001-process.md) | Команда отвечает за BP-03; заказ/оплата/закупка вне домена |
+| 1:00–2:00 | [Проблемы](../01_Business_Architecture/Requirements/WH-PRB-001-problems.md) и [BPMN As-Is](../06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md) | Отделены факты, причины и гипотезы; источники DOC-03/05/11 |
+| 2:00–3:30 | [To-Be процесса](../06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md) и [данные](../03_Data_Architecture/Data_Entities/WH-DAT-001-data-model.md) | Один резерв, однократные движения, исключения и контроль отмены |
+| 3:30–5:00 | [C4](../06_Architecture_Models/C4/WH-C4-002-containers.md), [ArchiMate](../06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md), [ADR](../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md) | Контракты и события устраняют связанность; адаптер не ведёт второй запас |
+| 5:00–6:00 | [Технологии](../04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md) и [проверки](../04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md) | Контейнеризируются новые компоненты; HA зависит от всей цепочки |
+| 6:00–7:00 | [ТЭО](TCO_ROI/WH-ECO-001-business-case.md) и [риски](Risks/WH-RSK-001-risks.md) | Базовый ROI 30,43%, NPV 7 893 — условные, чувствительные к реальной экономии |
+| 7:00–8:00 | [План](Roadmap/WH-ROAD-001-roadmap.md) и [стыки](WH-PM-002-coordination.md) | Поэтапный переход; перечислены решения, требующие подтверждения |
 
 ## Ответы на вероятные вопросы
 
