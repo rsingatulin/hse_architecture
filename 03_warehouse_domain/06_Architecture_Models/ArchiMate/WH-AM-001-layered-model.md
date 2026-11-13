@@ -1,135 +1,57 @@
-# ArchiMate: связанные бизнес-, прикладной и технологический слои
+# ArchiMate центрального склада RetailMax
 
-| Поле | Значение |
-| --- | --- |
-| Идентификатор / версия | WH-AM-001 / 1.0 |
-| Дата | 04.10.2026 |
-| Ответственная группа | Команда 3 — Warehouse |
-| Статус | Проект для согласования; не свидетельствует о внедрении |
-| Источники | [DOC-02](../../../00_Documentation/DOC-02.md), [DOC-03](../../../00_Documentation/DOC-03.md), [DOC-04](../../../00_Documentation/DOC-04.md), [DOC-05](../../../00_Documentation/DOC-05.md), [DOC-06](../../../00_Documentation/DOC-06.md), [DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-09](../../../00_Documentation/DOC-09.md) |
-| Связанные требования | WH-R-01/02/03/05/09/17/18 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
+Модель BP-03 показывает текущий обмен приложений и целевую поддержку складских операций. Граница модели — центральный склад. Детали магазинного запаса и офлайн-сверки рассматриваются на [междоменных стыках](../../07_Project_Management/WH-PM-002-coordination.md).
 
-## Формат и область
+[Модель Warehouse.archimate](Warehouse.archimate) · [Open Exchange XML](WH-AM-001-model-exchange.xml)
 
-Модель описывает Warehouse и его зависимости, используя типы элементов ArchiMate 3.x и явные типы отношений. Таблицы — канонический состав модели; Mermaid даёт читаемое представление в Markdown, без имитации стандартных пиктограмм ArchiMate. Принятый словарь зафиксирован для согласованности с материалами курса, а не как утверждение о новейшей версии стандарта. Справочник типов: [The Open Group, схема модели 3.1](https://www.opengroup.org/xsd/archimate/3.1/html-model/).
+В Archi откройте папку **Views**. Изображения ниже экспортированы из тех же представлений.
 
+## Прикладной слой As-Is
 
-Откройте [Warehouse.archimate](Warehouse.archimate) в Archi. В папке `Views` находятся три представления домена. Archi проверил и импортировал [исходный Open Exchange XML](WH-AM-001-model-exchange.xml).
+![ArchiMate As-Is. Действующий обмен WMS, ERP, интернет-магазина и BI](views/application-as-is.png)
 
-- [Прикладной слой As-Is](views/application-as-is.png)
-- [Прикладной слой To-Be](views/application-to-be.png)
-- [Сквозное представление слоёв](views/layers.png)
+ERP и WMS обмениваются поставками, заданиями, остатками и фактами операций. Интернет-магазин получает каталог и остатки из ERP и передаёт заказы. BI получает данные из ERP раз в сутки. Представление построено по INT-03, INT-05 и INT-06 из DOC-05. Для ERP–WMS DOC-05 указывает REST, а DOC-16 описывает файловую передачу части справочных данных. Состав каналов уточняется при обследовании. [DOC-05](../../../00_Documentation/DOC-05.md) · [DOC-16](../../../00_Documentation/DOC-16.md)
 
-## Элементы
+## Прикладной слой To-Be
 
-| ID | Тип ArchiMate | Название | Состояние |
-| --- | --- | --- | --- |
-| BA1 | BusinessActor | Распределительный склад | As-Is/To-Be |
-| BR1 | BusinessRole | Кладовщик / комплектовщик | As-Is/To-Be |
-| BR2 | BusinessRole | Начальник склада | As-Is/To-Be |
-| BP1 | BusinessProcess | Приёмка и размещение | As-Is/To-Be, детали различаются |
-| BP2 | BusinessProcess | Комплектация и передача | As-Is/To-Be |
-| BP3 | BusinessProcess | Инвентаризация | As-Is/To-Be |
-| BS1 | BusinessService | Складское исполнение заказа | As-Is/To-Be |
-| AC1 | ApplicationComponent | WMS | As-Is/To-Be |
-| AC2 | ApplicationComponent | ERP | As-Is/To-Be, внешний |
-| AC3 | ApplicationComponent | Integration Platform | As-Is по DOC-04/05; To-Be развиваемая |
-| AC4 | ApplicationComponent | Адаптер Warehouse | To-Be, новый |
-| AC5 | ApplicationComponent | Интернет-магазин | Внешний |
-| AC6 | ApplicationComponent | BI | Внешний |
-| AF1 | ApplicationFunction | Регистрация складских операций | As-Is/To-Be |
-| AF2 | ApplicationFunction | Управление заданием | As-Is/To-Be |
-| AF3 | ApplicationFunction | Атомарное управление резервом | To-Be: уточнение возможностей WMS |
-| AF4 | ApplicationFunction | Преобразование и восстановимая доставка | To-Be |
-| AF5 | ApplicationFunction | Ведение товара и учётного заказа | As-Is/To-Be, ERP |
-| AS1 | ApplicationService | Управление запасами | As-Is/To-Be; SRV-05 |
-| AS2 | ApplicationService | Исполнение складского задания | As-Is/To-Be |
-| AS3 | ApplicationService | Подтверждение резерва | To-Be |
-| AS4 | ApplicationService | Обмен Warehouse | To-Be |
-| AS5 | ApplicationService | Данные товара и заказа | As-Is/To-Be |
-| DO1 | DataObject | Складской остаток | As-Is/To-Be |
-| DO2 | DataObject | Задание и отгрузка | As-Is/To-Be |
-| DO3 | DataObject | Товар и заказ | As-Is/To-Be |
-| DO4 | DataObject | Резерв | Поле в As-Is, целевой жизненный цикл |
-| N1 | Node | Поддерживаемая среда WMS | As-Is/To-Be |
-| N2 | Node | Корпоративный контейнерный контур | To-Be |
-| TF1 | TechnologyFunction | Выполнение приложения WMS | As-Is/To-Be |
-| TF2 | TechnologyFunction | Выполнение адаптера | To-Be |
-| TS1 | TechnologyService | Среда выполнения WMS | As-Is/To-Be |
-| TS2 | TechnologyService | Контейнерное выполнение | To-Be |
+![ArchiMate To-Be. Обмен склада через адаптер и IS-07](views/application-to-be.png)
 
-## Модель Application Layer To-Be
-
-```mermaid
-flowchart TB
-  AC1["AC1 WMS<br/>ApplicationComponent"] -->|"Assignment"| AF1["AF1 Операции<br/>ApplicationFunction"]
-  AC1 -->|"Assignment"| AF2["AF2 Задания<br/>ApplicationFunction"]
-  AC1 -->|"Assignment"| AF3["AF3 Резерв<br/>ApplicationFunction"]
-  AF1 -->|"Realization"| AS1["AS1 Управление запасами<br/>ApplicationService"]
-  AF2 -->|"Realization"| AS2["AS2 Исполнение<br/>ApplicationService"]
-  AF3 -->|"Realization"| AS3["AS3 Подтверждение резерва<br/>ApplicationService"]
-  AF1 -->|"Access: read/write"| DO1["DO1 Остаток<br/>DataObject"]
-  AF2 -->|"Access: read/write"| DO2["DO2 Задание<br/>DataObject"]
-  AF3 -->|"Access: read/write"| DO4["DO4 Резерв<br/>DataObject"]
-  AC4["AC4 Адаптер<br/>ApplicationComponent"] -->|"Assignment"| AF4["AF4 Преобразование и доставка<br/>ApplicationFunction"]
-  AF4 -->|"Realization"| AS4["AS4 Обмен Warehouse<br/>ApplicationService"]
-  AS4 -->|"Serving"| AC2["AC2 ERP<br/>ApplicationComponent"]
-  AS4 -->|"Serving"| AC5["AC5 Интернет-магазин<br/>ApplicationComponent"]
-  AS3 -->|"Serving"| AF4
-```
-
-Это отношения предоставления/реализации функций; Serving не обозначает направление передачи пакетов. Физические и логические потоки данных вынесены в [модель потоков](../../03_Data_Architecture/Data_Flows/WH-DF-001-flows.md), поэтому граф сервисов не обходит интеграционную платформу.
-
-## Реестр отношений
-
-| Источник | Отношение | Цель | Смысл |
-| --- | --- | --- | --- |
-| BA1 | Assignment | BR1, BR2 | Подразделение выполняет роли |
-| BR1 | Assignment | BP1, BP2, BP3 | Исполнитель процессов |
-| BR2 | Assignment | BP3 | Участие в контроле/утверждении инвентаризации |
-| BP2 | Realization | BS1 | Процесс реализует складское исполнение |
-| AC1 | Assignment | AF1, AF2, AF3 | WMS выполняет функции |
-| AC2 | Assignment | AF5 | ERP ведёт мастер-объекты и учёт |
-| AC4 | Assignment | AF4 | Адаптер выполняет преобразование/доставку |
-| AF1, AF2, AF3, AF4, AF5 | Realization | AS1, AS2, AS3, AS4, AS5 соответственно | Функции реализуют сервисы |
-| AS1 | Serving | BP1, BP3 | Складские операции поддерживают приёмку и инвентаризацию |
-| AS2 | Serving | BP2 | Сервис поддерживает исполнение заказа |
-| AS3 | Serving | AF2, AF4 | Подтверждение резерва используется заданием и адаптером |
-| AS4 | Serving | AC2, AC5, AC6 | Складской обмен обслуживает внешние приложения |
-| AS5 | Serving | AF1, AF2 | Товар/заказ нужны складским функциям |
-| AF1 | Access (read/write) | DO1 | Изменение физического остатка |
-| AF2 | Access (read/write) | DO2 | Изменение задания/отгрузки |
-| AF3 | Access (read/write) | DO4, DO1 | Резерв и агрегат доступности |
-| AF1, AF2 | Access (read) | DO3 | Склад читает данные ERP |
-| AF5 | Access (read/write) | DO3 | ERP изменяет мастер-объекты |
-| N1, N2 | Assignment | TF1, TF2 соответственно | Среды выполняют технологическое поведение |
-| TF1, TF2 | Realization | TS1, TS2 соответственно | Поведение реализует техническую услугу |
-| TS1, TS2 | Serving | AC1, AC4 соответственно | Среды поддерживают WMS/адаптер |
-| AC2 | Flow | AC3 | Товар, поставка, задание |
-| AC3 | Flow | AC4 | Управляемая доставка команд |
-| AC4 | Flow | AC1 | Преобразованные команды |
-| AC1 | Flow | AC4 | Подтверждённые складские факты |
-| AC4 | Flow | AC3 | События с версиями и идентификаторами |
-| AC3 | Flow | AC2, AC5, AC6 | Результаты/события потребителям |
-
-Строка с несколькими целями разворачивается в отдельные отношения одного типа. У объекта DO1 один авторитетный писатель; Access у функций означает работу внутри границы WMS.
+Запросы и команды проходят через IS-07 и складской адаптер. WMS подтверждает центральный остаток и резерв. В ERP поступают подтверждённые факты для учёта и ответы на запросы остатка. Интернет-магазин получает результат резерва и статус исполнения. BI получает факты и снимки. [Каталог интеграций](../../02_Application_Architecture/Integrations/WH-INT-001-integration.md) · [C4 Container](../C4/WH-C4-002-containers.md)
 
 ## Сквозное представление слоёв
 
-```mermaid
-flowchart TB
-  BR["BusinessRole: кладовщик"] -->|"Assignment"| BP["BusinessProcess: исполнение задания"]
-  BP -->|"Realization"| BS["BusinessService: складское исполнение"]
-  AS["ApplicationService: исполнение задания"] -->|"Serving"| BP
-  AF["ApplicationFunction: управление заданием"] -->|"Realization"| AS
-  AC["ApplicationComponent: WMS"] -->|"Assignment"| AF
-  TS["TechnologyService: среда WMS"] -->|"Serving"| AC
-  TF["TechnologyFunction: выполнение приложения"] -->|"Realization"| TS
-  N["Node: поддерживаемая среда WMS"] -->|"Assignment"| TF
-```
+![ArchiMate. Складское исполнение в бизнес-, прикладном и технологическом слоях](views/layers.png)
 
-## As-Is и переход
+Кладовщик выполняет комплектацию и передачу. Этот процесс реализует бизнес-сервис складского исполнения. WMS выполняет прикладную функцию управления заданием, которая реализует сервис для бизнес-процесса. Технологическая функция на узле WMS реализует среду выполнения приложения. [Паспорт BP-03](../../01_Business_Architecture/Business_Process/WH-BP-001-process.md) · [Развёртывание](../../04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md)
 
-В As-Is подтверждены WMS, ERP, платформа, учёт операций и заданий, складские данные и текущие серверы. Резерв представлен атрибутом D-06, но атомарность и жизненный цикл AF3/AS3 не доказаны. AC4, AF4, AS4 и N2 — целевые добавления. При переходе сначала уточняются возможности AC1/AC3, затем вводятся новые контракты и восстановимая доставка. Цели WH-G-01–04 связаны с функциями через [требования](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md); обоснования — [ADR](../../05_Architecture_Decisions/ADR/ADR-WH-001-inventory-authority.md), [ADR интеграции](../../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md), [ADR размещения](../../05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md).
+## Роли и операции BP-03
+
+![ArchiMate. Складские роли, процессы и сервисы WMS](views/business-process.png)
+
+Представление показывает ответственность кладовщика и начальника склада и прикладную поддержку приёмки, комплектации и инвентаризации. Порядок шагов и исключения раскрыты в [BPMN To-Be](../BPMN/WH-BPMN-002-to-be.md).
+
+## Резерв и складские данные
+
+![ArchiMate. Функции WMS и доступ к данным резерва и исполнения](views/reservation-data.png)
+
+Управление резервом читает и изменяет остаток и резерв заказа. Управление заданием работает с остатком, заданием и отгрузкой, а также фиксирует факт в журнале. Сервис подтверждения резерва используется функцией исполнения. [Модель данных](../../03_Data_Architecture/Data_Entities/WH-DAT-001-data-model.md) · [UML последовательности](../UML/WH-UML-001-components.md#последовательность-резерва-и-передачи)
+
+## Восстановимая доставка событий
+
+![ArchiMate. Доступ WMS к журналу и предоставление записей адаптеру](views/event-delivery.png)
+
+Функция WMS читает журнал и реализует сервис доступа к подтверждённым фактам. Адаптер использует этот сервис для доставки событий. Способ чтения журнала и восстановление после сбоя проверяются с поставщиком WMS. [ADR-WH-002](../../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md)
+
+## Обозначения
+
+| Отношение | Как читать |
+| --- | --- |
+| **Assignment** | Роль выполняет процесс, приложение выполняет функцию, узел выполняет технологическую функцию. |
+| **Realization** | Процесс или функция реализует сервис. Пунктирная линия с полым треугольником. |
+| **Serving** | Сервис предоставляется потребителю. Стрелка направлена от сервиса к потребителю. |
+| **Flow** | Передача информации между приложениями. Пунктирная стрелка указывает направление. |
+| **Access** | Доступ функции к объекту данных. Направление наконечника показывает чтение или запись. Два наконечника означают чтение и запись. |
+
+Все 39 отношений проверены по матрице допустимых связей ArchiMate 3.2 в Archi. Open Exchange XML прошёл проверку схемы и импорт в Archi. [Документация Archi](https://www.archimatetool.com/downloads/archi/Archi%20User%20Guide.pdf)
 
 [К содержанию Warehouse](../../README.md)

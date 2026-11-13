@@ -1,344 +1,479 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="Warehouse — проектная модель As-Is / To-Be" id="WH_MODEL_001" version="5.0.0">
-  <folder name="Strategy" id="id-b6b38994c0da44b1a96a9c09769d48c8" type="strategy"/>
-  <folder name="Business" id="id-b37806f488ef4a04b5f66588403eacdd" type="business">
-    <element xsi:type="archimate:BusinessActor" name="Распределительный склад" id="BA1">
-      <documentation>As-Is/To-Be</documentation>
-    </element>
-    <element xsi:type="archimate:BusinessRole" name="Кладовщик / комплектовщик" id="BR1">
-      <documentation>As-Is/To-Be</documentation>
+<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="RetailMax Warehouse" id="WH_MODEL_001" version="5.0.0">
+  <folder name="Strategy" id="id-8245e81bc9a74f139b96dfbd2796eb81" type="strategy"/>
+  <folder name="Business" id="id-48322ce81e58403e8995433b621c5391" type="business">
+    <element xsi:type="archimate:BusinessRole" name="Кладовщик" id="BR1">
+      <documentation>Выполняет комплектацию и подтверждает передачу товара.</documentation>
     </element>
     <element xsi:type="archimate:BusinessRole" name="Начальник склада" id="BR2">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>Утверждает пересчёт и корректировку.</documentation>
     </element>
     <element xsi:type="archimate:BusinessProcess" name="Приёмка и размещение" id="BP1">
-      <documentation>As-Is/To-Be, детали различаются</documentation>
-    </element>
-    <element xsi:type="archimate:BusinessProcess" name="Комплектация и передача" id="BP2">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>Сверка поставки, подтверждение принятого количества и размещение.</documentation>
     </element>
     <element xsi:type="archimate:BusinessProcess" name="Инвентаризация" id="BP3">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>Пересчёт зоны и утверждение корректировки.</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Комплектация и передача" id="BP2">
+      <documentation>Складской этап BP-03. Подбор, упаковка и физическая передача.</documentation>
     </element>
     <element xsi:type="archimate:BusinessService" name="Складское исполнение заказа" id="BS1">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>Подготовленный товар передаётся получателю.</documentation>
     </element>
   </folder>
-  <folder name="Application" id="id-f8de6fde39624226a4ee1c10ccebe461" type="application">
+  <folder name="Application" id="id-71747defebde400388d9f548bd655c04" type="application">
+    <element xsi:type="archimate:ApplicationService" name="Учёт поступлений" id="AS1">
+      <documentation>Сервис WMS для регистрации фактической приёмки.</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Учёт инвентаризации" id="AS7">
+      <documentation>Сервис WMS для сверки и применения утверждённой корректировки.</documentation>
+    </element>
     <element xsi:type="archimate:ApplicationComponent" name="WMS" id="AC1">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>IS-05. Центральный остаток, резерв и складские операции.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationComponent" name="ERP" id="AC2">
-      <documentation>As-Is/To-Be, внешний</documentation>
+      <documentation>IS-01. Товары, закупки и учётные заказы. В целевой модели читает текущий запас в WMS.</documentation>
     </element>
-    <element xsi:type="archimate:ApplicationComponent" name="Integration Platform" id="AC3">
-      <documentation>As-Is по DOC-04/05; To-Be развиваемая</documentation>
+    <element xsi:type="archimate:ApplicationComponent" name="Платформа IS-07" id="AC3">
+      <documentation>Общая платформа API и событий. Показана в целевом обмене.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationComponent" name="Адаптер Warehouse" id="AC4">
-      <documentation>To-Be, новый</documentation>
+      <documentation>Преобразование контрактов и восстановимая публикация. Складская запись остаётся в WMS.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationComponent" name="Интернет-магазин" id="AC5">
-      <documentation>Внешний</documentation>
+      <documentation>IS-03. Заказ канала и запрос резерва.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationComponent" name="BI" id="AC6">
-      <documentation>Внешний</documentation>
-    </element>
-    <element xsi:type="archimate:ApplicationFunction" name="Регистрация складских операций" id="AF1">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>IS-06 в кейсе. Получатель аналитических данных.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationFunction" name="Управление заданием" id="AF2">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>Проверка резерва, подбор и физическая передача.</documentation>
     </element>
-    <element xsi:type="archimate:ApplicationFunction" name="Атомарное управление резервом" id="AF3">
-      <documentation>To-Be: уточнение возможностей WMS</documentation>
+    <element xsi:type="archimate:ApplicationFunction" name="Управление резервом" id="AF3">
+      <documentation>Атомарная проверка доступности и запись резерва.</documentation>
     </element>
-    <element xsi:type="archimate:ApplicationFunction" name="Преобразование и восстановимая доставка" id="AF4">
-      <documentation>To-Be</documentation>
+    <element xsi:type="archimate:ApplicationFunction" name="Доставка складских событий" id="AF4">
+      <documentation>Читает подтверждённый журнал через интерфейс WMS.</documentation>
     </element>
-    <element xsi:type="archimate:ApplicationFunction" name="Ведение товара и учётного заказа" id="AF5">
-      <documentation>As-Is/To-Be, ERP</documentation>
-    </element>
-    <element xsi:type="archimate:ApplicationService" name="Управление запасами" id="AS1">
-      <documentation>As-Is/To-Be; SRV-05</documentation>
-    </element>
-    <element xsi:type="archimate:ApplicationService" name="Исполнение складского задания" id="AS2">
-      <documentation>As-Is/To-Be</documentation>
+    <element xsi:type="archimate:ApplicationService" name="Исполнение задания" id="AS2">
+      <documentation>Сервис WMS, который поддерживает складское исполнение.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationService" name="Подтверждение резерва" id="AS3">
-      <documentation>To-Be</documentation>
+      <documentation>Бизнес-ответ WMS о результате резервирования.</documentation>
     </element>
-    <element xsi:type="archimate:ApplicationService" name="Обмен Warehouse" id="AS4">
-      <documentation>To-Be</documentation>
+    <element xsi:type="archimate:ApplicationService" name="Чтение журнала WMS" id="AS6">
+      <documentation>Доступ к подтверждённым событиям через поддерживаемый интерфейс.</documentation>
     </element>
-    <element xsi:type="archimate:ApplicationService" name="Данные товара и заказа" id="AS5">
-      <documentation>As-Is/To-Be</documentation>
+    <element xsi:type="archimate:ApplicationFunction" name="Предоставление записей журнала" id="AF6">
+      <documentation>Возвращает подтверждённые факты без доступа адаптера к таблицам WMS.</documentation>
     </element>
-    <element xsi:type="archimate:DataObject" name="Складской остаток" id="DO1">
-      <documentation>As-Is/To-Be</documentation>
+    <element xsi:type="archimate:DataObject" name="Центральный остаток" id="DO1">
+      <documentation>Остаток и доступность по товару на центральном складе.</documentation>
     </element>
     <element xsi:type="archimate:DataObject" name="Задание и отгрузка" id="DO2">
-      <documentation>As-Is/To-Be</documentation>
+      <documentation>Задание, состояние исполнения и подтверждение передачи.</documentation>
     </element>
-    <element xsi:type="archimate:DataObject" name="Товар и заказ" id="DO3">
-      <documentation>As-Is/To-Be</documentation>
+    <element xsi:type="archimate:DataObject" name="Резерв заказа" id="DO4">
+      <documentation>Связь orderId и reservationId, количество, статус, версия.</documentation>
     </element>
-    <element xsi:type="archimate:DataObject" name="Резерв" id="DO4">
-      <documentation>Поле в As-Is, целевой жизненный цикл</documentation>
+    <element xsi:type="archimate:DataObject" name="Журнал фактов WMS" id="DO5">
+      <documentation>Запись вместе с изменением или поддерживаемый журнал с восстановимым курсором.</documentation>
     </element>
   </folder>
-  <folder name="Technology &amp; Physical" id="id-2970c127a255412ba2f2f27afaaac430" type="technology">
-    <element xsi:type="archimate:Node" name="Поддерживаемая среда WMS" id="N1">
-      <documentation>As-Is/To-Be</documentation>
+  <folder name="Technology &amp; Physical" id="id-d0e636bc1e5b4c0d85368b9ea8d8ea6d" type="technology">
+    <element xsi:type="archimate:Node" name="Узел WMS на VM" id="N1">
+      <documentation>Поддерживаемая поставщиком вычислительная среда.</documentation>
     </element>
-    <element xsi:type="archimate:Node" name="Корпоративный контейнерный контур" id="N2">
-      <documentation>To-Be</documentation>
-    </element>
-    <element xsi:type="archimate:TechnologyFunction" name="Выполнение приложения WMS" id="TF1">
-      <documentation>As-Is/To-Be</documentation>
-    </element>
-    <element xsi:type="archimate:TechnologyFunction" name="Выполнение адаптера" id="TF2">
-      <documentation>To-Be</documentation>
+    <element xsi:type="archimate:TechnologyFunction" name="Выполнение WMS" id="TF1">
+      <documentation>Среда запуска и исполнения приложения WMS.</documentation>
     </element>
     <element xsi:type="archimate:TechnologyService" name="Среда выполнения WMS" id="TS1">
-      <documentation>As-Is/To-Be</documentation>
-    </element>
-    <element xsi:type="archimate:TechnologyService" name="Контейнерное выполнение" id="TS2">
-      <documentation>To-Be</documentation>
+      <documentation>Технологический сервис, который обслуживает WMS.</documentation>
     </element>
   </folder>
-  <folder name="Motivation" id="id-7b9cb4215418489890f80eeb62efe7d1" type="motivation"/>
-  <folder name="Implementation &amp; Migration" id="id-529f2e333dde46969361bcad6cef24d9" type="implementation_migration"/>
-  <folder name="Other" id="id-aac20421acdd44e8a22d62b7cc1be407" type="other"/>
-  <folder name="Relations" id="id-5da868a6c5ff44379fcd5b82b38ab01b" type="relations">
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_0" source="BA1" target="BR1"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_1" source="BA1" target="BR2"/>
+  <folder name="Motivation" id="id-ee8dc7a2e34d4f11b3bf07af6aa0d847" type="motivation"/>
+  <folder name="Implementation &amp; Migration" id="id-b61e035e6c064732bcc6fb934455a477" type="implementation_migration"/>
+  <folder name="Other" id="id-b49a96be6882457d8f2bb9a33d106ce0" type="other"/>
+  <folder name="Relations" id="id-58a22f7a3dd747c6ba09170a0db84af4" type="relations">
+    <element xsi:type="archimate:FlowRelationship" name="Поставки и задания" id="WH_F_AS01" source="AC2" target="AC1">
+      <documentation>DOC-05, INT-05.</documentation>
+    </element>
+    <element xsi:type="archimate:FlowRelationship" name="Остатки и факты операций" id="WH_F_AS02" source="AC1" target="AC2">
+      <documentation>DOC-05, INT-05.</documentation>
+    </element>
+    <element xsi:type="archimate:FlowRelationship" name="Заказы канала" id="WH_F_AS03" source="AC5" target="AC2">
+      <documentation>DOC-05, INT-03.</documentation>
+    </element>
+    <element xsi:type="archimate:FlowRelationship" name="Каталог и остатки" id="WH_F_AS04" source="AC2" target="AC5">
+      <documentation>DOC-05, INT-03.</documentation>
+    </element>
+    <element xsi:type="archimate:FlowRelationship" name="Суточный ETL" id="WH_F_AS05" source="AC2" target="AC6">
+      <documentation>DOC-05, INT-06.</documentation>
+    </element>
+    <element xsi:type="archimate:FlowRelationship" name="Поставки и задания" id="WH_REL_40" source="AC2" target="AC3"/>
+    <element xsi:type="archimate:FlowRelationship" name="Команды и запросы" id="WH_REL_41" source="AC3" target="AC4"/>
+    <element xsi:type="archimate:FlowRelationship" name="Команды WMS" id="WH_REL_42" source="AC4" target="AC1"/>
+    <element xsi:type="archimate:FlowRelationship" name="Складские факты" id="WH_REL_43" source="AC1" target="AC4"/>
+    <element xsi:type="archimate:FlowRelationship" name="Ответы и события" id="WH_REL_44" source="AC4" target="AC3"/>
+    <element xsi:type="archimate:FlowRelationship" name="Факты и ответы" id="WH_REL_45" source="AC3" target="AC2"/>
+    <element xsi:type="archimate:FlowRelationship" name="Запрос резерва" id="WH_F_TB07" source="AC5" target="AC3"/>
+    <element xsi:type="archimate:FlowRelationship" name="Результат и статус" id="WH_REL_46" source="AC3" target="AC5"/>
+    <element xsi:type="archimate:FlowRelationship" name="Факты и снимки" id="WH_REL_47" source="AC3" target="AC6"/>
     <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_2" source="BR1" target="BP1"/>
     <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_3" source="BR1" target="BP2"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_4" source="BR1" target="BP3"/>
     <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_5" source="BR2" target="BP3"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_6" source="AC1" target="AF1"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_7" source="AC1" target="AF2"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_8" source="AC1" target="AF3"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_9" source="AC2" target="AF5"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_10" source="AC4" target="AF4"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_11" source="N1" target="TF1"/>
-    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_12" source="N2" target="TF2"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_13" source="BP2" target="BS1"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_14" source="AF1" target="AS1"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_15" source="AF2" target="AS2"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_16" source="AF3" target="AS3"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_17" source="AF4" target="AS4"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_18" source="AF5" target="AS5"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_19" source="TF1" target="TS1"/>
-    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_20" source="TF2" target="TS2"/>
     <element xsi:type="archimate:ServingRelationship" id="WH_REL_21" source="AS1" target="BP1"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_22" source="AS1" target="BP3"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_S_COUNT" source="AS7" target="BP3"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_13" source="BP2" target="BS1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_7" source="AC1" target="AF2"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_15" source="AF2" target="AS2"/>
     <element xsi:type="archimate:ServingRelationship" id="WH_REL_23" source="AS2" target="BP2"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_24" source="AS3" target="AF2"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_25" source="AS3" target="AF4"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_26" source="AS4" target="AC2"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_27" source="AS4" target="AC5"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_28" source="AS4" target="AC6"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_29" source="AS5" target="AF1"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_30" source="AS5" target="AF2"/>
     <element xsi:type="archimate:ServingRelationship" id="WH_REL_31" source="TS1" target="AC1"/>
-    <element xsi:type="archimate:ServingRelationship" id="WH_REL_32" source="TS2" target="AC4"/>
-    <element xsi:type="archimate:AccessRelationship" id="WH_REL_33" source="AF1" target="DO1" accessType="3"/>
-    <element xsi:type="archimate:AccessRelationship" id="WH_REL_34" source="AF2" target="DO2" accessType="3"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_19" source="TF1" target="TS1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_11" source="N1" target="TF1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_8" source="AC1" target="AF3"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_16" source="AF3" target="AS3"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_24" source="AS3" target="AF2"/>
     <element xsi:type="archimate:AccessRelationship" id="WH_REL_35" source="AF3" target="DO4" accessType="3"/>
     <element xsi:type="archimate:AccessRelationship" id="WH_REL_36" source="AF3" target="DO1" accessType="3"/>
-    <element xsi:type="archimate:AccessRelationship" id="WH_REL_37" source="AF1" target="DO3" accessType="1"/>
-    <element xsi:type="archimate:AccessRelationship" id="WH_REL_38" source="AF2" target="DO3" accessType="1"/>
-    <element xsi:type="archimate:AccessRelationship" id="WH_REL_39" source="AF5" target="DO3" accessType="3"/>
-    <element xsi:type="archimate:FlowRelationship" name="Товар, поставка, задание" id="WH_REL_40" source="AC2" target="AC3"/>
-    <element xsi:type="archimate:FlowRelationship" name="Команды" id="WH_REL_41" source="AC3" target="AC4"/>
-    <element xsi:type="archimate:FlowRelationship" name="Преобразованные команды" id="WH_REL_42" source="AC4" target="AC1"/>
-    <element xsi:type="archimate:FlowRelationship" name="Складские факты" id="WH_REL_43" source="AC1" target="AC4"/>
-    <element xsi:type="archimate:FlowRelationship" name="События" id="WH_REL_44" source="AC4" target="AC3"/>
-    <element xsi:type="archimate:FlowRelationship" name="Учётные факты" id="WH_REL_45" source="AC3" target="AC2"/>
-    <element xsi:type="archimate:FlowRelationship" name="Доступность и статус" id="WH_REL_46" source="AC3" target="AC5"/>
-    <element xsi:type="archimate:FlowRelationship" name="Аналитические факты" id="WH_REL_47" source="AC3" target="AC6"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_34" source="AF2" target="DO2" accessType="3"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_A_JOURNAL_WRITE" source="AF2" target="DO5"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_A_STOCK" source="AF2" target="DO1" accessType="3"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_I_JOURNAL" source="AC1" target="AF6"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_R_JOURNAL" source="AF6" target="AS6"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_A_JOURNAL_READ" source="AF6" target="DO5" accessType="1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_10" source="AC4" target="AF4"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_S_JOURNAL" source="AS6" target="AF4"/>
   </folder>
-  <folder name="Views" id="id-90c011c0175545fb9d063842a67ae917" type="diagrams">
-    <element xsi:type="archimate:ArchimateDiagramModel" name="Application Layer — To-Be" id="WH_VIEW_APP_TOBE">
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC1" archimateElement="AC1">
-        <bounds x="40" y="40" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_6" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF1" archimateRelationship="WH_REL_6"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_7" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF2" archimateRelationship="WH_REL_7"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_8" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF3" archimateRelationship="WH_REL_8"/>
+  <folder name="Views" id="id-55377085028c4e96a59988306ef4447f" type="diagrams">
+    <element xsi:type="archimate:ArchimateDiagramModel" name="01 · Прикладной слой As-Is" id="WH_VIEW_APP_ASIS">
+      <child xsi:type="archimate:Note" id="WH_VIEW_APP_ASIS_title" font="1|Arial|18.0|1|COCOA|1|" fontColor="#172f42" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="20" width="300" height="40"/>
+        <content>Прикладной слой As-Is</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC2" targetConnections="WH_VIEW_APP_TOBE_rel_26" archimateElement="AC2">
-        <bounds x="260" y="40" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_9" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AF5" archimateRelationship="WH_REL_9"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_APP_ASIS_sub" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="62" width="430" height="35"/>
+        <content>Центральный склад · действующий обмен по DOC-05</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC3" archimateElement="AC3">
-        <bounds x="480" y="40" width="180" height="75"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC1" targetConnections="WH_VIEW_APP_ASIS_WH_F_AS01" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#d8ebfa" archimateElement="AC1">
+        <bounds x="40" y="228" width="165" height="72"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_WH_F_AS02" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AC2" archimateRelationship="WH_F_AS02">
+          <bendpoint startX="105" startY="21" endX="-281" endY="21"/>
+          <bendpoint startX="283" startY="21" endX="-103" endY="21"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC4" archimateElement="AC4">
-        <bounds x="700" y="40" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_10" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AF4" archimateRelationship="WH_REL_10"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC2" targetConnections="WH_VIEW_APP_ASIS_WH_F_AS02 WH_VIEW_APP_ASIS_WH_F_AS03" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC2">
+        <bounds x="426" y="228" width="165" height="72"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_WH_F_AS01" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AC1" archimateRelationship="WH_F_AS01">
+          <bendpoint startX="-103" startY="-21" endX="283" endY="-21"/>
+          <bendpoint startX="-283" startY="-21" endX="103" endY="-21"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_WH_F_AS04" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AC5" archimateRelationship="WH_F_AS04">
+          <bendpoint startX="92" startY="-81" endX="-321" endY="35"/>
+          <bendpoint startX="294" startY="-81" endX="-119" endY="35"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_WH_F_AS05" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AC6" archimateRelationship="WH_F_AS05">
+          <bendpoint startX="1" startY="139" endX="-412"/>
+          <bendpoint startX="291" startY="139" endX="-122"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC5" targetConnections="WH_VIEW_APP_TOBE_rel_27" archimateElement="AC5">
-        <bounds x="920" y="40" width="180" height="75"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC5" targetConnections="WH_VIEW_APP_ASIS_WH_F_AS04" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC5">
+        <bounds x="826" y="112" width="190" height="72"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_WH_F_AS03" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_ASIS_AC5" target="WH_VIEW_APP_ASIS_AC2" archimateRelationship="WH_F_AS03">
+          <bendpoint startX="-122" startY="-16" endX="291" endY="-132"/>
+          <bendpoint startX="-413" startY="-16" endY="-132"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC6" targetConnections="WH_VIEW_APP_TOBE_rel_28" archimateElement="AC6">
-        <bounds x="1140" y="40" width="180" height="75"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC6" targetConnections="WH_VIEW_APP_ASIS_WH_F_AS05" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC6">
+        <bounds x="826" y="367" width="190" height="72"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF1" targetConnections="WH_VIEW_APP_TOBE_rel_6 WH_VIEW_APP_TOBE_rel_29" archimateElement="AF1">
-        <bounds x="40" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_14" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_AS1" archimateRelationship="WH_REL_14"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_33" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO1" archimateRelationship="WH_REL_33"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_37" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO3" archimateRelationship="WH_REL_37"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_APP_ASIS_foot" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="468" width="710" height="33"/>
+        <content>INT-05 · ERP–WMS: REST по DOC-05      |      INT-06 · ERP–BI: ETL раз в сутки</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF2" targetConnections="WH_VIEW_APP_TOBE_rel_7 WH_VIEW_APP_TOBE_rel_24 WH_VIEW_APP_TOBE_rel_30" archimateElement="AF2">
-        <bounds x="260" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_15" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_AS2" archimateRelationship="WH_REL_15"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_34" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO2" archimateRelationship="WH_REL_34"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_38" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO3" archimateRelationship="WH_REL_38"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF3" targetConnections="WH_VIEW_APP_TOBE_rel_8" archimateElement="AF3">
-        <bounds x="480" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_16" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_AS3" archimateRelationship="WH_REL_16"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_35" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO4" archimateRelationship="WH_REL_35"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_36" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO1" archimateRelationship="WH_REL_36"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF4" targetConnections="WH_VIEW_APP_TOBE_rel_10 WH_VIEW_APP_TOBE_rel_25" archimateElement="AF4">
-        <bounds x="700" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_17" source="WH_VIEW_APP_TOBE_AF4" target="WH_VIEW_APP_TOBE_AS4" archimateRelationship="WH_REL_17"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF5" targetConnections="WH_VIEW_APP_TOBE_rel_9" archimateElement="AF5">
-        <bounds x="920" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_18" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_AS5" archimateRelationship="WH_REL_18"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_39" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_DO3" archimateRelationship="WH_REL_39"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS1" targetConnections="WH_VIEW_APP_TOBE_rel_14" archimateElement="AS1">
-        <bounds x="40" y="400" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS2" targetConnections="WH_VIEW_APP_TOBE_rel_15" archimateElement="AS2">
-        <bounds x="260" y="400" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS3" targetConnections="WH_VIEW_APP_TOBE_rel_16" archimateElement="AS3">
-        <bounds x="480" y="400" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_24" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF2" archimateRelationship="WH_REL_24"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_25" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF4" archimateRelationship="WH_REL_25"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS4" targetConnections="WH_VIEW_APP_TOBE_rel_17" archimateElement="AS4">
-        <bounds x="700" y="400" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_26" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC2" archimateRelationship="WH_REL_26"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_27" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC5" archimateRelationship="WH_REL_27"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_28" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC6" archimateRelationship="WH_REL_28"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS5" targetConnections="WH_VIEW_APP_TOBE_rel_18" archimateElement="AS5">
-        <bounds x="920" y="400" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_29" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF1" archimateRelationship="WH_REL_29"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_30" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF2" archimateRelationship="WH_REL_30"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO1" targetConnections="WH_VIEW_APP_TOBE_rel_33 WH_VIEW_APP_TOBE_rel_36" archimateElement="DO1">
-        <bounds x="40" y="580" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO2" targetConnections="WH_VIEW_APP_TOBE_rel_34" archimateElement="DO2">
-        <bounds x="260" y="580" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO3" targetConnections="WH_VIEW_APP_TOBE_rel_37 WH_VIEW_APP_TOBE_rel_38 WH_VIEW_APP_TOBE_rel_39" archimateElement="DO3">
-        <bounds x="480" y="580" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO4" targetConnections="WH_VIEW_APP_TOBE_rel_35" archimateElement="DO4">
-        <bounds x="700" y="580" width="180" height="75"/>
-      </child>
+      <documentation>Подтверждённые связи INT-03, INT-05 и INT-06 по DOC-05.</documentation>
     </element>
-    <element xsi:type="archimate:ArchimateDiagramModel" name="Application Layer — As-Is по DOC-04/06" id="WH_VIEW_APP_ASIS">
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC1" archimateElement="AC1">
-        <bounds x="40" y="40" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_6" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF1" archimateRelationship="WH_REL_6"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_7" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF2" archimateRelationship="WH_REL_7"/>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="02 · Прикладной слой To-Be" id="WH_VIEW_APP_TOBE">
+      <child xsi:type="archimate:Note" id="WH_VIEW_APP_TOBE_title" font="1|Arial|18.0|1|COCOA|1|" fontColor="#172f42" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="20" width="300" height="40"/>
+        <content>Прикладной слой To-Be</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC2" archimateElement="AC2">
-        <bounds x="260" y="40" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_9" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AF5" archimateRelationship="WH_REL_9"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_APP_TOBE_sub" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="62" width="440" height="35"/>
+        <content>Центральный склад · управляемый обмен через IS-07</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC3" archimateElement="AC3">
-        <bounds x="480" y="40" width="180" height="75"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC1" targetConnections="WH_VIEW_APP_TOBE_WH_REL_42" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#d8ebfa" archimateElement="AC1">
+        <bounds x="38" y="252" width="150" height="74"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_43" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AC4" archimateRelationship="WH_REL_43">
+          <bendpoint startX="101" startY="19" endX="-249" endY="19"/>
+          <bendpoint startX="240" startY="19" endX="-110" endY="19"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC5" archimateElement="AC5">
-        <bounds x="920" y="40" width="180" height="75"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC4" targetConnections="WH_VIEW_APP_TOBE_WH_REL_43 WH_VIEW_APP_TOBE_WH_REL_41" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC4">
+        <bounds x="379" y="252" width="168" height="74"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_42" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AC1" archimateRelationship="WH_REL_42">
+          <bendpoint startX="-114" startY="-20" endX="236" endY="-20"/>
+          <bendpoint startX="-250" startY="-20" endX="100" endY="-20"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_44" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AC3" archimateRelationship="WH_REL_44">
+          <bendpoint startX="110" startY="19" endX="-268" endY="19"/>
+          <bendpoint startX="269" startY="19" endX="-109" endY="19"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC6" archimateElement="AC6">
-        <bounds x="1140" y="40" width="180" height="75"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC3" targetConnections="WH_VIEW_APP_TOBE_WH_REL_44 WH_VIEW_APP_TOBE_WH_REL_40 WH_VIEW_APP_TOBE_WH_F_TB07" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC3">
+        <bounds x="757" y="252" width="168" height="74"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_41" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC4" archimateRelationship="WH_REL_41">
+          <bendpoint startX="-108" startY="-20" endX="270" endY="-20"/>
+          <bendpoint startX="-267" startY="-20" endX="111" endY="-20"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_45" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC2" archimateRelationship="WH_REL_45">
+          <bendpoint startX="61" startY="-69" endX="-388" endY="73"/>
+          <bendpoint startX="61" startY="-117" endX="-388" endY="25"/>
+          <bendpoint startX="327" startY="-117" endX="-122" endY="25"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_46" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC5" archimateRelationship="WH_REL_46">
+          <bendpoint startX="110" startY="19" endX="-339" endY="18"/>
+          <bendpoint startX="329" startY="19" endX="-120" endY="18"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_47" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC6" archimateRelationship="WH_REL_47">
+          <bendpoint startY="165" endX="-449"/>
+          <bendpoint startX="325" startY="165" endX="-124"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AF1" targetConnections="WH_VIEW_APP_ASIS_rel_6 WH_VIEW_APP_ASIS_rel_29" archimateElement="AF1">
-        <bounds x="40" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_14" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_AS1" archimateRelationship="WH_REL_14"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_33" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO1" archimateRelationship="WH_REL_33"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_37" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO3" archimateRelationship="WH_REL_37"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC2" targetConnections="WH_VIEW_APP_TOBE_WH_REL_45" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC2">
+        <bounds x="1200" y="112" width="180" height="70"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_REL_40" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AC3" archimateRelationship="WH_REL_40">
+          <bendpoint startX="-122" startY="-15" endX="327" endY="-157"/>
+          <bendpoint startX="-449" startY="-15" endY="-157"/>
+          <bendpoint startX="-449" startY="74" endY="-68"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AF2" targetConnections="WH_VIEW_APP_ASIS_rel_7 WH_VIEW_APP_ASIS_rel_30" archimateElement="AF2">
-        <bounds x="260" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_15" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_AS2" archimateRelationship="WH_REL_15"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_34" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO2" archimateRelationship="WH_REL_34"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_38" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO3" archimateRelationship="WH_REL_38"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC5" targetConnections="WH_VIEW_APP_TOBE_WH_REL_46" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC5">
+        <bounds x="1200" y="255" width="180" height="70"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_WH_F_TB07" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_APP_TOBE_AC5" target="WH_VIEW_APP_TOBE_AC3" archimateRelationship="WH_F_TB07">
+          <bendpoint startX="-130" startY="-20" endX="319" endY="-19"/>
+          <bendpoint startX="-336" startY="-20" endX="113" endY="-19"/>
+        </sourceConnection>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AF5" targetConnections="WH_VIEW_APP_ASIS_rel_9" archimateElement="AF5">
-        <bounds x="920" y="220" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_18" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_AS5" archimateRelationship="WH_REL_18"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_39" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_DO3" archimateRelationship="WH_REL_39"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC6" targetConnections="WH_VIEW_APP_TOBE_WH_REL_47" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC6">
+        <bounds x="1200" y="419" width="180" height="70"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AS1" targetConnections="WH_VIEW_APP_ASIS_rel_14" archimateElement="AS1">
-        <bounds x="40" y="400" width="180" height="75"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_APP_TOBE_foot" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="524" width="785" height="33"/>
+        <content>WMS подтверждает запас и резерв. Адаптер преобразует контракты и доставляет складские факты.</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AS2" targetConnections="WH_VIEW_APP_ASIS_rel_15" archimateElement="AS2">
-        <bounds x="260" y="400" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AS5" targetConnections="WH_VIEW_APP_ASIS_rel_18" archimateElement="AS5">
-        <bounds x="920" y="400" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_29" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF1" archimateRelationship="WH_REL_29"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_30" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF2" archimateRelationship="WH_REL_30"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_DO1" targetConnections="WH_VIEW_APP_ASIS_rel_33" archimateElement="DO1">
-        <bounds x="40" y="580" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_DO2" targetConnections="WH_VIEW_APP_ASIS_rel_34" archimateElement="DO2">
-        <bounds x="260" y="580" width="180" height="75"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_DO3" targetConnections="WH_VIEW_APP_ASIS_rel_37 WH_VIEW_APP_ASIS_rel_38 WH_VIEW_APP_ASIS_rel_39" archimateElement="DO3">
-        <bounds x="480" y="580" width="180" height="75"/>
-      </child>
+      <documentation>Целевой обмен BP-03 через IS-07. Пунктирные стрелки показывают направление передачи.</documentation>
     </element>
-    <element xsi:type="archimate:ArchimateDiagramModel" name="Сквозные слои Warehouse" id="WH_VIEW_LAYERS">
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BR1" archimateElement="BR1">
-        <bounds x="40" y="40" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_3" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2" archimateRelationship="WH_REL_3"/>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="03 · Сквозное представление слоёв" id="WH_VIEW_LAYERS">
+      <child xsi:type="archimate:Note" id="WH_VIEW_LAYERS_title" font="1|Arial|18.0|1|COCOA|1|" fontColor="#172f42" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="18" width="405" height="42"/>
+        <content>Складское исполнение заказа</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BP2" targetConnections="WH_VIEW_LAYERS_rel_3 WH_VIEW_LAYERS_rel_23" archimateElement="BP2">
-        <bounds x="260" y="40" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_13" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1" archimateRelationship="WH_REL_13"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_LAYERS_sub" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="62" width="365" height="33"/>
+        <content>Сквозное представление слоёв ArchiMate</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BS1" targetConnections="WH_VIEW_LAYERS_rel_13" archimateElement="BS1">
-        <bounds x="480" y="40" width="180" height="75"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_LAYERS_business" font="1|Arial|12.0|1|COCOA|1|" fontColor="#815a20" lineColor="#ffffff" textAlignment="1">
+        <bounds x="36" y="120" width="159" height="36"/>
+        <content>Бизнес-слой</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AC1" targetConnections="WH_VIEW_LAYERS_rel_31" archimateElement="AC1">
-        <bounds x="40" y="240" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_7" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2" archimateRelationship="WH_REL_7"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_LAYERS_application" font="1|Arial|12.0|1|COCOA|1|" fontColor="#305e80" lineColor="#ffffff" textAlignment="1">
+        <bounds x="36" y="280" width="159" height="36"/>
+        <content>Прикладной слой</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AF2" targetConnections="WH_VIEW_LAYERS_rel_7" archimateElement="AF2">
-        <bounds x="260" y="240" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_15" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2" archimateRelationship="WH_REL_15"/>
+      <child xsi:type="archimate:Note" id="WH_VIEW_LAYERS_technology" font="1|Arial|12.0|1|COCOA|1|" fontColor="#456a48" lineColor="#ffffff" textAlignment="1">
+        <bounds x="36" y="440" width="159" height="36"/>
+        <content>Технологический слой</content>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AS2" targetConnections="WH_VIEW_LAYERS_rel_15" archimateElement="AS2">
-        <bounds x="480" y="240" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_23" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2" archimateRelationship="WH_REL_23"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BR1" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BR1">
+        <bounds x="475" y="106" width="165" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_3" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2" archimateRelationship="WH_REL_3"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_N1" archimateElement="N1">
-        <bounds x="40" y="440" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_11" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1" archimateRelationship="WH_REL_11"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BP2" targetConnections="WH_VIEW_LAYERS_WH_REL_3 WH_VIEW_LAYERS_WH_REL_23" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BP2">
+        <bounds x="746" y="106" width="190" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_13" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1" archimateRelationship="WH_REL_13"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_TF1" targetConnections="WH_VIEW_LAYERS_rel_11" archimateElement="TF1">
-        <bounds x="260" y="440" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_19" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1" archimateRelationship="WH_REL_19"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BS1" targetConnections="WH_VIEW_LAYERS_WH_REL_13" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BS1">
+        <bounds x="1018" y="106" width="205" height="68"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_TS1" targetConnections="WH_VIEW_LAYERS_rel_19" archimateElement="TS1">
-        <bounds x="480" y="440" width="180" height="75"/>
-        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_31" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1" archimateRelationship="WH_REL_31"/>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AC1" targetConnections="WH_VIEW_LAYERS_WH_REL_31" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC1">
+        <bounds x="205" y="266" width="168" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_7" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2" archimateRelationship="WH_REL_7"/>
       </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AF2" targetConnections="WH_VIEW_LAYERS_WH_REL_7" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AF2">
+        <bounds x="475" y="266" width="165" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_15" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2" archimateRelationship="WH_REL_15"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AS2" targetConnections="WH_VIEW_LAYERS_WH_REL_15" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AS2">
+        <bounds x="746" y="266" width="190" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_23" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2" archimateRelationship="WH_REL_23"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_TS1" targetConnections="WH_VIEW_LAYERS_WH_REL_19" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#607e5f" fillColor="#e5f2e4" archimateElement="TS1">
+        <bounds x="205" y="426" width="168" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_31" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1" archimateRelationship="WH_REL_31"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_TF1" targetConnections="WH_VIEW_LAYERS_WH_REL_11" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#607e5f" fillColor="#e5f2e4" archimateElement="TF1">
+        <bounds x="475" y="426" width="165" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_19" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1" archimateRelationship="WH_REL_19"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_N1" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#607e5f" fillColor="#e5f2e4" archimateElement="N1">
+        <bounds x="746" y="426" width="190" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_WH_REL_11" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1" archimateRelationship="WH_REL_11"/>
+      </child>
+      <child xsi:type="archimate:Note" id="WH_VIEW_LAYERS_foot" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="538" width="850" height="33"/>
+        <content>Assignment — исполнитель        Realization — реализация        Serving — предоставление сервиса</content>
+      </child>
+      <documentation>Реализация складского исполнения от технологического узла до бизнес-сервиса.</documentation>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="04 · Резерв и данные To-Be" id="WH_VIEW_DATA">
+      <child xsi:type="archimate:Note" id="WH_VIEW_DATA_title" font="1|Arial|18.0|1|COCOA|1|" fontColor="#172f42" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="18" width="465" height="42"/>
+        <content>Резерв и складские данные To-Be</content>
+      </child>
+      <child xsi:type="archimate:Note" id="WH_VIEW_DATA_sub" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="64" width="365" height="35"/>
+        <content>Функции WMS, сервисы и доступ к данным</content>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_AC1" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#d8ebfa" archimateElement="AC1">
+        <bounds x="170" y="119" width="164" height="62"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_REL_8" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AC1" target="WH_VIEW_DATA_AF3" archimateRelationship="WH_REL_8"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_AF3" targetConnections="WH_VIEW_DATA_WH_REL_8" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AF3">
+        <bounds x="170" y="250" width="164" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_REL_16" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AF3" target="WH_VIEW_DATA_AS3" archimateRelationship="WH_REL_16"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_REL_35" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AF3" target="WH_VIEW_DATA_DO4" archimateRelationship="WH_REL_35">
+          <bendpoint startX="-1" startY="77" endX="118" endY="-101"/>
+          <bendpoint startX="-119" startY="77" endY="-101"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_REL_36" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AF3" target="WH_VIEW_DATA_DO1" archimateRelationship="WH_REL_36">
+          <bendpoint startX="33" startY="101" endX="-107" endY="-77"/>
+          <bendpoint startX="140" startY="101" endY="-77"/>
+        </sourceConnection>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_AS3" targetConnections="WH_VIEW_DATA_WH_REL_16" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AS3">
+        <bounds x="418" y="250" width="168" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_REL_24" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AS3" target="WH_VIEW_DATA_AF2" archimateRelationship="WH_REL_24"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_AF2" targetConnections="WH_VIEW_DATA_WH_REL_24" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AF2">
+        <bounds x="671" y="250" width="185" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_REL_34" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AF2" target="WH_VIEW_DATA_DO2" archimateRelationship="WH_REL_34"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_A_JOURNAL_WRITE" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AF2" target="WH_VIEW_DATA_DO5" archimateRelationship="WH_A_JOURNAL_WRITE">
+          <bendpoint startX="275" endX="1" endY="-178"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_DATA_WH_A_STOCK" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_DATA_AF2" target="WH_VIEW_DATA_DO1" archimateRelationship="WH_A_STOCK">
+          <bendpoint startX="-93" startY="84" endX="278" endY="-94"/>
+          <bendpoint startX="-308" startY="84" endX="63" endY="-94"/>
+          <bendpoint startX="-308" startY="126" endX="63" endY="-52"/>
+        </sourceConnection>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_DO4" targetConnections="WH_VIEW_DATA_WH_REL_35" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#66849d" fillColor="#e2edf6" archimateElement="DO4">
+        <bounds x="48" y="427" width="170" height="68"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_DO1" targetConnections="WH_VIEW_DATA_WH_REL_36 WH_VIEW_DATA_WH_A_STOCK" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#66849d" fillColor="#e2edf6" archimateElement="DO1">
+        <bounds x="305" y="427" width="174" height="68"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_DO2" targetConnections="WH_VIEW_DATA_WH_REL_34" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#66849d" fillColor="#e2edf6" archimateElement="DO2">
+        <bounds x="671" y="427" width="185" height="68"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_DATA_DO5" targetConnections="WH_VIEW_DATA_WH_A_JOURNAL_WRITE" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#66849d" fillColor="#e2edf6" archimateElement="DO5">
+        <bounds x="945" y="427" width="185" height="68"/>
+      </child>
+      <child xsi:type="archimate:Note" id="WH_VIEW_DATA_foot" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="539" width="890" height="36"/>
+        <content>Access · чтение и запись: резерв, остаток, задание. Запись факта при исполнении — в журнал WMS.</content>
+      </child>
+      <documentation>Резерв и подтверждённые складские факты. Access показывает чтение и запись объектов данных.</documentation>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="05 · Доставка событий To-Be" id="WH_VIEW_JOURNAL">
+      <child xsi:type="archimate:Note" id="WH_VIEW_JOURNAL_title" font="1|Arial|18.0|1|COCOA|1|" fontColor="#172f42" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="18" width="485" height="42"/>
+        <content>Восстановимая доставка событий</content>
+      </child>
+      <child xsi:type="archimate:Note" id="WH_VIEW_JOURNAL_sub" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="65" width="460" height="35"/>
+        <content>Чтение подтверждённых фактов через сервис WMS</content>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_JOURNAL_AC1" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#d8ebfa" archimateElement="AC1">
+        <bounds x="40" y="124" width="185" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_JOURNAL_WH_I_JOURNAL" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_JOURNAL_AC1" target="WH_VIEW_JOURNAL_AF6" archimateRelationship="WH_I_JOURNAL"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_JOURNAL_AC4" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AC4">
+        <bounds x="830" y="124" width="198" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_JOURNAL_WH_REL_10" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_JOURNAL_AC4" target="WH_VIEW_JOURNAL_AF4" archimateRelationship="WH_REL_10"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_JOURNAL_AF6" targetConnections="WH_VIEW_JOURNAL_WH_I_JOURNAL" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AF6">
+        <bounds x="40" y="265" width="185" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_JOURNAL_WH_R_JOURNAL" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_JOURNAL_AF6" target="WH_VIEW_JOURNAL_AS6" archimateRelationship="WH_R_JOURNAL"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_JOURNAL_WH_A_JOURNAL_READ" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_JOURNAL_AF6" target="WH_VIEW_JOURNAL_DO5" archimateRelationship="WH_A_JOURNAL_READ"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_JOURNAL_AS6" targetConnections="WH_VIEW_JOURNAL_WH_R_JOURNAL" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AS6">
+        <bounds x="412" y="265" width="184" height="68"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_JOURNAL_WH_S_JOURNAL" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_JOURNAL_AS6" target="WH_VIEW_JOURNAL_AF4" archimateRelationship="WH_S_JOURNAL"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_JOURNAL_AF4" targetConnections="WH_VIEW_JOURNAL_WH_REL_10 WH_VIEW_JOURNAL_WH_S_JOURNAL" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AF4">
+        <bounds x="830" y="265" width="198" height="68"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_JOURNAL_DO5" targetConnections="WH_VIEW_JOURNAL_WH_A_JOURNAL_READ" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#66849d" fillColor="#e2edf6" archimateElement="DO5">
+        <bounds x="40" y="423" width="185" height="68"/>
+      </child>
+      <child xsi:type="archimate:Note" id="WH_VIEW_JOURNAL_foot" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="530" width="890" height="33"/>
+        <content>Access · функция WMS читает журнал. Serving · сервис предоставляет подтверждённые записи адаптеру.</content>
+      </child>
+      <documentation>Адаптер потребляет сервис чтения журнала. Складские события зафиксированы в WMS.</documentation>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="06 · Процессы BP-03 To-Be" id="WH_VIEW_BUSINESS">
+      <child xsi:type="archimate:Note" id="WH_VIEW_BUSINESS_title" font="1|Arial|18.0|1|COCOA|1|" fontColor="#172f42" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="18" width="420" height="42"/>
+        <content>Управление складом BP-03</content>
+      </child>
+      <child xsi:type="archimate:Note" id="WH_VIEW_BUSINESS_sub" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="62" width="410" height="35"/>
+        <content>Роли и прикладная поддержка операций</content>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_BR1" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BR1">
+        <bounds x="202" y="121" width="188" height="63"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_BUSINESS_WH_REL_2" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_BUSINESS_BR1" target="WH_VIEW_BUSINESS_BP1" archimateRelationship="WH_REL_2">
+          <bendpoint startX="-37" startY="68" endX="114" endY="-80"/>
+          <bendpoint startX="-151" startY="68" endY="-80"/>
+        </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_BUSINESS_WH_REL_3" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_BUSINESS_BR1" target="WH_VIEW_BUSINESS_BP2" archimateRelationship="WH_REL_3">
+          <bendpoint startX="37" startY="68" endX="-157" endY="-80"/>
+          <bendpoint startX="194" startY="68" endY="-80"/>
+        </sourceConnection>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_BR2" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BR2">
+        <bounds x="735" y="121" width="188" height="63"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_BUSINESS_WH_REL_5" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_BUSINESS_BR2" target="WH_VIEW_BUSINESS_BP3" archimateRelationship="WH_REL_5"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_BP1" targetConnections="WH_VIEW_BUSINESS_WH_REL_2 WH_VIEW_BUSINESS_WH_REL_21" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BP1">
+        <bounds x="43" y="267" width="204" height="66"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_BP2" targetConnections="WH_VIEW_BUSINESS_WH_REL_3 WH_VIEW_BUSINESS_WH_REL_23" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BP2">
+        <bounds x="388" y="267" width="204" height="66"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_BP3" targetConnections="WH_VIEW_BUSINESS_WH_REL_5 WH_VIEW_BUSINESS_WH_S_COUNT" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#9a783d" fillColor="#fff1cb" archimateElement="BP3">
+        <bounds x="727" y="267" width="204" height="66"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_AS1" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AS1">
+        <bounds x="43" y="419" width="204" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_BUSINESS_WH_REL_21" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_BUSINESS_AS1" target="WH_VIEW_BUSINESS_BP1" archimateRelationship="WH_REL_21"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_AS2" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AS2">
+        <bounds x="388" y="419" width="204" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_BUSINESS_WH_REL_23" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_BUSINESS_AS2" target="WH_VIEW_BUSINESS_BP2" archimateRelationship="WH_REL_23"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_BUSINESS_AS7" font="1|Arial|13.0|0|COCOA|1|" fontColor="#233849" lineColor="#527a99" fillColor="#e8f3fb" archimateElement="AS7">
+        <bounds x="727" y="419" width="204" height="66"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_BUSINESS_WH_S_COUNT" font="1|Arial|11.0|0|COCOA|1|" fontColor="#233849" lineColor="#456274" source="WH_VIEW_BUSINESS_AS7" target="WH_VIEW_BUSINESS_BP3" archimateRelationship="WH_S_COUNT"/>
+      </child>
+      <child xsi:type="archimate:Note" id="WH_VIEW_BUSINESS_foot" font="1|Arial|11.0|0|COCOA|1|" fontColor="#486071" lineColor="#ffffff" textAlignment="1">
+        <bounds x="38" y="531" width="790" height="33"/>
+        <content>Assignment · роль выполняет процесс. Serving · сервис WMS поддерживает процесс.</content>
+      </child>
+      <documentation>Складские роли, процессы и сервисы WMS.</documentation>
     </element>
   </folder>
+  <purpose>Архитектура центрального склада BP-03. As-Is по DOC-03/04/05. To-Be — проект для согласования.</purpose>
 </archimate:model>

@@ -18,7 +18,7 @@
 | Практика | Материалы для проверки |
 | --- | --- |
 | **1** | [Обследование](#анализ-материалов-и-границы-домена), [участники](01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md), [проблемы](01_Business_Architecture/Requirements/WH-PRB-001-problems.md), [требования](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md), [решения к согласованию](07_Project_Management/WH-PM-005-team-review.md). |
-| **2** | [Паспорт BP-03](01_Business_Architecture/Business_Process/WH-BP-001-process.md), [BPMN As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md), [системы](02_Application_Architecture/Application_Catalog/WH-APP-001-landscape.md), [ArchiMate As-Is](06_Architecture_Models/ArchiMate/views/application-as-is.png), [связи целей, требований и моделей](07_Project_Management/WH-PM-003-assignment-coverage.md#трассировка-от-целей-до-решений-и-моделей). |
+| **2** | [Паспорт BP-03](01_Business_Architecture/Business_Process/WH-BP-001-process.md), [BPMN As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md), [системы](02_Application_Architecture/Application_Catalog/WH-APP-001-landscape.md), [ArchiMate As-Is](06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md#прикладной-слой-as-is), [связи целей, требований и моделей](07_Project_Management/WH-PM-003-assignment-coverage.md#трассировка-от-целей-до-решений-и-моделей). |
 | **3** | [C4 Context](06_Architecture_Models/C4/WH-C4-001-context.md) и [Container](06_Architecture_Models/C4/WH-C4-002-containers.md), [выбранный контейнер WMS](06_Architecture_Models/C4/WH-C4-003-components.md), [UML Component](06_Architecture_Models/UML/WH-UML-001-components.md#компонентная-модель-to-be) и [UML Sequence для резерва и передачи](06_Architecture_Models/UML/WH-UML-001-components.md#последовательность-резерва-и-передачи). |
 | **4** | [Домены и Bounded Context](02_Application_Architecture/Services/WH-DDD-001-context-map.md), [каталог и взаимодействие сервисов](02_Application_Architecture/Services/WH-SRV-001-services.md), [три ADR](05_Architecture_Decisions/ADR/). |
 | **5** | [Требования](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md), [компоненты и развёртывание To-Be](04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md), [безопасность](04_Technology_Architecture/Security/WH-SEC-001-security.md), [наблюдаемость и восстановление](04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md), [ADR размещения](05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md). |
@@ -71,7 +71,7 @@
 
 - [BPMN: процесс Warehouse As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md)
 - [BPMN: целевые процессы Warehouse](06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md)
-- [ArchiMate: связанные бизнес-, прикладной и технологический слои](06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md)
+- [ArchiMate: As-Is, To-Be, слои, роли, данные и события](06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md)
 - [C4: контекст складской информационной системы](06_Architecture_Models/C4/WH-C4-001-context.md)
 - [C4: контейнеры Warehouse System и взаимодействие сервисов](06_Architecture_Models/C4/WH-C4-002-containers.md)
 - [C4: компоненты WMS](06_Architecture_Models/C4/WH-C4-003-components.md)

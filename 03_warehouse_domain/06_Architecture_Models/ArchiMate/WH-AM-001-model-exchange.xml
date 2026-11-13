@@ -1,304 +1,1148 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" identifier="WH_MODEL_001" version="1.0" xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ https://www.opengroup.org/xsd/archimate/3.1/archimate3_Diagram.xsd">
-  <name xml:lang="ru">Warehouse — проектная модель As-Is / To-Be</name>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" identifier="WH_MODEL_001" version="2.0" xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ https://www.opengroup.org/xsd/archimate/3.1/archimate3_Diagram.xsd">
+  <name xml:lang="ru">RetailMax Warehouse</name>
+  <documentation xml:lang="ru">Архитектура центрального склада BP-03. As-Is по DOC-03/04/05. To-Be — проект для согласования.</documentation>
   <elements>
-    <element identifier="BA1" xsi:type="BusinessActor">
-      <name xml:lang="ru">Распределительный склад</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    <element xsi:type="BusinessRole" identifier="BR1">
+      <name xml:lang="ru">Кладовщик</name>
+      <documentation xml:lang="ru">Выполняет комплектацию и подтверждает передачу товара.</documentation>
     </element>
-    <element identifier="BR1" xsi:type="BusinessRole">
-      <name xml:lang="ru">Кладовщик / комплектовщик</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
-    </element>
-    <element identifier="BR2" xsi:type="BusinessRole">
+    <element xsi:type="BusinessRole" identifier="BR2">
       <name xml:lang="ru">Начальник склада</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+      <documentation xml:lang="ru">Утверждает пересчёт и корректировку.</documentation>
     </element>
-    <element identifier="BP1" xsi:type="BusinessProcess">
+    <element xsi:type="BusinessProcess" identifier="BP1">
       <name xml:lang="ru">Приёмка и размещение</name>
-      <documentation xml:lang="ru">As-Is/To-Be, детали различаются</documentation>
+      <documentation xml:lang="ru">Сверка поставки, подтверждение принятого количества и размещение.</documentation>
     </element>
-    <element identifier="BP2" xsi:type="BusinessProcess">
-      <name xml:lang="ru">Комплектация и передача</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
-    </element>
-    <element identifier="BP3" xsi:type="BusinessProcess">
+    <element xsi:type="BusinessProcess" identifier="BP3">
       <name xml:lang="ru">Инвентаризация</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+      <documentation xml:lang="ru">Пересчёт зоны и утверждение корректировки.</documentation>
     </element>
-    <element identifier="BS1" xsi:type="BusinessService">
+    <element xsi:type="ApplicationService" identifier="AS1">
+      <name xml:lang="ru">Учёт поступлений</name>
+      <documentation xml:lang="ru">Сервис WMS для регистрации фактической приёмки.</documentation>
+    </element>
+    <element xsi:type="ApplicationService" identifier="AS7">
+      <name xml:lang="ru">Учёт инвентаризации</name>
+      <documentation xml:lang="ru">Сервис WMS для сверки и применения утверждённой корректировки.</documentation>
+    </element>
+    <element xsi:type="BusinessProcess" identifier="BP2">
+      <name xml:lang="ru">Комплектация и передача</name>
+      <documentation xml:lang="ru">Складской этап BP-03. Подбор, упаковка и физическая передача.</documentation>
+    </element>
+    <element xsi:type="BusinessService" identifier="BS1">
       <name xml:lang="ru">Складское исполнение заказа</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+      <documentation xml:lang="ru">Подготовленный товар передаётся получателю.</documentation>
     </element>
-    <element identifier="AC1" xsi:type="ApplicationComponent">
+    <element xsi:type="ApplicationComponent" identifier="AC1">
       <name xml:lang="ru">WMS</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+      <documentation xml:lang="ru">IS-05. Центральный остаток, резерв и складские операции.</documentation>
     </element>
-    <element identifier="AC2" xsi:type="ApplicationComponent">
+    <element xsi:type="ApplicationComponent" identifier="AC2">
       <name xml:lang="ru">ERP</name>
-      <documentation xml:lang="ru">As-Is/To-Be, внешний</documentation>
+      <documentation xml:lang="ru">IS-01. Товары, закупки и учётные заказы. В целевой модели читает текущий запас в WMS.</documentation>
     </element>
-    <element identifier="AC3" xsi:type="ApplicationComponent">
-      <name xml:lang="ru">Integration Platform</name>
-      <documentation xml:lang="ru">As-Is по DOC-04/05; To-Be развиваемая</documentation>
+    <element xsi:type="ApplicationComponent" identifier="AC3">
+      <name xml:lang="ru">Платформа IS-07</name>
+      <documentation xml:lang="ru">Общая платформа API и событий. Показана в целевом обмене.</documentation>
     </element>
-    <element identifier="AC4" xsi:type="ApplicationComponent">
+    <element xsi:type="ApplicationComponent" identifier="AC4">
       <name xml:lang="ru">Адаптер Warehouse</name>
-      <documentation xml:lang="ru">To-Be, новый</documentation>
+      <documentation xml:lang="ru">Преобразование контрактов и восстановимая публикация. Складская запись остаётся в WMS.</documentation>
     </element>
-    <element identifier="AC5" xsi:type="ApplicationComponent">
+    <element xsi:type="ApplicationComponent" identifier="AC5">
       <name xml:lang="ru">Интернет-магазин</name>
-      <documentation xml:lang="ru">Внешний</documentation>
+      <documentation xml:lang="ru">IS-03. Заказ канала и запрос резерва.</documentation>
     </element>
-    <element identifier="AC6" xsi:type="ApplicationComponent">
+    <element xsi:type="ApplicationComponent" identifier="AC6">
       <name xml:lang="ru">BI</name>
-      <documentation xml:lang="ru">Внешний</documentation>
+      <documentation xml:lang="ru">IS-06 в кейсе. Получатель аналитических данных.</documentation>
     </element>
-    <element identifier="AF1" xsi:type="ApplicationFunction">
-      <name xml:lang="ru">Регистрация складских операций</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
-    </element>
-    <element identifier="AF2" xsi:type="ApplicationFunction">
+    <element xsi:type="ApplicationFunction" identifier="AF2">
       <name xml:lang="ru">Управление заданием</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+      <documentation xml:lang="ru">Проверка резерва, подбор и физическая передача.</documentation>
     </element>
-    <element identifier="AF3" xsi:type="ApplicationFunction">
-      <name xml:lang="ru">Атомарное управление резервом</name>
-      <documentation xml:lang="ru">To-Be: уточнение возможностей WMS</documentation>
+    <element xsi:type="ApplicationFunction" identifier="AF3">
+      <name xml:lang="ru">Управление резервом</name>
+      <documentation xml:lang="ru">Атомарная проверка доступности и запись резерва.</documentation>
     </element>
-    <element identifier="AF4" xsi:type="ApplicationFunction">
-      <name xml:lang="ru">Преобразование и восстановимая доставка</name>
-      <documentation xml:lang="ru">To-Be</documentation>
+    <element xsi:type="ApplicationFunction" identifier="AF4">
+      <name xml:lang="ru">Доставка складских событий</name>
+      <documentation xml:lang="ru">Читает подтверждённый журнал через интерфейс WMS.</documentation>
     </element>
-    <element identifier="AF5" xsi:type="ApplicationFunction">
-      <name xml:lang="ru">Ведение товара и учётного заказа</name>
-      <documentation xml:lang="ru">As-Is/To-Be, ERP</documentation>
+    <element xsi:type="ApplicationService" identifier="AS2">
+      <name xml:lang="ru">Исполнение задания</name>
+      <documentation xml:lang="ru">Сервис WMS, который поддерживает складское исполнение.</documentation>
     </element>
-    <element identifier="AS1" xsi:type="ApplicationService">
-      <name xml:lang="ru">Управление запасами</name>
-      <documentation xml:lang="ru">As-Is/To-Be; SRV-05</documentation>
-    </element>
-    <element identifier="AS2" xsi:type="ApplicationService">
-      <name xml:lang="ru">Исполнение складского задания</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
-    </element>
-    <element identifier="AS3" xsi:type="ApplicationService">
+    <element xsi:type="ApplicationService" identifier="AS3">
       <name xml:lang="ru">Подтверждение резерва</name>
-      <documentation xml:lang="ru">To-Be</documentation>
+      <documentation xml:lang="ru">Бизнес-ответ WMS о результате резервирования.</documentation>
     </element>
-    <element identifier="AS4" xsi:type="ApplicationService">
-      <name xml:lang="ru">Обмен Warehouse</name>
-      <documentation xml:lang="ru">To-Be</documentation>
+    <element xsi:type="ApplicationService" identifier="AS6">
+      <name xml:lang="ru">Чтение журнала WMS</name>
+      <documentation xml:lang="ru">Доступ к подтверждённым событиям через поддерживаемый интерфейс.</documentation>
     </element>
-    <element identifier="AS5" xsi:type="ApplicationService">
-      <name xml:lang="ru">Данные товара и заказа</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    <element xsi:type="ApplicationFunction" identifier="AF6">
+      <name xml:lang="ru">Предоставление записей журнала</name>
+      <documentation xml:lang="ru">Возвращает подтверждённые факты без доступа адаптера к таблицам WMS.</documentation>
     </element>
-    <element identifier="DO1" xsi:type="DataObject">
-      <name xml:lang="ru">Складской остаток</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    <element xsi:type="DataObject" identifier="DO1">
+      <name xml:lang="ru">Центральный остаток</name>
+      <documentation xml:lang="ru">Остаток и доступность по товару на центральном складе.</documentation>
     </element>
-    <element identifier="DO2" xsi:type="DataObject">
+    <element xsi:type="DataObject" identifier="DO2">
       <name xml:lang="ru">Задание и отгрузка</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+      <documentation xml:lang="ru">Задание, состояние исполнения и подтверждение передачи.</documentation>
     </element>
-    <element identifier="DO3" xsi:type="DataObject">
-      <name xml:lang="ru">Товар и заказ</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    <element xsi:type="DataObject" identifier="DO4">
+      <name xml:lang="ru">Резерв заказа</name>
+      <documentation xml:lang="ru">Связь orderId и reservationId, количество, статус, версия.</documentation>
     </element>
-    <element identifier="DO4" xsi:type="DataObject">
-      <name xml:lang="ru">Резерв</name>
-      <documentation xml:lang="ru">Поле в As-Is, целевой жизненный цикл</documentation>
+    <element xsi:type="DataObject" identifier="DO5">
+      <name xml:lang="ru">Журнал фактов WMS</name>
+      <documentation xml:lang="ru">Запись вместе с изменением или поддерживаемый журнал с восстановимым курсором.</documentation>
     </element>
-    <element identifier="N1" xsi:type="Node">
-      <name xml:lang="ru">Поддерживаемая среда WMS</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
+    <element xsi:type="Node" identifier="N1">
+      <name xml:lang="ru">Узел WMS на VM</name>
+      <documentation xml:lang="ru">Поддерживаемая поставщиком вычислительная среда.</documentation>
     </element>
-    <element identifier="N2" xsi:type="Node">
-      <name xml:lang="ru">Корпоративный контейнерный контур</name>
-      <documentation xml:lang="ru">To-Be</documentation>
+    <element xsi:type="TechnologyFunction" identifier="TF1">
+      <name xml:lang="ru">Выполнение WMS</name>
+      <documentation xml:lang="ru">Среда запуска и исполнения приложения WMS.</documentation>
     </element>
-    <element identifier="TF1" xsi:type="TechnologyFunction">
-      <name xml:lang="ru">Выполнение приложения WMS</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
-    </element>
-    <element identifier="TF2" xsi:type="TechnologyFunction">
-      <name xml:lang="ru">Выполнение адаптера</name>
-      <documentation xml:lang="ru">To-Be</documentation>
-    </element>
-    <element identifier="TS1" xsi:type="TechnologyService">
+    <element xsi:type="TechnologyService" identifier="TS1">
       <name xml:lang="ru">Среда выполнения WMS</name>
-      <documentation xml:lang="ru">As-Is/To-Be</documentation>
-    </element>
-    <element identifier="TS2" xsi:type="TechnologyService">
-      <name xml:lang="ru">Контейнерное выполнение</name>
-      <documentation xml:lang="ru">To-Be</documentation>
+      <documentation xml:lang="ru">Технологический сервис, который обслуживает WMS.</documentation>
     </element>
   </elements>
   <relationships>
-    <relationship identifier="WH_REL_0" source="BA1" target="BR1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_1" source="BA1" target="BR2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_2" source="BR1" target="BP1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_3" source="BR1" target="BP2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_4" source="BR1" target="BP3" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_5" source="BR2" target="BP3" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_6" source="AC1" target="AF1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_7" source="AC1" target="AF2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_8" source="AC1" target="AF3" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_9" source="AC2" target="AF5" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_10" source="AC4" target="AF4" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_11" source="N1" target="TF1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_12" source="N2" target="TF2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_13" source="BP2" target="BS1" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_14" source="AF1" target="AS1" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_15" source="AF2" target="AS2" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_16" source="AF3" target="AS3" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_17" source="AF4" target="AS4" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_18" source="AF5" target="AS5" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_19" source="TF1" target="TS1" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_20" source="TF2" target="TS2" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_21" source="AS1" target="BP1" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_22" source="AS1" target="BP3" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_23" source="AS2" target="BP2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_24" source="AS3" target="AF2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_25" source="AS3" target="AF4" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_26" source="AS4" target="AC2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_27" source="AS4" target="AC5" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_28" source="AS4" target="AC6" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_29" source="AS5" target="AF1" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_30" source="AS5" target="AF2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_31" source="TS1" target="AC1" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_32" source="TS2" target="AC4" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_33" source="AF1" target="DO1" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_34" source="AF2" target="DO2" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_35" source="AF3" target="DO4" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_36" source="AF3" target="DO1" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_37" source="AF1" target="DO3" xsi:type="Access" accessType="Read"/>
-    <relationship identifier="WH_REL_38" source="AF2" target="DO3" xsi:type="Access" accessType="Read"/>
-    <relationship identifier="WH_REL_39" source="AF5" target="DO3" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_40" source="AC2" target="AC3" xsi:type="Flow">
-      <name xml:lang="ru">Товар, поставка, задание</name>
+    <relationship xsi:type="Flow" identifier="WH_F_AS01" source="AC2" target="AC1">
+      <name xml:lang="ru">Поставки и задания</name>
+      <documentation xml:lang="ru">DOC-05, INT-05.</documentation>
     </relationship>
-    <relationship identifier="WH_REL_41" source="AC3" target="AC4" xsi:type="Flow">
-      <name xml:lang="ru">Команды</name>
+    <relationship xsi:type="Flow" identifier="WH_F_AS02" source="AC1" target="AC2">
+      <name xml:lang="ru">Остатки и факты операций</name>
+      <documentation xml:lang="ru">DOC-05, INT-05.</documentation>
     </relationship>
-    <relationship identifier="WH_REL_42" source="AC4" target="AC1" xsi:type="Flow">
-      <name xml:lang="ru">Преобразованные команды</name>
+    <relationship xsi:type="Flow" identifier="WH_F_AS03" source="AC5" target="AC2">
+      <name xml:lang="ru">Заказы канала</name>
+      <documentation xml:lang="ru">DOC-05, INT-03.</documentation>
     </relationship>
-    <relationship identifier="WH_REL_43" source="AC1" target="AC4" xsi:type="Flow">
+    <relationship xsi:type="Flow" identifier="WH_F_AS04" source="AC2" target="AC5">
+      <name xml:lang="ru">Каталог и остатки</name>
+      <documentation xml:lang="ru">DOC-05, INT-03.</documentation>
+    </relationship>
+    <relationship xsi:type="Flow" identifier="WH_F_AS05" source="AC2" target="AC6">
+      <name xml:lang="ru">Суточный ETL</name>
+      <documentation xml:lang="ru">DOC-05, INT-06.</documentation>
+    </relationship>
+    <relationship xsi:type="Flow" identifier="WH_REL_40" source="AC2" target="AC3">
+      <name xml:lang="ru">Поставки и задания</name>
+    </relationship>
+    <relationship xsi:type="Flow" identifier="WH_REL_41" source="AC3" target="AC4">
+      <name xml:lang="ru">Команды и запросы</name>
+    </relationship>
+    <relationship xsi:type="Flow" identifier="WH_REL_42" source="AC4" target="AC1">
+      <name xml:lang="ru">Команды WMS</name>
+    </relationship>
+    <relationship xsi:type="Flow" identifier="WH_REL_43" source="AC1" target="AC4">
       <name xml:lang="ru">Складские факты</name>
     </relationship>
-    <relationship identifier="WH_REL_44" source="AC4" target="AC3" xsi:type="Flow">
-      <name xml:lang="ru">События</name>
+    <relationship xsi:type="Flow" identifier="WH_REL_44" source="AC4" target="AC3">
+      <name xml:lang="ru">Ответы и события</name>
     </relationship>
-    <relationship identifier="WH_REL_45" source="AC3" target="AC2" xsi:type="Flow">
-      <name xml:lang="ru">Учётные факты</name>
+    <relationship xsi:type="Flow" identifier="WH_REL_45" source="AC3" target="AC2">
+      <name xml:lang="ru">Факты и ответы</name>
     </relationship>
-    <relationship identifier="WH_REL_46" source="AC3" target="AC5" xsi:type="Flow">
-      <name xml:lang="ru">Доступность и статус</name>
+    <relationship xsi:type="Flow" identifier="WH_F_TB07" source="AC5" target="AC3">
+      <name xml:lang="ru">Запрос резерва</name>
     </relationship>
-    <relationship identifier="WH_REL_47" source="AC3" target="AC6" xsi:type="Flow">
-      <name xml:lang="ru">Аналитические факты</name>
+    <relationship xsi:type="Flow" identifier="WH_REL_46" source="AC3" target="AC5">
+      <name xml:lang="ru">Результат и статус</name>
     </relationship>
+    <relationship xsi:type="Flow" identifier="WH_REL_47" source="AC3" target="AC6">
+      <name xml:lang="ru">Факты и снимки</name>
+    </relationship>
+    <relationship xsi:type="Assignment" identifier="WH_REL_2" source="BR1" target="BP1" />
+    <relationship xsi:type="Assignment" identifier="WH_REL_3" source="BR1" target="BP2" />
+    <relationship xsi:type="Assignment" identifier="WH_REL_5" source="BR2" target="BP3" />
+    <relationship xsi:type="Serving" identifier="WH_REL_21" source="AS1" target="BP1" />
+    <relationship xsi:type="Serving" identifier="WH_S_COUNT" source="AS7" target="BP3" />
+    <relationship xsi:type="Realization" identifier="WH_REL_13" source="BP2" target="BS1" />
+    <relationship xsi:type="Assignment" identifier="WH_REL_7" source="AC1" target="AF2" />
+    <relationship xsi:type="Realization" identifier="WH_REL_15" source="AF2" target="AS2" />
+    <relationship xsi:type="Serving" identifier="WH_REL_23" source="AS2" target="BP2" />
+    <relationship xsi:type="Serving" identifier="WH_REL_31" source="TS1" target="AC1" />
+    <relationship xsi:type="Realization" identifier="WH_REL_19" source="TF1" target="TS1" />
+    <relationship xsi:type="Assignment" identifier="WH_REL_11" source="N1" target="TF1" />
+    <relationship xsi:type="Assignment" identifier="WH_REL_8" source="AC1" target="AF3" />
+    <relationship xsi:type="Realization" identifier="WH_REL_16" source="AF3" target="AS3" />
+    <relationship xsi:type="Serving" identifier="WH_REL_24" source="AS3" target="AF2" />
+    <relationship xsi:type="Access" accessType="ReadWrite" identifier="WH_REL_35" source="AF3" target="DO4" />
+    <relationship xsi:type="Access" accessType="ReadWrite" identifier="WH_REL_36" source="AF3" target="DO1" />
+    <relationship xsi:type="Access" accessType="ReadWrite" identifier="WH_REL_34" source="AF2" target="DO2" />
+    <relationship xsi:type="Access" accessType="Write" identifier="WH_A_JOURNAL_WRITE" source="AF2" target="DO5" />
+    <relationship xsi:type="Access" accessType="ReadWrite" identifier="WH_A_STOCK" source="AF2" target="DO1" />
+    <relationship xsi:type="Assignment" identifier="WH_I_JOURNAL" source="AC1" target="AF6" />
+    <relationship xsi:type="Realization" identifier="WH_R_JOURNAL" source="AF6" target="AS6" />
+    <relationship xsi:type="Access" accessType="Read" identifier="WH_A_JOURNAL_READ" source="AF6" target="DO5" />
+    <relationship xsi:type="Assignment" identifier="WH_REL_10" source="AC4" target="AF4" />
+    <relationship xsi:type="Serving" identifier="WH_S_JOURNAL" source="AS6" target="AF4" />
   </relationships>
   <views>
     <diagrams>
-      <view identifier="WH_VIEW_APP_TOBE" xsi:type="Diagram">
-        <name xml:lang="ru">Application Layer — To-Be</name>
-        <node identifier="WH_VIEW_APP_TOBE_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC4" elementRef="AC4" x="700" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF3" elementRef="AF3" x="480" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF4" elementRef="AF4" x="700" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS3" elementRef="AS3" x="480" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS4" elementRef="AS4" x="700" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO4" elementRef="DO4" x="700" y="580" w="180" h="75" xsi:type="Element"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_8" relationshipRef="WH_REL_8" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AF5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_10" relationshipRef="WH_REL_10" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_AS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_AS2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_16" relationshipRef="WH_REL_16" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_AS3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_17" relationshipRef="WH_REL_17" source="WH_VIEW_APP_TOBE_AF4" target="WH_VIEW_APP_TOBE_AS4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_AS5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_24" relationshipRef="WH_REL_24" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_25" relationshipRef="WH_REL_25" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_26" relationshipRef="WH_REL_26" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_27" relationshipRef="WH_REL_27" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_28" relationshipRef="WH_REL_28" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC6" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_35" relationshipRef="WH_REL_35" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_36" relationshipRef="WH_REL_36" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
+      <view xsi:type="Diagram" identifier="WH_VIEW_APP_ASIS">
+        <name xml:lang="ru">01 · Прикладной слой As-Is</name>
+        <documentation xml:lang="ru">Подтверждённые связи INT-03, INT-05 и INT-06 по DOC-05.</documentation>
+        <node xsi:type="Label" identifier="WH_VIEW_APP_ASIS_title" x="38" y="20" w="300" h="40">
+          <label xml:lang="ru">Прикладной слой As-Is</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="18" style="bold">
+              <color r="23" g="47" b="66" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_APP_ASIS_sub" x="38" y="62" w="430" h="35">
+          <label xml:lang="ru">Центральный склад · действующий обмен по DOC-05</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_ASIS_AC1" elementRef="AC1" x="40" y="228" w="165" h="72">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="216" g="235" b="250" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_ASIS_AC2" elementRef="AC2" x="426" y="228" w="165" h="72">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_ASIS_AC5" elementRef="AC5" x="826" y="112" w="190" h="72">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_ASIS_AC6" elementRef="AC6" x="826" y="367" w="190" h="72">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_APP_ASIS_foot" x="38" y="468" w="710" h="33">
+          <label xml:lang="ru">INT-05 · ERP–WMS: REST по DOC-05      |      INT-06 · ERP–BI: ETL раз в сутки</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_ASIS_WH_F_AS01" relationshipRef="WH_F_AS01" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AC1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="405" y="243" />
+          <bendpoint x="225" y="243" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_ASIS_WH_F_AS02" relationshipRef="WH_F_AS02" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AC2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="227" y="285" />
+          <bendpoint x="405" y="285" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_ASIS_WH_F_AS03" relationshipRef="WH_F_AS03" source="WH_VIEW_APP_ASIS_AC5" target="WH_VIEW_APP_ASIS_AC2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="799" y="132" />
+          <bendpoint x="508" y="132" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_ASIS_WH_F_AS04" relationshipRef="WH_F_AS04" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AC5">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="600" y="183" />
+          <bendpoint x="802" y="183" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_ASIS_WH_F_AS05" relationshipRef="WH_F_AS05" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AC6">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="509" y="403" />
+          <bendpoint x="799" y="403" />
+        </connection>
       </view>
-      <view identifier="WH_VIEW_APP_ASIS" xsi:type="Diagram">
-        <name xml:lang="ru">Application Layer — As-Is по DOC-04/06</name>
-        <node identifier="WH_VIEW_APP_ASIS_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AF5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_AS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_AS2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_AS5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
+      <view xsi:type="Diagram" identifier="WH_VIEW_APP_TOBE">
+        <name xml:lang="ru">02 · Прикладной слой To-Be</name>
+        <documentation xml:lang="ru">Целевой обмен BP-03 через IS-07. Пунктирные стрелки показывают направление передачи.</documentation>
+        <node xsi:type="Label" identifier="WH_VIEW_APP_TOBE_title" x="38" y="20" w="300" h="40">
+          <label xml:lang="ru">Прикладной слой To-Be</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="18" style="bold">
+              <color r="23" g="47" b="66" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_APP_TOBE_sub" x="38" y="62" w="440" h="35">
+          <label xml:lang="ru">Центральный склад · управляемый обмен через IS-07</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_TOBE_AC1" elementRef="AC1" x="38" y="252" w="150" h="74">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="216" g="235" b="250" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_TOBE_AC4" elementRef="AC4" x="379" y="252" w="168" h="74">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_TOBE_AC3" elementRef="AC3" x="757" y="252" w="168" h="74">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_TOBE_AC2" elementRef="AC2" x="1200" y="112" w="180" h="70">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_TOBE_AC5" elementRef="AC5" x="1200" y="255" w="180" h="70">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_APP_TOBE_AC6" elementRef="AC6" x="1200" y="419" w="180" h="70">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_APP_TOBE_foot" x="38" y="524" w="785" h="33">
+          <label xml:lang="ru">WMS подтверждает запас и резерв. Адаптер преобразует контракты и доставляет складские факты.</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_42" relationshipRef="WH_REL_42" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AC1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="349" y="269" />
+          <bendpoint x="213" y="269" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_43" relationshipRef="WH_REL_43" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AC4">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="214" y="308" />
+          <bendpoint x="353" y="308" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_41" relationshipRef="WH_REL_41" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC4">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="733" y="269" />
+          <bendpoint x="574" y="269" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_44" relationshipRef="WH_REL_44" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AC3">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="573" y="308" />
+          <bendpoint x="732" y="308" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_40" relationshipRef="WH_REL_40" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AC3">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="1168" y="132" />
+          <bendpoint x="841" y="132" />
+          <bendpoint x="841" y="221" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_45" relationshipRef="WH_REL_45" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="902" y="220" />
+          <bendpoint x="902" y="172" />
+          <bendpoint x="1168" y="172" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_F_TB07" relationshipRef="WH_F_TB07" source="WH_VIEW_APP_TOBE_AC5" target="WH_VIEW_APP_TOBE_AC3">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="1160" y="270" />
+          <bendpoint x="954" y="270" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_46" relationshipRef="WH_REL_46" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC5">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="951" y="308" />
+          <bendpoint x="1170" y="308" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_APP_TOBE_WH_REL_47" relationshipRef="WH_REL_47" source="WH_VIEW_APP_TOBE_AC3" target="WH_VIEW_APP_TOBE_AC6">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="841" y="454" />
+          <bendpoint x="1166" y="454" />
+        </connection>
       </view>
-      <view identifier="WH_VIEW_LAYERS" xsi:type="Diagram">
-        <name xml:lang="ru">Сквозные слои Warehouse</name>
-        <node identifier="WH_VIEW_LAYERS_BR1" elementRef="BR1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_BP2" elementRef="BP2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_BS1" elementRef="BS1" x="480" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_AC1" elementRef="AC1" x="40" y="240" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_AF2" elementRef="AF2" x="260" y="240" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_AS2" elementRef="AS2" x="480" y="240" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_N1" elementRef="N1" x="40" y="440" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_TF1" elementRef="TF1" x="260" y="440" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_TS1" elementRef="TS1" x="480" y="440" w="180" h="75" xsi:type="Element"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_3" relationshipRef="WH_REL_3" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_11" relationshipRef="WH_REL_11" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_13" relationshipRef="WH_REL_13" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_19" relationshipRef="WH_REL_19" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_23" relationshipRef="WH_REL_23" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_31" relationshipRef="WH_REL_31" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1" xsi:type="Relationship"/>
+      <view xsi:type="Diagram" identifier="WH_VIEW_LAYERS">
+        <name xml:lang="ru">03 · Сквозное представление слоёв</name>
+        <documentation xml:lang="ru">Реализация складского исполнения от технологического узла до бизнес-сервиса.</documentation>
+        <node xsi:type="Label" identifier="WH_VIEW_LAYERS_title" x="38" y="18" w="405" h="42">
+          <label xml:lang="ru">Складское исполнение заказа</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="18" style="bold">
+              <color r="23" g="47" b="66" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_LAYERS_sub" x="38" y="62" w="365" h="33">
+          <label xml:lang="ru">Сквозное представление слоёв ArchiMate</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_LAYERS_business" x="36" y="120" w="159" h="36">
+          <label xml:lang="ru">Бизнес-слой</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="12" style="bold">
+              <color r="129" g="90" b="32" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_LAYERS_application" x="36" y="280" w="159" h="36">
+          <label xml:lang="ru">Прикладной слой</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="12" style="bold">
+              <color r="48" g="94" b="128" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_LAYERS_technology" x="36" y="440" w="159" h="36">
+          <label xml:lang="ru">Технологический слой</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="12" style="bold">
+              <color r="69" g="106" b="72" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_BR1" elementRef="BR1" x="475" y="106" w="165" h="68">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_BP2" elementRef="BP2" x="746" y="106" w="190" h="68">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_BS1" elementRef="BS1" x="1018" y="106" w="205" h="68">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_AC1" elementRef="AC1" x="205" y="266" w="168" h="68">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_AF2" elementRef="AF2" x="475" y="266" w="165" h="68">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_AS2" elementRef="AS2" x="746" y="266" w="190" h="68">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_TS1" elementRef="TS1" x="205" y="426" w="168" h="68">
+          <style>
+            <lineColor r="96" g="126" b="95" />
+            <fillColor r="229" g="242" b="228" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_TF1" elementRef="TF1" x="475" y="426" w="165" h="68">
+          <style>
+            <lineColor r="96" g="126" b="95" />
+            <fillColor r="229" g="242" b="228" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_LAYERS_N1" elementRef="N1" x="746" y="426" w="190" h="68">
+          <style>
+            <lineColor r="96" g="126" b="95" />
+            <fillColor r="229" g="242" b="228" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_LAYERS_foot" x="38" y="538" w="850" h="33">
+          <label xml:lang="ru">Assignment — исполнитель        Realization — реализация        Serving — предоставление сервиса</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_3" relationshipRef="WH_REL_3" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_13" relationshipRef="WH_REL_13" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_7" relationshipRef="WH_REL_7" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_15" relationshipRef="WH_REL_15" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_23" relationshipRef="WH_REL_23" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_31" relationshipRef="WH_REL_31" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_19" relationshipRef="WH_REL_19" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_LAYERS_WH_REL_11" relationshipRef="WH_REL_11" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+      </view>
+      <view xsi:type="Diagram" identifier="WH_VIEW_DATA">
+        <name xml:lang="ru">04 · Резерв и данные To-Be</name>
+        <documentation xml:lang="ru">Резерв и подтверждённые складские факты. Access показывает чтение и запись объектов данных.</documentation>
+        <node xsi:type="Label" identifier="WH_VIEW_DATA_title" x="38" y="18" w="465" h="42">
+          <label xml:lang="ru">Резерв и складские данные To-Be</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="18" style="bold">
+              <color r="23" g="47" b="66" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_DATA_sub" x="38" y="64" w="365" h="35">
+          <label xml:lang="ru">Функции WMS, сервисы и доступ к данным</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_AC1" elementRef="AC1" x="170" y="119" w="164" h="62">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="216" g="235" b="250" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_AF3" elementRef="AF3" x="170" y="250" w="164" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_AS3" elementRef="AS3" x="418" y="250" w="168" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_AF2" elementRef="AF2" x="671" y="250" w="185" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_DO4" elementRef="DO4" x="48" y="427" w="170" h="68">
+          <style>
+            <lineColor r="102" g="132" b="157" />
+            <fillColor r="226" g="237" b="246" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_DO1" elementRef="DO1" x="305" y="427" w="174" h="68">
+          <style>
+            <lineColor r="102" g="132" b="157" />
+            <fillColor r="226" g="237" b="246" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_DO2" elementRef="DO2" x="671" y="427" w="185" h="68">
+          <style>
+            <lineColor r="102" g="132" b="157" />
+            <fillColor r="226" g="237" b="246" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_DATA_DO5" elementRef="DO5" x="945" y="427" w="185" h="68">
+          <style>
+            <lineColor r="102" g="132" b="157" />
+            <fillColor r="226" g="237" b="246" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_DATA_foot" x="38" y="539" w="890" h="36">
+          <label xml:lang="ru">Access · чтение и запись: резерв, остаток, задание. Запись факта при исполнении — в журнал WMS.</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_REL_8" relationshipRef="WH_REL_8" source="WH_VIEW_DATA_AC1" target="WH_VIEW_DATA_AF3">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_REL_16" relationshipRef="WH_REL_16" source="WH_VIEW_DATA_AF3" target="WH_VIEW_DATA_AS3">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_REL_24" relationshipRef="WH_REL_24" source="WH_VIEW_DATA_AS3" target="WH_VIEW_DATA_AF2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_REL_35" relationshipRef="WH_REL_35" source="WH_VIEW_DATA_AF3" target="WH_VIEW_DATA_DO4">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="251" y="360" />
+          <bendpoint x="133" y="360" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_REL_36" relationshipRef="WH_REL_36" source="WH_VIEW_DATA_AF3" target="WH_VIEW_DATA_DO1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="285" y="384" />
+          <bendpoint x="392" y="384" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_REL_34" relationshipRef="WH_REL_34" source="WH_VIEW_DATA_AF2" target="WH_VIEW_DATA_DO2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_A_JOURNAL_WRITE" relationshipRef="WH_A_JOURNAL_WRITE" source="WH_VIEW_DATA_AF2" target="WH_VIEW_DATA_DO5">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="1038" y="283" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_DATA_WH_A_STOCK" relationshipRef="WH_A_STOCK" source="WH_VIEW_DATA_AF2" target="WH_VIEW_DATA_DO1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="670" y="367" />
+          <bendpoint x="455" y="367" />
+          <bendpoint x="455" y="409" />
+        </connection>
+      </view>
+      <view xsi:type="Diagram" identifier="WH_VIEW_JOURNAL">
+        <name xml:lang="ru">05 · Доставка событий To-Be</name>
+        <documentation xml:lang="ru">Адаптер потребляет сервис чтения журнала. Складские события зафиксированы в WMS.</documentation>
+        <node xsi:type="Label" identifier="WH_VIEW_JOURNAL_title" x="38" y="18" w="485" h="42">
+          <label xml:lang="ru">Восстановимая доставка событий</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="18" style="bold">
+              <color r="23" g="47" b="66" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_JOURNAL_sub" x="38" y="65" w="460" h="35">
+          <label xml:lang="ru">Чтение подтверждённых фактов через сервис WMS</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_JOURNAL_AC1" elementRef="AC1" x="40" y="124" w="185" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="216" g="235" b="250" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_JOURNAL_AC4" elementRef="AC4" x="830" y="124" w="198" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_JOURNAL_AF6" elementRef="AF6" x="40" y="265" w="185" h="68">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_JOURNAL_AS6" elementRef="AS6" x="412" y="265" w="184" h="68">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_JOURNAL_AF4" elementRef="AF4" x="830" y="265" w="198" h="68">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_JOURNAL_DO5" elementRef="DO5" x="40" y="423" w="185" h="68">
+          <style>
+            <lineColor r="102" g="132" b="157" />
+            <fillColor r="226" g="237" b="246" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_JOURNAL_foot" x="38" y="530" w="890" h="33">
+          <label xml:lang="ru">Access · функция WMS читает журнал. Serving · сервис предоставляет подтверждённые записи адаптеру.</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_JOURNAL_WH_I_JOURNAL" relationshipRef="WH_I_JOURNAL" source="WH_VIEW_JOURNAL_AC1" target="WH_VIEW_JOURNAL_AF6">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_JOURNAL_WH_R_JOURNAL" relationshipRef="WH_R_JOURNAL" source="WH_VIEW_JOURNAL_AF6" target="WH_VIEW_JOURNAL_AS6">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_JOURNAL_WH_A_JOURNAL_READ" relationshipRef="WH_A_JOURNAL_READ" source="WH_VIEW_JOURNAL_AF6" target="WH_VIEW_JOURNAL_DO5">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_JOURNAL_WH_REL_10" relationshipRef="WH_REL_10" source="WH_VIEW_JOURNAL_AC4" target="WH_VIEW_JOURNAL_AF4">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_JOURNAL_WH_S_JOURNAL" relationshipRef="WH_S_JOURNAL" source="WH_VIEW_JOURNAL_AS6" target="WH_VIEW_JOURNAL_AF4">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+      </view>
+      <view xsi:type="Diagram" identifier="WH_VIEW_BUSINESS">
+        <name xml:lang="ru">06 · Процессы BP-03 To-Be</name>
+        <documentation xml:lang="ru">Складские роли, процессы и сервисы WMS.</documentation>
+        <node xsi:type="Label" identifier="WH_VIEW_BUSINESS_title" x="38" y="18" w="420" h="42">
+          <label xml:lang="ru">Управление складом BP-03</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="18" style="bold">
+              <color r="23" g="47" b="66" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_BUSINESS_sub" x="38" y="62" w="410" h="35">
+          <label xml:lang="ru">Роли и прикладная поддержка операций</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_BR1" elementRef="BR1" x="202" y="121" w="188" h="63">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_BR2" elementRef="BR2" x="735" y="121" w="188" h="63">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_BP1" elementRef="BP1" x="43" y="267" w="204" h="66">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_BP2" elementRef="BP2" x="388" y="267" w="204" h="66">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_BP3" elementRef="BP3" x="727" y="267" w="204" h="66">
+          <style>
+            <lineColor r="154" g="120" b="61" />
+            <fillColor r="255" g="241" b="203" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_AS1" elementRef="AS1" x="43" y="419" w="204" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_AS2" elementRef="AS2" x="388" y="419" w="204" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Element" identifier="WH_VIEW_BUSINESS_AS7" elementRef="AS7" x="727" y="419" w="204" h="66">
+          <style>
+            <lineColor r="82" g="122" b="153" />
+            <fillColor r="232" g="243" b="251" />
+            <font name="Arial" size="13" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </node>
+        <node xsi:type="Label" identifier="WH_VIEW_BUSINESS_foot" x="38" y="531" w="790" h="33">
+          <label xml:lang="ru">Assignment · роль выполняет процесс. Serving · сервис WMS поддерживает процесс.</label>
+          <style>
+            <lineColor r="255" g="255" b="255" />
+            <font name="Arial" size="11" style="plain">
+              <color r="72" g="96" b="113" />
+            </font>
+          </style>
+        </node>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_BUSINESS_WH_REL_2" relationshipRef="WH_REL_2" source="WH_VIEW_BUSINESS_BR1" target="WH_VIEW_BUSINESS_BP1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="259" y="220" />
+          <bendpoint x="145" y="220" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_BUSINESS_WH_REL_3" relationshipRef="WH_REL_3" source="WH_VIEW_BUSINESS_BR1" target="WH_VIEW_BUSINESS_BP2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+          <bendpoint x="333" y="220" />
+          <bendpoint x="490" y="220" />
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_BUSINESS_WH_REL_5" relationshipRef="WH_REL_5" source="WH_VIEW_BUSINESS_BR2" target="WH_VIEW_BUSINESS_BP3">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_BUSINESS_WH_REL_21" relationshipRef="WH_REL_21" source="WH_VIEW_BUSINESS_AS1" target="WH_VIEW_BUSINESS_BP1">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_BUSINESS_WH_REL_23" relationshipRef="WH_REL_23" source="WH_VIEW_BUSINESS_AS2" target="WH_VIEW_BUSINESS_BP2">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
+        <connection xsi:type="Relationship" identifier="WH_VIEW_BUSINESS_WH_S_COUNT" relationshipRef="WH_S_COUNT" source="WH_VIEW_BUSINESS_AS7" target="WH_VIEW_BUSINESS_BP3">
+          <style>
+            <lineColor r="69" g="98" b="116" />
+            <font name="Arial" size="11" style="plain">
+              <color r="35" g="56" b="73" />
+            </font>
+          </style>
+        </connection>
       </view>
     </diagrams>
   </views>
