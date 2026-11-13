@@ -1,102 +1,71 @@
-# Концептуальная и целевая модель данных Warehouse
+# Логическая модель данных и состояния Warehouse
 
 | Поле | Значение |
 | --- | --- |
-| Идентификатор / версия | WH-DAT-001 / 1.0 |
-| Дата | 04.10.2026 |
+| Идентификатор / версия | WH-DAT-001 / 1.3 |
+| Дата | 12.11.2026 |
 | Ответственная группа | Команда 3 — Warehouse |
-| Статус | Проект для согласования; не свидетельствует о внедрении |
-| Источники | [DOC-03](../../../00_Documentation/DOC-03.md), [DOC-04](../../../00_Documentation/DOC-04.md), [DOC-06](../../../00_Documentation/DOC-06.md), [DOC-15](../../../00_Documentation/DOC-15.md) |
-| Связанные требования | WH-R-01/03/04/05/09 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
+| Статус | Проект для согласования |
+| Источники | [DOC-03](../../../00_Documentation/DOC-03.md), [DOC-04](../../../00_Documentation/DOC-04.md), [DOC-06](../../../00_Documentation/DOC-06.md), [DOC-15](../../../00_Documentation/DOC-15.md); [INT-001/1.3](../../../06_integration_architecture/INT-001-target-model.md) |
+| Связанные требования | WH-R-01/03/04/05/09/21/22/23/24 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
 
-## Концептуальная модель
+## Идентификаторы и границы
 
-Из DOC-06 непосредственно используются D-01 «Товар», D-03 «Заказ», D-05 «Закупка», D-06 «Остаток». Для D-04 «Поставщик» достаточно ссылки из поставки; полный справочник в WMS не требуется. Клиент, продажа и бонусный счёт остаются внешними сущностями. Ячейка, движение, задание, резерв и документы склада — доменная детализация функций DOC-03/04, а не утверждение о физических таблицах установленной WMS.
+Product, Order и Purchase используют глобальные ключи ERP/канала. Профиль CRM и бонусный счёт не реплицируются в WMS целиком. Подтверждённый запас хранится WMS по **locationId + productId**, где locationId обозначает площадку хранения CENTRAL или STORE. Прежний warehouseId сохраняется как совместимый ключ CENTRAL; для STORE обязателен storeId/locationId. Внутренняя адресная ячейка — binId, чтобы не смешивать её с межсистемной локацией.
 
-```mermaid
-erDiagram
-  PRODUCT ||--o{ STOCK : has
-  WAREHOUSE ||--o{ STOCK : holds
-  WAREHOUSE ||--o{ LOCATION : contains
-  PURCHASE ||--o{ RECEIPT : fulfilled_by
-  RECEIPT ||--|{ RECEIPT_LINE : contains
-  PRODUCT ||--o{ RECEIPT_LINE : received
-  ORDER ||--o{ RESERVATION : requests
-  RESERVATION ||--|{ RESERVATION_LINE : contains
-  PRODUCT ||--o{ RESERVATION_LINE : reserved
-  ORDER ||--o{ FULFILLMENT_TASK : fulfilled_by
-  FULFILLMENT_TASK ||--|{ TASK_LINE : contains
-  PRODUCT ||--o{ TASK_LINE : picked
-  FULFILLMENT_TASK ||--o| SHIPMENT : completes
-  PRODUCT ||--o{ MOVEMENT : moves
-  LOCATION ||--o{ MOVEMENT : records
-  INVENTORY_COUNT ||--|{ COUNT_LINE : contains
-  LOCATION ||--o{ COUNT_LINE : counted
-  PRODUCT ||--o{ COUNT_LINE : counted
-```
+| Сущность / ключ | Поля и ограничения | Писатель |
+|---|---|---|
+| Product / productId | sku, unitCode, sourceVersion; разрешённая проекция | ERP |
+| StorageSite / locationId | locationType=CENTRAL/STORE, storeId для STORE | Логистика, система справочника согласуется |
+| Bin / binId | locationId, zone, capacity, constraints | WMS |
+| Stock / locationId+productId | onHand, blocked, reserved, available, version, asOf | WMS |
+| BinBalance / binId+productId+condition | Сумма согласована с onHand; staging включён до передачи | WMS |
+| Reservation / reservationId | orderId/version, warehouseId CENTRAL, state, expiresAt, paymentId, holdDeadline, version | WMS |
+| Receipt / receiptId | purchaseId либо transferId, строки expected/accepted/rejected, movementIds | WMS; план из ERP |
+| FulfillmentTask / taskId | erpOrderId, orderId/version, reservationId, state, version | WMS по команде ERP |
+| Shipment / shipmentId | taskId, receiverRef, handedOverAt; уникальная передача | WMS |
+| Transfer / transferId | from/toLocationId; planned/dispatched/received/inTransit, receiptIds | WMS; план ERP |
+| StoreJournal / locationId+journalId | sourceSequence; неизменяемая последовательность первичных операций | Локальный Inventory |
+| StoreMovement / movementId | journalId/sequence, тип, количество/единица, документ, saleId+lineId либо receiptId/returnId | Inventory фиксирует; WMS подтверждает |
+| StoreSync / locationId | journalId, appliedThroughSequence, highestKnownLocalSequence, lastContactAt, checkedAt, status | WMS |
+| ReconciliationCase / caseId | Причина, исходный факт, решение, согласовавший, компенсирующее движение | Логистика через WMS |
+| InventoryCount / countId | Scope, snapshotVersion, counted/expected, approval/reason | WMS |
+| Operation / clientId+type+key | requestHash и сохранённый бизнес-результат | WMS |
+| OutboxEntry / eventId | aggregateId/type/version, payload, публикация | Транзакция владельца факта |
 
-В базовом варианте одно складское задание имеет не более одной отгрузки, а частичное исполнение оформляется новым согласованным заданием/версией заказа. У заказа может быть история резервов и заданий, но активные объёмы не дублируются. Кардинальности — проектные ограничения, не описание БД поставщика.
-
-## Целевая логическая модель
-
-| Сущность / ключ | Существенные атрибуты | Связи и ограничения | Источник записи |
-| --- | --- | --- | --- |
-| Product / productId | sku, name, category, unitCode, status, sourceVersion | Глобальный ID из ERP; артикул не заменяет неизменяемый ID | ERP; WMS хранит разрешённую проекцию |
-| Warehouse / warehouseId | name, status | Не смешивать центральный склад и магазины | Корпоративный справочник; владелец логистика, система ведения согласуется |
-| Location / locationId | warehouseId, zone, capacity, constraints, status | Принадлежит одному складу; допустимость размещения проверяема | WMS |
-| Stock / (warehouseId, productId) | onHand, blocked, reserved, version, asOf | Единственный агрегат доступности SKU на складе; ячеечные балансы суммируются | WMS |
-| LocationBalance / (locationId, productId, condition) | quantity, version | Сумма по ячейкам/состояниям согласуется с onHand; staging также физическая зона склада | WMS |
-| OrderProjection / orderId | sourceVersion, orderStatus, deliveryMode | Только данные для исполнения, без полного профиля клиента | ERP; статус канала создаётся в онлайн-домене |
-| Reservation / reservationId | orderId, warehouseId, state, expiresAt, version | Состояния ACTIVE, ALLOCATED, CONSUMED, RELEASED, EXPIRED; объёмы в ReservationLine | WMS |
-| Receipt / receiptId | purchaseId, externalReceiptId, state, receivedAt | Строки: productId, expectedQty, acceptedQty, rejectedQty; каждая фактическая приёмка уникальна | WMS, ожидаемая поставка из ERP |
-| FulfillmentTask / taskId | orderId, orderVersion, reservationId, state, assignee, version | Строки: productId, quantity, pickedQty; один активный набор по заказу/версии в базовом варианте | WMS |
-| Shipment / shipmentId | taskId, receiverRef, handedOverAt, version | Однократное подтверждение передачи и ссылка на движения | WMS |
-| Movement / movementId | operationId, productId, quantity, fromLocationId, toLocationId, type, occurredAt | Неизменяемый факт; исправление компенсирующим движением, а не стиранием | WMS |
-| InventoryCount / countId | scope, snapshotVersion, state, approvedBy, reason | Строки: productId, locationId, countedQty, expectedQty; актуальность снимка проверяется | WMS |
-| Operation / operationId | clientId, idempotencyKey, requestHash, resultRef | Уникальность (clientId, operationType, key); одинаковый ключ + другое тело — конфликт | WMS/поддерживаемое расширение |
-| OutboxEntry / eventId | aggregateId, aggregateVersion, payload, state | Запись с бизнес-изменением в одной транзакции; альтернативно журнал изменений WMS | WMS/поддерживаемое расширение |
-
-Поставщик WMS определяет физическую схему. Это логическая модель целевых правил; создание таблиц напрямую в чужой БД без поддержки продукта не предлагается.
+Физическая схема поставщика не задана; прямые правки чужой БД не предлагаются.
 
 ## Инварианты количества
 
-Для агрегата товара на центральном складе предлагается:
+`available = onHand − blocked − reserved`; величины неотрицательны, `blocked + reserved ≤ onHand`. Для CENTRAL reserved включает ACTIVE, HELD_FOR_FULFILLMENT и ALLOCATED. Перемещение в staging не высвобождает reserved и не уменьшает onHand. При передаче onHand и reserved уменьшаются совместно, reserve становится CONSUMED.
 
-`available = onHand − blocked − reserved`, где все величины неотрицательны и `blocked + reserved ≤ onHand`.
+Для STORE подтверждённое количество WMS может отставать от физического состояния при отсутствии связи; это явно отмечает StoreSync. Противоречивый локальный факт сохраняется в ReconciliationCase до применения. Чтобы не скрыть отрицательный физический/учётный результат, WMS не обрезает его до нуля и не пропускает движение: блокирует дальнейшую автоматическую обработку затронутой локации/позиции до решения.
 
-`onHand` включает товар в ячейках и в зоне комплектации до физической передачи. `reserved` включает ACTIVE и ALLOCATED, поэтому перенос в зону подбора не высвобождает доступный запас. `blocked` относится только к объёму, который уже не зарезервирован; повреждение зарезервированного товара требует перевода задания в исключение и согласованного пересчёта, не двойного учёта блокировки.
+Локальное количество = подтверждённая основа снимка + подписанные дельты только неприменённых движений того же журнала. Граница снимка и appliedThroughSequence читаются атомарно. Общие версии Stock не являются sourceSequence: это разные порядки.
 
-| Операция | Изменение агрегата |
-| --- | --- |
-| Принято N пригодных единиц | onHand += N; available += N |
-| Зарезервировано N | reserved += N; available -= N; onHand не меняется |
-| Начат подбор | ACTIVE → ALLOCATED; объём reserved не меняется; истечение срока больше не освобождает автоматически |
-| Перемещено в зону упаковки | Меняются ячеечные балансы, складской onHand не меняется |
-| Передано N | onHand -= N; reserved -= N; резерв CONSUMED; available по этим единицам не меняется |
-| Отменено до подбора | reserved -= N; резерв RELEASED |
-| Отмена во время подбора | Сначала физически вернуть/проверить товар; затем освободить reserved; до этого задание CANCELLING |
-| Истёк срок до подбора | ACTIVE → EXPIRED, reserved уменьшается однократно |
-| Обнаружена недостача | Подтвердить расхождение, проверить связанные резервы и выполнить контролируемую корректировку |
+Transfer: `inTransit = dispatched − received − resolvedLoss`, где resolvedLoss — только утверждённый исход расхождения. План не меняет количество. Получить больше отправленного без оформленного расхождения нельзя. Передача CENTRAL → STORE не расходует STORE; последующая продажа STORE не расходует CENTRAL.
 
-## Состояния задания
+## Состояния резерва
 
 ```mermaid
 stateDiagram-v2
-  [*] --> CREATED
-  CREATED --> PICKING: резерв закреплён и начат подбор
-  CREATED --> CANCELLED: отмена до подбора
-  PICKING --> PACKED: проверены строки и упаковка
-  PICKING --> EXCEPTION: недостача или повреждение
-  EXCEPTION --> PICKING: расхождение разрешено
-  EXCEPTION --> CANCELLING: исполнение невозможно
-  PICKING --> CANCELLING: отмена
-  PACKED --> CANCELLING: отмена до передачи
-  CANCELLING --> CANCELLED: возврат отобранного и освобождение
-  PACKED --> HANDED_OVER: физическая передача подтверждена
-  CANCELLED --> [*]
-  HANDED_OVER --> [*]
+  [*] --> ACTIVE: атомарный reserve
+  ACTIVE --> HELD_FOR_FULFILLMENT: confirm-paid до expiresAt
+  ACTIVE --> EXPIRED: expiry победил
+  ACTIVE --> RELEASED: отказ до оплаты
+  HELD_FOR_FULFILLMENT --> ALLOCATED: начало подбора по заданию ERP
+  ACTIVE --> ALLOCATED: иной разрешённый неоплачиваемый складской сценарий
+  HELD_FOR_FULFILLMENT --> RELEASED: подтверждена отмена ERP и задания нет
+  ALLOCATED --> RELEASED: отмена задания и физический возврат
+  ALLOCATED --> CONSUMED: подтверждена передача
 ```
 
-Отмена и передача конкурируют по ожидаемой версии задания. Побеждает один переход. HANDED_OVER не переводится в CANCELLED: последующий возврат — новый факт с отдельным согласованием. Инвентаризация выбранной зоны либо блокирует движения, либо учитывает их от снимка до пересчёта; базовое предложение — краткая блокировка конкретной зоны по согласованному графику.
+confirm-paid и expiry сериализуются по версии. HELD не освобождается обычным TTL. Достижение holdDeadline вызывает разбор и компенсацию, а не безусловный release. Для онлайн оплаченного заказа начало подбора разрешено только из HELD. Переход ACTIVE → ALLOCATED сохранён для явно разрешённых иных заданий, не для обхода оплаты интернет-заказа.
+
+## Состояния задания и синхронизации
+
+CREATED → PICKING → PACKED → HANDED_OVER. Недостача → EXCEPTION. Отмена до передачи → CANCELLING → CANCELLED после возврата отобранного; из HANDED_OVER в CANCELLED перехода нет. Уникальность исполнения — orderId/orderVersion и границы проекта исполнения; план доставки не создаёт второе задание.
+
+SYNCED означает свежий heartbeat и применение/сверку всех известных движений. LAGGING — известный хвост/пропуск; OFFLINE — истёк таймаут контакта; RECONCILIATION_REQUIRED — неразобранное противоречие. Новый heartbeat не снимает расхождение. Отсутствие продаж при исправном контакте не делает магазин OFFLINE. Смена journalId требует контролируемого переноса границ.
 
 [К содержанию Warehouse](../../README.md)

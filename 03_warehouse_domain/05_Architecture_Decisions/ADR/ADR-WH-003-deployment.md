@@ -2,12 +2,12 @@
 
 | Поле | Значение |
 | --- | --- |
-| Идентификатор / версия | ADR-WH-003 / 1.0 |
-| Дата | 04.10.2026 |
+| Идентификатор / версия | ADR-WH-003 / 1.3 |
+| Дата | 12.11.2026 |
 | Ответственная группа | Команда 3 — Warehouse |
-| Статус | Проект для согласования; не свидетельствует о внедрении |
-| Источники | [DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-09](../../../00_Documentation/DOC-09.md), [DOC-12](../../../00_Documentation/DOC-12.md), [DOC-13](../../../00_Documentation/DOC-13.md) |
-| Связанные требования | WH-R-10/11/12/16/18 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
+| Статус | Проект для согласования |
+| Источники | [DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-09](../../../00_Documentation/DOC-09.md), [DOC-12](../../../00_Documentation/DOC-12.md), [DOC-13](../../../00_Documentation/DOC-13.md); [INT-001/1.3](../../../06_integration_architecture/INT-001-target-model.md) |
+| Связанные требования | WH-R-10/11/12/16/18/22 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
 
 ## Статус и контекст
 
