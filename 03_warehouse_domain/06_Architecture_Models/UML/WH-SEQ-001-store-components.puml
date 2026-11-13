@@ -1,0 +1,63 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam maxMessageSize 180
+skinparam wrapWidth 180
+skinparam backgroundColor white
+autonumber
+title SC-WH-01 — применение STORE-продажи внутри C2
+participant "Warehouse Adapter\nIS-07, вне C2" as Adapter
+box "C2 Приложение WMS" #ECF3FC
+ participant "Command Handler" as Handler
+ participant "Command Guard" as Guard
+ participant "Store Movement Service" as Store
+ participant "Store Sync Service" as Sync
+ participant "Stock & Reservation" as Stock
+ participant "Repository / Audit / Outbox" as Repo
+end box
+database "C3 БД WMS" as DB
+Adapter -> Handler : WH API-16: movementId, journalId, N, hash
+Handler -> Guard : проверить identity, scope, locationId и схему
+alt нет полномочий / неверное тело
+ Guard --> Handler : 403 / 422
+ Handler --> Adapter : нет изменения Stock
+else запрос разрешён
+ Handler -> Store : applyMovement(command)
+ Store -> Repo : begin; lock journal/location; lookup movementId
+ Repo -> DB : транзакция и проверка сохранённого результата
+ alt повтор с тем же hash
+  Repo --> Store : прежний результат / граница
+  Store --> Handler : тот же бизнес-результат
+ else прежний ID с другим hash
+  Repo --> Store : IDEMPOTENCY_CONFLICT
+  Store --> Handler : 409
+ else новый факт
+  Store -> Sync : проверить journalId и N=boundary+1
+  Sync -> Repo : прочитать/заблокировать JournalState
+  alt пропуск или закрытый журнал
+   Store -> Repo : сохранить pending/исключение без изменения Stock
+   Repo -> DB : commit ожидания; boundary не продвигать
+   Store --> Handler : operationId / ожидает сверки, не APPLIED
+  else последовательность допустима
+   Store -> Stock : проверить тип, единицу и количество; рассчитать новый Stock
+   alt конфликт физического факта и учёта
+    Store -> Repo : сохранить ReconciliationCase и статус
+    Repo -> DB : commit исключения; без выдуманного нуля
+    Store --> Handler : RECONCILIATION_REQUIRED
+   else инварианты выполнены
+    Store -> Repo : Stock + movementId + boundary N + результат + audit + outbox
+    Repo -> DB : COMMIT атомарно
+    Repo --> Store : APPLIED, stockVersion, boundary N
+    Store --> Handler : подтверждённый результат
+   end
+  end
+ end
+ Handler --> Adapter : результат WMS; transport ACK не подменяет его
+end
+note over Adapter,DB
+Публикация outbox после commit восстанавливаема.
+Доставка события и его применение подписчиками происходят отдельно.
+Увеличение sourceSequence не является aggregateVersion Stock.
+end note
+@enduml

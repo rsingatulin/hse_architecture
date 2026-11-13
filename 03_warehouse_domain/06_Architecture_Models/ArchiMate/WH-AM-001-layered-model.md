@@ -1,20 +1,17 @@
-# ArchiMate: связанные бизнес-, прикладной и технологический слои
+# ArchiMate Warehouse As-Is и To-Be 1.3
 
 | Поле | Значение |
 | --- | --- |
-| Идентификатор / версия | WH-AM-001 / 1.0 |
-| Дата | 04.10.2026 |
+| Идентификатор / версия | WH-AM-001 / 1.3 |
+| Дата | 12.11.2026 |
 | Ответственная группа | Команда 3 — Warehouse |
-| Статус | Проект для согласования; не свидетельствует о внедрении |
-| Источники | [DOC-02](../../../00_Documentation/DOC-02.md), [DOC-03](../../../00_Documentation/DOC-03.md), [DOC-04](../../../00_Documentation/DOC-04.md), [DOC-05](../../../00_Documentation/DOC-05.md), [DOC-06](../../../00_Documentation/DOC-06.md), [DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-09](../../../00_Documentation/DOC-09.md) |
-| Связанные требования | WH-R-01/02/03/05/09/17/18 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
+| Статус | Проект для согласования |
+| Источники | [DOC-02](../../../00_Documentation/DOC-02.md), [DOC-03](../../../00_Documentation/DOC-03.md), [DOC-04](../../../00_Documentation/DOC-04.md), [DOC-05](../../../00_Documentation/DOC-05.md), [DOC-06](../../../00_Documentation/DOC-06.md), [DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-09](../../../00_Documentation/DOC-09.md); [INT-001/1.3](../../../06_integration_architecture/INT-001-target-model.md) |
+| Связанные требования | WH-R-01/02/17/21/22/23/24 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
 
-## Формат и область
+Модель использует типы ArchiMate и разделяет факт As-Is и проект To-Be. Сохранены три исходных представления (Application As-Is, Application To-Be, сквозные слои); добавлено Warehouse Store To-Be. Новые элементы не включены в As-Is как существующие.
 
-Модель описывает Warehouse и его зависимости, используя типы элементов ArchiMate 3.x и явные типы отношений. Таблицы — канонический состав модели; Mermaid даёт читаемое представление в Markdown, без имитации стандартных пиктограмм ArchiMate. Принятый словарь зафиксирован для согласованности с материалами курса, а не как утверждение о новейшей версии стандарта. Справочник типов: [The Open Group, схема модели 3.1](https://www.opengroup.org/xsd/archimate/3.1/html-model/).
-
-
-[Редактируемая модель ArchiMate в формате Open Exchange](WH-AM-001-model-exchange.xml): 33 элементов, 48 отношений и три представления (Application As-Is, Application To-Be и сквозные слои). Файл проверен по официальной XSD формата 3.1; это проверка структуры файла, а не автоматическое утверждение архитектурных решений. Импортируйте как отдельную модель Warehouse; общий репозиторий ArchiMate не изменялся.
+Файлы: [Open Exchange XML](WH-AM-001-model-exchange.xml), [нативная модель Archi](Warehouse_RetailMax_1_2.archimate). В общей coArchi-модели ничего не менялось; нативный файл предназначен для локального открытия, XML — для согласованного импорта и объединения с общими ERP/WMS/IS-07 без дублирования master-элементов.
 
 ## Элементы
 
@@ -43,10 +40,10 @@
 | AS3 | ApplicationService | Подтверждение резерва | To-Be |
 | AS4 | ApplicationService | Обмен Warehouse | To-Be |
 | AS5 | ApplicationService | Данные товара и заказа | As-Is/To-Be |
-| DO1 | DataObject | Складской остаток | As-Is/To-Be |
+| DO1 | DataObject | Складской остаток | CENTRAL в As-Is; CENTRAL/STORE в To-Be |
 | DO2 | DataObject | Задание и отгрузка | As-Is/To-Be |
 | DO3 | DataObject | Товар и заказ | As-Is/To-Be |
-| DO4 | DataObject | Резерв | Поле в As-Is, целевой жизненный цикл |
+| DO4 | DataObject | Резерв | Поле в As-Is; ACTIVE/HELD/ALLOCATED в To-Be |
 | N1 | Node | Поддерживаемая среда WMS | As-Is/To-Be |
 | N2 | Node | Корпоративный контейнерный контур | To-Be |
 | TF1 | TechnologyFunction | Выполнение приложения WMS | As-Is/To-Be |
@@ -54,27 +51,23 @@
 | TS1 | TechnologyService | Среда выполнения WMS | As-Is/To-Be |
 | TS2 | TechnologyService | Контейнерное выполнение | To-Be |
 
-## Модель Application Layer To-Be
+### Расширение магазинного контура
 
-```mermaid
-flowchart TB
-  AC1["AC1 WMS<br/>ApplicationComponent"] -->|"Assignment"| AF1["AF1 Операции<br/>ApplicationFunction"]
-  AC1 -->|"Assignment"| AF2["AF2 Задания<br/>ApplicationFunction"]
-  AC1 -->|"Assignment"| AF3["AF3 Резерв<br/>ApplicationFunction"]
-  AF1 -->|"Realization"| AS1["AS1 Управление запасами<br/>ApplicationService"]
-  AF2 -->|"Realization"| AS2["AS2 Исполнение<br/>ApplicationService"]
-  AF3 -->|"Realization"| AS3["AS3 Подтверждение резерва<br/>ApplicationService"]
-  AF1 -->|"Access: read/write"| DO1["DO1 Остаток<br/>DataObject"]
-  AF2 -->|"Access: read/write"| DO2["DO2 Задание<br/>DataObject"]
-  AF3 -->|"Access: read/write"| DO4["DO4 Резерв<br/>DataObject"]
-  AC4["AC4 Адаптер<br/>ApplicationComponent"] -->|"Assignment"| AF4["AF4 Преобразование и доставка<br/>ApplicationFunction"]
-  AF4 -->|"Realization"| AS4["AS4 Обмен Warehouse<br/>ApplicationService"]
-  AS4 -->|"Serving"| AC2["AC2 ERP<br/>ApplicationComponent"]
-  AS4 -->|"Serving"| AC5["AC5 Интернет-магазин<br/>ApplicationComponent"]
-  AS3 -->|"Serving"| AF4
-```
-
-Это отношения предоставления/реализации функций; Serving не обозначает направление передачи пакетов. Физические и логические потоки данных вынесены в [модель потоков](../../03_Data_Architecture/Data_Flows/WH-DF-001-flows.md), поэтому граф сервисов не обходит интеграционную платформу.
+| ID | Тип | Элемент | Состояние |
+| --- | --- | --- | --- |
+| BA2 | BusinessActor | Розничный магазин | Только To-Be |
+| BP4 | BusinessProcess | Движение и сверка магазина | Только To-Be |
+| BP5 | BusinessProcess | Пополнение CENTRAL → STORE | Только To-Be |
+| AC7 | ApplicationComponent | Store Inventory логистики | Только To-Be |
+| AF6 | ApplicationFunction | Подтверждение движения STORE | Только To-Be |
+| AF7 | ApplicationFunction | Контроль журнала и свежести | Только To-Be |
+| AF8 | ApplicationFunction | Удержание оплаченного резерва | Только To-Be |
+| AS6 | ApplicationService | Подтверждённый запас магазина | Только To-Be |
+| AS7 | ApplicationService | Синхронизация магазина | Только To-Be |
+| DO5 | DataObject | STORE Stock и StoreSync | Только To-Be |
+| DO6 | DataObject | StoreJournal и movementId | Только To-Be |
+| DO7 | DataObject | Transfer и товар в пути | Только To-Be |
+| N3 | Node | Среда магазина | Только To-Be |
 
 ## Реестр отношений
 
@@ -110,22 +103,18 @@ flowchart TB
 
 Строка с несколькими целями разворачивается в отдельные отношения одного типа. У объекта DO1 один авторитетный писатель; Access у функций означает работу внутри границы WMS.
 
-## Сквозное представление слоёв
 
-```mermaid
-flowchart TB
-  BR["BusinessRole: кладовщик"] -->|"Assignment"| BP["BusinessProcess: исполнение задания"]
-  BP -->|"Realization"| BS["BusinessService: складское исполнение"]
-  AS["ApplicationService: исполнение задания"] -->|"Serving"| BP
-  AF["ApplicationFunction: управление заданием"] -->|"Realization"| AS
-  AC["ApplicationComponent: WMS"] -->|"Assignment"| AF
-  TS["TechnologyService: среда WMS"] -->|"Serving"| AC
-  TF["TechnologyFunction: выполнение приложения"] -->|"Realization"| TS
-  N["Node: поддерживаемая среда WMS"] -->|"Assignment"| TF
-```
+## Связь слоёв с целевым процессом
 
-## As-Is и переход
+| Уровень | Основные элементы | Связь с задачей |
+|---|---|---|
+| Business | Склад/магазин, роли, приёмка/исполнение/инвентаризация; новые движение и пополнение STORE | BP-03 и новые целевые подпроцессы |
+| Application | WMS, ERP, IS-07, адаптер, Store Inventory; Stock/Reserve/Sync/Transfer | C2 модули и междоменные контракты |
+| Data | Исходные Stock/Task/Product/Reserve; новые STORE Stock/Sync, Journal, Transfer | Единый бизнес-писатель WMS и первичный локальный журнал |
+| Technology | Поддерживаемая среда WMS, общий контейнерный контур; среда магазина | WMS/БД на поддерживаемых узлах, устойчивый локальный журнал |
 
-В As-Is подтверждены WMS, ERP, платформа, учёт операций и заданий, складские данные и текущие серверы. Резерв представлен атрибутом D-06, но атомарность и жизненный цикл AF3/AS3 не доказаны. AC4, AF4, AS4 и N2 — целевые добавления. При переходе сначала уточняются возможности AC1/AC3, затем вводятся новые контракты и восстановимая доставка. Цели WH-G-01–04 связаны с функциями через [требования](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md); обоснования — [ADR](../../05_Architecture_Decisions/ADR/ADR-WH-001-inventory-authority.md), [ADR интеграции](../../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md), [ADR размещения](../../05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md).
+Assignment связывает исполнителя с поведением, Realization — функцию с сервисом, Serving — сервис с потребителем, Access — работу с данными, Flow — передачу. Flow через IS-07 не переносит владение Stock в платформу. Предыдущие отношения AC1/DO1 и DO4 уточняются моделью данных: To-Be Stock охватывает площадки CENTRAL/STORE, удержание оплаченного резерва — новое состояние резерва.
+
+Трассировка: приёмка/задание/STORE в BPMN → Application Services → C2/C6 → компоненты UML → API/события → QA. Читаемый обзор границ дан в [C4](../C4/WH-C4-002-containers.md). Нативный формат и XML проверяются структурно; фактическое согласование общей корпоративной модели остаётся за командами.
 
 [К содержанию Warehouse](../../README.md)

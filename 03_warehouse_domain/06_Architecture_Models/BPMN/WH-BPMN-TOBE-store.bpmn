@@ -1,0 +1,236 @@
+<?xml version='1.0' encoding='utf-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_WH_STORE" targetNamespace="https://retailmax.example/warehouse/1.2">
+  <bpmn:process id="Store" name="Магазин: первичный журнал" isExecutable="false">
+    <bpmn:startEvent id="S0" name="Физическая операция"/>
+    <bpmn:userTask id="S1" name="Проверить документ и количество"/>
+    <bpmn:serviceTask id="S2" name="Записать факт, копию и outbox атомарно"/>
+    <bpmn:serviceTask id="S3" name="Передать через IS-07, прежние ID"/>
+    <bpmn:receiveTask id="S4" name="Получить бизнес-результат WMS"/>
+    <bpmn:exclusiveGateway id="S5" name="APPLIED?"/>
+    <bpmn:serviceTask id="S6" name="Подтвердить границу локально"/>
+    <bpmn:endEvent id="S7" name="Подтверждено"/>
+    <bpmn:userTask id="S8" name="Сохранить ожидание или разобрать расхождение"/>
+    <bpmn:endEvent id="S9" name="Ожидание / разбор"/>
+    <bpmn:sequenceFlow id="Store_f0" sourceRef="S0" targetRef="S1"/>
+    <bpmn:sequenceFlow id="Store_f1" sourceRef="S1" targetRef="S2"/>
+    <bpmn:sequenceFlow id="Store_f2" sourceRef="S2" targetRef="S3"/>
+    <bpmn:sequenceFlow id="Store_f3" sourceRef="S3" targetRef="S4"/>
+    <bpmn:sequenceFlow id="Store_f4" sourceRef="S4" targetRef="S5"/>
+    <bpmn:sequenceFlow id="Store_f5" sourceRef="S5" targetRef="S6" name="Да"/>
+    <bpmn:sequenceFlow id="Store_f6" sourceRef="S6" targetRef="S7"/>
+    <bpmn:sequenceFlow id="Store_f7" sourceRef="S5" targetRef="S8" name="Нет"/>
+    <bpmn:sequenceFlow id="Store_f8" sourceRef="S8" targetRef="S9"/>
+  </bpmn:process>
+  <bpmn:process id="WMS" name="WMS: подтверждённый учёт" isExecutable="false">
+    <bpmn:startEvent id="W0" name="Получен факт STORE"/>
+    <bpmn:serviceTask id="W1" name="Проверить права и повтор"/>
+    <bpmn:serviceTask id="W2" name="Проверить порядок журнала и инварианты"/>
+    <bpmn:exclusiveGateway id="W3" name="Можно применить?"/>
+    <bpmn:serviceTask id="W4" name="Stock, граница, результат и outbox атомарно"/>
+    <bpmn:sendTask id="W5" name="Подтвердить APPLIED через IS-07"/>
+    <bpmn:endEvent id="W6" name="Факт применён"/>
+    <bpmn:serviceTask id="W7" name="Сохранить pending / расхождение без сдвига границы"/>
+    <bpmn:sendTask id="W8" name="Сообщить ожидание или расхождение"/>
+    <bpmn:endEvent id="W9" name="Требуется догрузка / сверка"/>
+    <bpmn:sequenceFlow id="WMS_f0" sourceRef="W0" targetRef="W1"/>
+    <bpmn:sequenceFlow id="WMS_f1" sourceRef="W1" targetRef="W2"/>
+    <bpmn:sequenceFlow id="WMS_f2" sourceRef="W2" targetRef="W3"/>
+    <bpmn:sequenceFlow id="WMS_f3" sourceRef="W3" targetRef="W4" name="Да"/>
+    <bpmn:sequenceFlow id="WMS_f4" sourceRef="W4" targetRef="W5"/>
+    <bpmn:sequenceFlow id="WMS_f5" sourceRef="W5" targetRef="W6"/>
+    <bpmn:sequenceFlow id="WMS_f6" sourceRef="W3" targetRef="W7" name="Нет"/>
+    <bpmn:sequenceFlow id="WMS_f7" sourceRef="W7" targetRef="W8"/>
+    <bpmn:sequenceFlow id="WMS_f8" sourceRef="W8" targetRef="W9"/>
+  </bpmn:process>
+  <bpmn:collaboration id="WH_STORE_COLLAB">
+    <bpmn:participant id="POOL_Store" name="Магазин: первичный журнал" processRef="Store"/>
+    <bpmn:participant id="POOL_WMS" name="WMS: подтверждённый учёт" processRef="WMS"/>
+    <bpmn:messageFlow id="M1" sourceRef="S3" targetRef="W0" name="Движение через IS-07"/>
+    <bpmn:messageFlow id="M2" sourceRef="W5" targetRef="S4" name="APPLIED через IS-07"/>
+    <bpmn:messageFlow id="M3" sourceRef="W8" targetRef="S4" name="Исключение / IS-07"/>
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="DI_WH_STORE">
+    <bpmndi:BPMNPlane id="PL_WH_STORE" bpmnElement="WH_STORE_COLLAB">
+      <bpmndi:BPMNShape id="SH_POOL_Store" bpmnElement="POOL_Store" isHorizontal="true">
+        <dc:Bounds x="50" y="120" width="1340" height="280"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_POOL_WMS" bpmnElement="POOL_WMS" isHorizontal="true">
+        <dc:Bounds x="50" y="440" width="1340" height="280"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S0" bpmnElement="S0">
+        <dc:Bounds x="120" y="180" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S1" bpmnElement="S1">
+        <dc:Bounds x="220" y="160" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S2" bpmnElement="S2">
+        <dc:Bounds x="410" y="160" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S3" bpmnElement="S3">
+        <dc:Bounds x="600" y="160" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S4" bpmnElement="S4">
+        <dc:Bounds x="790" y="160" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S5" bpmnElement="S5">
+        <dc:Bounds x="995" y="180" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S6" bpmnElement="S6">
+        <dc:Bounds x="1090" y="160" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S7" bpmnElement="S7">
+        <dc:Bounds x="1290" y="180" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S8" bpmnElement="S8">
+        <dc:Bounds x="1090" y="280" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_S9" bpmnElement="S9">
+        <dc:Bounds x="1290" y="300" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W0" bpmnElement="W0">
+        <dc:Bounds x="120" y="500" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W1" bpmnElement="W1">
+        <dc:Bounds x="220" y="480" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W2" bpmnElement="W2">
+        <dc:Bounds x="410" y="480" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W3" bpmnElement="W3">
+        <dc:Bounds x="615" y="500" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W4" bpmnElement="W4">
+        <dc:Bounds x="720" y="480" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W5" bpmnElement="W5">
+        <dc:Bounds x="910" y="480" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W6" bpmnElement="W6">
+        <dc:Bounds x="1120" y="500" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W7" bpmnElement="W7">
+        <dc:Bounds x="720" y="600" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W8" bpmnElement="W8">
+        <dc:Bounds x="910" y="600" width="160" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SH_W9" bpmnElement="W9">
+        <dc:Bounds x="1120" y="620" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="ED_Store_f0" bpmnElement="Store_f0">
+        <di:waypoint x="156" y="198.0"/>
+        <di:waypoint x="188.0" y="198.0"/>
+        <di:waypoint x="188.0" y="205.0"/>
+        <di:waypoint x="220" y="205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f1" bpmnElement="Store_f1">
+        <di:waypoint x="380" y="205.0"/>
+        <di:waypoint x="395.0" y="205.0"/>
+        <di:waypoint x="395.0" y="205.0"/>
+        <di:waypoint x="410" y="205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f2" bpmnElement="Store_f2">
+        <di:waypoint x="570" y="205.0"/>
+        <di:waypoint x="585.0" y="205.0"/>
+        <di:waypoint x="585.0" y="205.0"/>
+        <di:waypoint x="600" y="205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f3" bpmnElement="Store_f3">
+        <di:waypoint x="760" y="205.0"/>
+        <di:waypoint x="775.0" y="205.0"/>
+        <di:waypoint x="775.0" y="205.0"/>
+        <di:waypoint x="790" y="205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f4" bpmnElement="Store_f4">
+        <di:waypoint x="950" y="205.0"/>
+        <di:waypoint x="972.5" y="205.0"/>
+        <di:waypoint x="972.5" y="205.0"/>
+        <di:waypoint x="995" y="205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f5" bpmnElement="Store_f5">
+        <di:waypoint x="1045" y="205.0"/>
+        <di:waypoint x="1067.5" y="205.0"/>
+        <di:waypoint x="1067.5" y="205.0"/>
+        <di:waypoint x="1090" y="205.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f6" bpmnElement="Store_f6">
+        <di:waypoint x="1250" y="205.0"/>
+        <di:waypoint x="1270.0" y="205.0"/>
+        <di:waypoint x="1270.0" y="198.0"/>
+        <di:waypoint x="1290" y="198.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f7" bpmnElement="Store_f7">
+        <di:waypoint x="1045" y="205.0"/>
+        <di:waypoint x="1067.5" y="205.0"/>
+        <di:waypoint x="1067.5" y="325.0"/>
+        <di:waypoint x="1090" y="325.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_Store_f8" bpmnElement="Store_f8">
+        <di:waypoint x="1250" y="325.0"/>
+        <di:waypoint x="1270.0" y="325.0"/>
+        <di:waypoint x="1270.0" y="318.0"/>
+        <di:waypoint x="1290" y="318.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f0" bpmnElement="WMS_f0">
+        <di:waypoint x="156" y="518.0"/>
+        <di:waypoint x="188.0" y="518.0"/>
+        <di:waypoint x="188.0" y="525.0"/>
+        <di:waypoint x="220" y="525.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f1" bpmnElement="WMS_f1">
+        <di:waypoint x="380" y="525.0"/>
+        <di:waypoint x="395.0" y="525.0"/>
+        <di:waypoint x="395.0" y="525.0"/>
+        <di:waypoint x="410" y="525.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f2" bpmnElement="WMS_f2">
+        <di:waypoint x="570" y="525.0"/>
+        <di:waypoint x="592.5" y="525.0"/>
+        <di:waypoint x="592.5" y="525.0"/>
+        <di:waypoint x="615" y="525.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f3" bpmnElement="WMS_f3">
+        <di:waypoint x="665" y="525.0"/>
+        <di:waypoint x="692.5" y="525.0"/>
+        <di:waypoint x="692.5" y="525.0"/>
+        <di:waypoint x="720" y="525.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f4" bpmnElement="WMS_f4">
+        <di:waypoint x="880" y="525.0"/>
+        <di:waypoint x="895.0" y="525.0"/>
+        <di:waypoint x="895.0" y="525.0"/>
+        <di:waypoint x="910" y="525.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f5" bpmnElement="WMS_f5">
+        <di:waypoint x="1070" y="525.0"/>
+        <di:waypoint x="1095.0" y="525.0"/>
+        <di:waypoint x="1095.0" y="518.0"/>
+        <di:waypoint x="1120" y="518.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f6" bpmnElement="WMS_f6">
+        <di:waypoint x="665" y="525.0"/>
+        <di:waypoint x="692.5" y="525.0"/>
+        <di:waypoint x="692.5" y="645.0"/>
+        <di:waypoint x="720" y="645.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f7" bpmnElement="WMS_f7">
+        <di:waypoint x="880" y="645.0"/>
+        <di:waypoint x="895.0" y="645.0"/>
+        <di:waypoint x="895.0" y="645.0"/>
+        <di:waypoint x="910" y="645.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_WMS_f8" bpmnElement="WMS_f8">
+        <di:waypoint x="1070" y="645.0"/>
+        <di:waypoint x="1095.0" y="645.0"/>
+        <di:waypoint x="1095.0" y="638.0"/>
+        <di:waypoint x="1120" y="638.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_M1" bpmnElement="M1">
+        <di:waypoint x="680" y="250"/><di:waypoint x="680" y="420"/><di:waypoint x="138" y="420"/><di:waypoint x="138" y="500"/><bpmndi:BPMNLabel><dc:Bounds x="360" y="330" width="145" height="25"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_M2" bpmnElement="M2">
+        <di:waypoint x="990" y="480"/><di:waypoint x="990" y="425"/><di:waypoint x="870" y="425"/><di:waypoint x="870" y="250"/><bpmndi:BPMNLabel><dc:Bounds x="880" y="325" width="100" height="32"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="ED_M3" bpmnElement="M3">
+        <di:waypoint x="990" y="690"/><di:waypoint x="990" y="710"/><di:waypoint x="1370" y="710"/><di:waypoint x="1370" y="410"/><di:waypoint x="940" y="410"/><di:waypoint x="940" y="250"/><bpmndi:BPMNLabel><dc:Bounds x="1160" y="380" width="145" height="20"/></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

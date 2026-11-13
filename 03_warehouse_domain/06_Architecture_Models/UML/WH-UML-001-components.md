@@ -1,90 +1,56 @@
-# UML Component: складское приложение и адаптер
+# UML Component и Sequence выбранного контейнера C2
 
 | Поле | Значение |
 | --- | --- |
-| Идентификатор / версия | WH-UML-001 / 1.0 |
-| Дата | 04.10.2026 |
+| Идентификатор / версия | WH-UML-001 / 1.3 |
+| Дата | 12.11.2026 |
 | Ответственная группа | Команда 3 — Warehouse |
-| Статус | Проект для согласования; не свидетельствует о внедрении |
-| Источники | [DOC-05](../../../00_Documentation/DOC-05.md), [DOC-09](../../../00_Documentation/DOC-09.md) |
-| Связанные требования | WH-R-01/02/03/09/18 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
+| Статус | Проект для согласования |
+| Источники | [DOC-05](../../../00_Documentation/DOC-05.md), [DOC-09](../../../00_Documentation/DOC-09.md); [INT-001/1.3](../../../06_integration_architecture/INT-001-target-model.md); [лекция 4](https://drive.google.com/file/d/1AShDDsHBHSOAfTgPLr-UBiem6JnYv0xg/view) |
+| Связанные требования | WH-R-01/03/05/09/21/22/23/24 — [каталог](../../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
 
-## Компонентная модель To-Be
+## Выбранный контейнер и сценарий
 
-Модель детализирует C2 «Приложение WMS» и C4 «Адаптер Warehouse» из [C4](../C4/WH-C4-002-containers.md). Компоненты ниже — логические модули с предоставляемыми/требуемыми интерфейсами; их выделение не означает создание отдельных микросервисов. Набор интерфейсов является проектным.
+Для практической работы главы 4, слайд 20, выбран **C2 «Приложение WMS»** из C4 Container. Внутри него находятся компоненты, а не отдельные Docker-сервисы. C3 БД WMS и адаптер IS-07 показаны внешними зависимостями. Имена одинаковы на обеих UML-диаграммах.
 
-| Компонент | Предоставляет | Требует |
-| --- | --- | --- |
-| Warehouse API / Consumer | IWarehouseContract | IStock, IReceiving, IFulfillment, IInventory |
-| Stock & Reservation | IStock | IRepository, IAudit, IEventJournal |
-| Receiving | IReceiving | IStockMutation, IRepository, IEventJournal |
-| Fulfillment | IFulfillment | IStockMutation, IRepository, IEventJournal |
-| Inventory | IInventory | IStockMutation, IAudit, IRepository |
-| Event Publisher | IPublishWarehouseEvents | IEventJournal, IPlatformEvents |
-| Integration Platform (внешняя) | IPlatformEvents | IWarehouseContract |
+![Компоненты C2](WH-UML-001-components.svg)
 
-Все операции изменения запаса реализуются одним внутренним модулем WMS; интерфейс IStockMutation не публикуется для соседних систем.
+[Редактируемый PlantUML](WH-UML-001-components.puml).
 
-```mermaid
-flowchart LR
-  P["Integration Platform"] -->|"IWarehouseContract"| A["Warehouse API / Consumer"]
-  A -->|"IStock"| S["Stock and Reservation"]
-  A -->|"IReceiving"| R["Receiving"]
-  A -->|"IFulfillment"| F["Fulfillment"]
-  A -->|"IInventory"| I["Inventory"]
-  R -->|"IStockMutation"| S
-  F -->|"IStockMutation"| S
-  I -->|"IStockMutation"| S
-  S --> J["Transaction and Event Journal"]
-  J --> E["Event Publisher"]
-  E -->|"IPlatformEvents"| P
-```
+| Компонент | Предоставляет | Использует |
+|---|---|---|
+| Command Handler | IWarehouseCommand | IGuard и прикладные интерфейсы |
+| Command Guard | IGuard | Идентификацию клиента и бизнес-права |
+| Store Movement Service | IStoreMovement | IStoreSync, IStock, ITransaction |
+| Store Sync Service | IStoreSync | ITransaction |
+| Stock & Reservation | IStock | ITransaction |
+| Fulfillment & Transfer | IExecution | IStock, ITransaction |
+| Receiving & Inventory Control | IReceiving | IStock, ITransaction |
+| Repository / Audit / Outbox | ITransaction | C3 БД WMS |
 
-Mermaid выше — обзор зависимостей. Ниже находится исходное представление UML Component в PlantUML, включённое в Markdown; GitHub показывает его как текст, а не как автоматически отрисованную UML-диаграмму.
+## SC-WH-01: применение продажи STORE
 
-```plantuml
-@startuml
-skinparam componentStyle uml2
-component "Integration Platform" as Platform
-package "Warehouse adapter" {
-  component "Warehouse API / Consumer" as API
-  component "Event Publisher" as Publisher
-}
-package "WMS supported extension" {
-  component "Stock and Reservation" as Stock
-  component "Receiving" as Receiving
-  component "Fulfillment" as Fulfillment
-  component "Inventory" as Inventory
-  component "Transaction and Event Journal" as Journal
-}
-interface IWarehouseContract
-interface IStock
-interface IReceiving
-interface IFulfillment
-interface IInventory
-interface IEventJournal
-interface IPlatformEvents
-API - IWarehouseContract
-Platform ..> IWarehouseContract : uses
-Stock - IStock
-Receiving - IReceiving
-Fulfillment - IFulfillment
-Inventory - IInventory
-API ..> IStock
-API ..> IReceiving
-API ..> IFulfillment
-API ..> IInventory
-Receiving ..> Stock : internal mutation
-Fulfillment ..> Stock : internal mutation
-Inventory ..> Stock : internal mutation
-Stock ..> Journal : atomic record
-Journal - IEventJournal
-Publisher ..> IEventJournal
-Platform - IPlatformEvents
-Publisher ..> IPlatformEvents
-@enduml
-```
+Предусловие: Inventory магазина уже сохранил физический факт и доставляет команду через IS-07. Успех — одно APPLIED, Stock новой версии и непрерывная граница журнала. Транспортный ACK — не успех сценария.
 
-Принципы модели: бизнес-правила не дублируются в адаптере; publisher читает устойчивый журнал, а не угадывает факт по ответу клиента; права и аудит применяются внутри WMS независимо от входного клиента.
+![Взаимодействие компонентов C2](WH-SEQ-001-store-components.svg)
+
+[Исходник Sequence](WH-SEQ-001-store-components.puml). Показаны запрет доступа, повтор, конфликт hash, пропуск журнала, учётное противоречие и атомарный нормальный путь. Повтор не вызывает второй расход. Запись pending/расхождения сохраняет физический факт, но не поднимает appliedThroughSequence.
+
+| BPMN | C4 / компонент | Данные / контракт | Проверка |
+|---|---|---|---|
+| STORE: локальная фиксация | C6 Store Inventory, вне C2 | StoreJournal + outbox | WH-QA-15/16 |
+| STORE: валидация и дедупликация | C2 Command Handler/Guard, Store Movement | WH API-16, Operation | WH-QA-15/18 |
+| STORE: порядок и применение | C2 Store Sync, Stock, Repository | Stock, JournalState, outbox | WH-QA-16/17/21 |
+| STORE: результат для закупок | C4 адаптер IS-07, вне C2 | INT EVT-25/27 | WH-QA-19/22 |
+
+## Межсистемные сценарии
+
+| Сценарий | SVG | Исходник |
+|---|---|---|
+| SC-WH-02 Резерв, оплата и задание | [Просмотр](WH-SEQ-002-online-order.svg) | [PlantUML](WH-SEQ-002-online-order.puml) |
+| SC-WH-03 Магазин и восстановление связи | [Просмотр](WH-SEQ-003-store-sync.svg) | [PlantUML](WH-SEQ-003-store-sync.puml) |
+| SC-WH-04 Частичное пополнение | [Просмотр](WH-SEQ-004-store-transfer.svg) | [PlantUML](WH-SEQ-004-store-transfer.puml) |
+
+Они дополняют внутренний SC-WH-01. Взята структура представления компонентов/участников из отдельных Sequence продаж и закупок; их бизнес-правила не копируются в Warehouse. Доказательство реальной поддержки транзакций WMS ещё требуется.
 
 [К содержанию Warehouse](../../README.md)

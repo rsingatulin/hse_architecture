@@ -1,0 +1,43 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam maxMessageSize 180
+skinparam wrapWidth 180
+skinparam backgroundColor white
+autonumber
+title SC-WH-03 — магазин, WMS и свежесть для закупок
+participant POS
+participant "Store Inventory" as Store
+database "Журнал магазина" as Journal
+participant "IS-07" as IP
+participant WMS
+participant "ERP / закупки" as ERP
+POS -> Store : saleId, lineId, SKU, quantity
+Store -> Journal : атомарно: движение N + копия + outbox
+alt сеть недоступна
+ Store -> Journal : сохранить pending; не удалять по transport ACK
+ WMS -> WMS : таймаут heartbeat → OFFLINE
+ WMS -> IP : INT EVT-27: OFFLINE, последнее подтверждённое состояние
+ IP -> ERP : не превращать старый запас в ноль
+else сеть есть / восстановлена
+ Store -> IP : WH API-16: исходный movementId/journalId/N
+ IP -> WMS : применить последовательность
+ WMS -> WMS : inbox + Stock STORE + boundary + outbox атомарно
+ WMS --> IP : APPLIED, непрерывная граница
+ IP --> Store : бизнес-подтверждение WMS
+ Store -> Journal : отметить только подтверждённые движения
+ WMS -> IP : INT EVT-25 / 27
+ IP -> ERP : сигнал повторного чтения WMS
+ ERP -> IP : INT API-04: STORE и синхронизация
+ IP -> WMS : чтение подтверждённого состояния
+ WMS --> IP : Stock, inTransit, asOf, SyncState
+ IP --> ERP : результат для текущего расчёта; без постоянной копии
+ Store -> IP : WH API-11: контрольный снимок
+ IP -> WMS : snapshotId и boundary одной версии
+ WMS --> IP : подтверждённая основа
+ IP --> Store : основа + только pending выше boundary
+end
+note over ERP : Если WMS недоступна, пополнение приостановлено;\nERP не хранит таблицу/постоянный кэш текущих остатков
+note over Store,WMS : Пропуск N блокирует APPLIED N+1; новый heartbeat не снимает расхождение
+@enduml

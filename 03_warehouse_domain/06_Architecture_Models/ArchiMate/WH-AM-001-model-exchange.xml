@@ -1,5 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" identifier="WH_MODEL_001" version="1.0" xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ https://www.opengroup.org/xsd/archimate/3.1/archimate3_Diagram.xsd">
+<?xml version='1.0' encoding='utf-8'?>
+<model xmlns="http://www.opengroup.org/xsd/archimate/3.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" identifier="WH_MODEL_001" version="1.2" xsi:schemaLocation="http://www.opengroup.org/xsd/archimate/3.0/ https://www.opengroup.org/xsd/archimate/3.1/archimate3_Diagram.xsd">
   <name xml:lang="ru">Warehouse — проектная модель As-Is / To-Be</name>
   <elements>
     <element identifier="BA1" xsi:type="BusinessActor">
@@ -134,48 +134,100 @@
       <name xml:lang="ru">Контейнерное выполнение</name>
       <documentation xml:lang="ru">To-Be</documentation>
     </element>
+    <element identifier="BA2" xsi:type="BusinessActor">
+      <name xml:lang="ru">Розничный магазин</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="BP4" xsi:type="BusinessProcess">
+      <name xml:lang="ru">Движение и сверка магазина</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="BP5" xsi:type="BusinessProcess">
+      <name xml:lang="ru">Пополнение CENTRAL → STORE</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="AC7" xsi:type="ApplicationComponent">
+      <name xml:lang="ru">Store Inventory логистики</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="AF6" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Подтверждение движения STORE</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="AF7" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Контроль журнала и свежести</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="AF8" xsi:type="ApplicationFunction">
+      <name xml:lang="ru">Удержание оплаченного резерва</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="AS6" xsi:type="ApplicationService">
+      <name xml:lang="ru">Подтверждённый запас магазина</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="AS7" xsi:type="ApplicationService">
+      <name xml:lang="ru">Синхронизация магазина</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="DO5" xsi:type="DataObject">
+      <name xml:lang="ru">STORE Stock и StoreSync</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="DO6" xsi:type="DataObject">
+      <name xml:lang="ru">StoreJournal и movementId</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="DO7" xsi:type="DataObject">
+      <name xml:lang="ru">Transfer и товар в пути</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
+    <element identifier="N3" xsi:type="Node">
+      <name xml:lang="ru">Среда магазина</name>
+      <documentation>To-Be 1.2; проект, не действующий As-Is</documentation>
+    </element>
   </elements>
   <relationships>
-    <relationship identifier="WH_REL_0" source="BA1" target="BR1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_1" source="BA1" target="BR2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_2" source="BR1" target="BP1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_3" source="BR1" target="BP2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_4" source="BR1" target="BP3" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_5" source="BR2" target="BP3" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_6" source="AC1" target="AF1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_7" source="AC1" target="AF2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_8" source="AC1" target="AF3" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_9" source="AC2" target="AF5" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_10" source="AC4" target="AF4" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_11" source="N1" target="TF1" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_12" source="N2" target="TF2" xsi:type="Assignment"/>
-    <relationship identifier="WH_REL_13" source="BP2" target="BS1" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_14" source="AF1" target="AS1" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_15" source="AF2" target="AS2" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_16" source="AF3" target="AS3" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_17" source="AF4" target="AS4" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_18" source="AF5" target="AS5" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_19" source="TF1" target="TS1" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_20" source="TF2" target="TS2" xsi:type="Realization"/>
-    <relationship identifier="WH_REL_21" source="AS1" target="BP1" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_22" source="AS1" target="BP3" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_23" source="AS2" target="BP2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_24" source="AS3" target="AF2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_25" source="AS3" target="AF4" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_26" source="AS4" target="AC2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_27" source="AS4" target="AC5" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_28" source="AS4" target="AC6" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_29" source="AS5" target="AF1" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_30" source="AS5" target="AF2" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_31" source="TS1" target="AC1" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_32" source="TS2" target="AC4" xsi:type="Serving"/>
-    <relationship identifier="WH_REL_33" source="AF1" target="DO1" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_34" source="AF2" target="DO2" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_35" source="AF3" target="DO4" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_36" source="AF3" target="DO1" xsi:type="Access" accessType="ReadWrite"/>
-    <relationship identifier="WH_REL_37" source="AF1" target="DO3" xsi:type="Access" accessType="Read"/>
-    <relationship identifier="WH_REL_38" source="AF2" target="DO3" xsi:type="Access" accessType="Read"/>
-    <relationship identifier="WH_REL_39" source="AF5" target="DO3" xsi:type="Access" accessType="ReadWrite"/>
+    <relationship identifier="WH_REL_0" source="BA1" target="BR1" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_1" source="BA1" target="BR2" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_2" source="BR1" target="BP1" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_3" source="BR1" target="BP2" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_4" source="BR1" target="BP3" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_5" source="BR2" target="BP3" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_6" source="AC1" target="AF1" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_7" source="AC1" target="AF2" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_8" source="AC1" target="AF3" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_9" source="AC2" target="AF5" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_10" source="AC4" target="AF4" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_11" source="N1" target="TF1" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_12" source="N2" target="TF2" xsi:type="Assignment" />
+    <relationship identifier="WH_REL_13" source="BP2" target="BS1" xsi:type="Realization" />
+    <relationship identifier="WH_REL_14" source="AF1" target="AS1" xsi:type="Realization" />
+    <relationship identifier="WH_REL_15" source="AF2" target="AS2" xsi:type="Realization" />
+    <relationship identifier="WH_REL_16" source="AF3" target="AS3" xsi:type="Realization" />
+    <relationship identifier="WH_REL_17" source="AF4" target="AS4" xsi:type="Realization" />
+    <relationship identifier="WH_REL_18" source="AF5" target="AS5" xsi:type="Realization" />
+    <relationship identifier="WH_REL_19" source="TF1" target="TS1" xsi:type="Realization" />
+    <relationship identifier="WH_REL_20" source="TF2" target="TS2" xsi:type="Realization" />
+    <relationship identifier="WH_REL_21" source="AS1" target="BP1" xsi:type="Serving" />
+    <relationship identifier="WH_REL_22" source="AS1" target="BP3" xsi:type="Serving" />
+    <relationship identifier="WH_REL_23" source="AS2" target="BP2" xsi:type="Serving" />
+    <relationship identifier="WH_REL_24" source="AS3" target="AF2" xsi:type="Serving" />
+    <relationship identifier="WH_REL_25" source="AS3" target="AF4" xsi:type="Serving" />
+    <relationship identifier="WH_REL_26" source="AS4" target="AC2" xsi:type="Serving" />
+    <relationship identifier="WH_REL_27" source="AS4" target="AC5" xsi:type="Serving" />
+    <relationship identifier="WH_REL_28" source="AS4" target="AC6" xsi:type="Serving" />
+    <relationship identifier="WH_REL_29" source="AS5" target="AF1" xsi:type="Serving" />
+    <relationship identifier="WH_REL_30" source="AS5" target="AF2" xsi:type="Serving" />
+    <relationship identifier="WH_REL_31" source="TS1" target="AC1" xsi:type="Serving" />
+    <relationship identifier="WH_REL_32" source="TS2" target="AC4" xsi:type="Serving" />
+    <relationship identifier="WH_REL_33" source="AF1" target="DO1" xsi:type="Access" accessType="ReadWrite" />
+    <relationship identifier="WH_REL_34" source="AF2" target="DO2" xsi:type="Access" accessType="ReadWrite" />
+    <relationship identifier="WH_REL_35" source="AF3" target="DO4" xsi:type="Access" accessType="ReadWrite" />
+    <relationship identifier="WH_REL_36" source="AF3" target="DO1" xsi:type="Access" accessType="ReadWrite" />
+    <relationship identifier="WH_REL_37" source="AF1" target="DO3" xsi:type="Access" accessType="Read" />
+    <relationship identifier="WH_REL_38" source="AF2" target="DO3" xsi:type="Access" accessType="Read" />
+    <relationship identifier="WH_REL_39" source="AF5" target="DO3" xsi:type="Access" accessType="ReadWrite" />
     <relationship identifier="WH_REL_40" source="AC2" target="AC3" xsi:type="Flow">
       <name xml:lang="ru">Товар, поставка, задание</name>
     </relationship>
@@ -200,105 +252,151 @@
     <relationship identifier="WH_REL_47" source="AC3" target="AC6" xsi:type="Flow">
       <name xml:lang="ru">Аналитические факты</name>
     </relationship>
+    <relationship identifier="WH_REL_101" xsi:type="Assignment" source="AC1" target="AF6" />
+    <relationship identifier="WH_REL_102" xsi:type="Assignment" source="AC1" target="AF7" />
+    <relationship identifier="WH_REL_103" xsi:type="Assignment" source="AC1" target="AF8" />
+    <relationship identifier="WH_REL_104" xsi:type="Realization" source="AF6" target="AS6" />
+    <relationship identifier="WH_REL_105" xsi:type="Realization" source="AF7" target="AS7" />
+    <relationship identifier="WH_REL_106" xsi:type="Access" source="AF6" target="DO5" />
+    <relationship identifier="WH_REL_107" xsi:type="Access" source="AF7" target="DO5" />
+    <relationship identifier="WH_REL_108" xsi:type="Access" source="AC7" target="DO6" />
+    <relationship identifier="WH_REL_109" xsi:type="Access" source="AF2" target="DO7" />
+    <relationship identifier="WH_REL_110" xsi:type="Serving" source="AS6" target="BP4" />
+    <relationship identifier="WH_REL_111" xsi:type="Serving" source="AS7" target="BP4" />
+    <relationship identifier="WH_REL_112" xsi:type="Flow" source="AC7" target="AC3" />
+    <relationship identifier="WH_REL_113" xsi:type="Flow" source="AC3" target="AC4" />
+    <relationship identifier="WH_REL_114" xsi:type="Flow" source="AC4" target="AC1" />
+    <relationship identifier="WH_REL_115" xsi:type="Flow" source="AC1" target="AC3" />
+    <relationship identifier="WH_REL_116" xsi:type="Flow" source="AC3" target="AC2" />
   </relationships>
   <views>
     <diagrams>
       <view identifier="WH_VIEW_APP_TOBE" xsi:type="Diagram">
         <name xml:lang="ru">Application Layer — To-Be</name>
-        <node identifier="WH_VIEW_APP_TOBE_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC4" elementRef="AC4" x="700" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF3" elementRef="AF3" x="480" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF4" elementRef="AF4" x="700" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS3" elementRef="AS3" x="480" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS4" elementRef="AS4" x="700" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_TOBE_DO4" elementRef="DO4" x="700" y="580" w="180" h="75" xsi:type="Element"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_8" relationshipRef="WH_REL_8" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AF5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_10" relationshipRef="WH_REL_10" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_AS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_AS2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_16" relationshipRef="WH_REL_16" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_AS3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_17" relationshipRef="WH_REL_17" source="WH_VIEW_APP_TOBE_AF4" target="WH_VIEW_APP_TOBE_AS4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_AS5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_24" relationshipRef="WH_REL_24" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_25" relationshipRef="WH_REL_25" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_26" relationshipRef="WH_REL_26" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_27" relationshipRef="WH_REL_27" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_28" relationshipRef="WH_REL_28" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC6" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_35" relationshipRef="WH_REL_35" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO4" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_36" relationshipRef="WH_REL_36" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_TOBE_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship"/>
+        <node identifier="WH_VIEW_APP_TOBE_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AC4" elementRef="AC4" x="700" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AF3" elementRef="AF3" x="480" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AF4" elementRef="AF4" x="700" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AS3" elementRef="AS3" x="480" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AS4" elementRef="AS4" x="700" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_TOBE_DO4" elementRef="DO4" x="700" y="580" w="180" h="75" xsi:type="Element" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_8" relationshipRef="WH_REL_8" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF3" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AF5" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_10" relationshipRef="WH_REL_10" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_AS1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_AS2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_16" relationshipRef="WH_REL_16" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_AS3" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_17" relationshipRef="WH_REL_17" source="WH_VIEW_APP_TOBE_AF4" target="WH_VIEW_APP_TOBE_AS4" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_AS5" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_24" relationshipRef="WH_REL_24" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_25" relationshipRef="WH_REL_25" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF4" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_26" relationshipRef="WH_REL_26" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_27" relationshipRef="WH_REL_27" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC5" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_28" relationshipRef="WH_REL_28" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC6" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_35" relationshipRef="WH_REL_35" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO4" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_36" relationshipRef="WH_REL_36" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_TOBE_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_DO3" xsi:type="Relationship" />
       </view>
       <view identifier="WH_VIEW_APP_ASIS" xsi:type="Diagram">
         <name xml:lang="ru">Application Layer — As-Is по DOC-04/06</name>
-        <node identifier="WH_VIEW_APP_ASIS_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_APP_ASIS_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AF5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_AS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_AS2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_AS5" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_APP_ASIS_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship"/>
+        <node identifier="WH_VIEW_APP_ASIS_AC1" elementRef="AC1" x="40" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AC2" elementRef="AC2" x="260" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AC3" elementRef="AC3" x="480" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AC5" elementRef="AC5" x="920" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AC6" elementRef="AC6" x="1140" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AF1" elementRef="AF1" x="40" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AF2" elementRef="AF2" x="260" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AF5" elementRef="AF5" x="920" y="220" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AS1" elementRef="AS1" x="40" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AS2" elementRef="AS2" x="260" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_AS5" elementRef="AS5" x="920" y="400" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_DO1" elementRef="DO1" x="40" y="580" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_DO2" elementRef="DO2" x="260" y="580" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_APP_ASIS_DO3" elementRef="DO3" x="480" y="580" w="180" h="75" xsi:type="Element" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_6" relationshipRef="WH_REL_6" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_9" relationshipRef="WH_REL_9" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AF5" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_14" relationshipRef="WH_REL_14" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_AS1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_AS2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_18" relationshipRef="WH_REL_18" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_AS5" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_29" relationshipRef="WH_REL_29" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_30" relationshipRef="WH_REL_30" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_33" relationshipRef="WH_REL_33" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_34" relationshipRef="WH_REL_34" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_37" relationshipRef="WH_REL_37" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_38" relationshipRef="WH_REL_38" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_APP_ASIS_rel_39" relationshipRef="WH_REL_39" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_DO3" xsi:type="Relationship" />
       </view>
       <view identifier="WH_VIEW_LAYERS" xsi:type="Diagram">
         <name xml:lang="ru">Сквозные слои Warehouse</name>
-        <node identifier="WH_VIEW_LAYERS_BR1" elementRef="BR1" x="40" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_BP2" elementRef="BP2" x="260" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_BS1" elementRef="BS1" x="480" y="40" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_AC1" elementRef="AC1" x="40" y="240" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_AF2" elementRef="AF2" x="260" y="240" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_AS2" elementRef="AS2" x="480" y="240" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_N1" elementRef="N1" x="40" y="440" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_TF1" elementRef="TF1" x="260" y="440" w="180" h="75" xsi:type="Element"/>
-        <node identifier="WH_VIEW_LAYERS_TS1" elementRef="TS1" x="480" y="440" w="180" h="75" xsi:type="Element"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_3" relationshipRef="WH_REL_3" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_11" relationshipRef="WH_REL_11" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_13" relationshipRef="WH_REL_13" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_19" relationshipRef="WH_REL_19" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_23" relationshipRef="WH_REL_23" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship"/>
-        <connection identifier="WH_VIEW_LAYERS_rel_31" relationshipRef="WH_REL_31" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1" xsi:type="Relationship"/>
+        <node identifier="WH_VIEW_LAYERS_BR1" elementRef="BR1" x="40" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_BP2" elementRef="BP2" x="260" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_BS1" elementRef="BS1" x="480" y="40" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_AC1" elementRef="AC1" x="40" y="240" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_AF2" elementRef="AF2" x="260" y="240" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_AS2" elementRef="AS2" x="480" y="240" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_N1" elementRef="N1" x="40" y="440" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_TF1" elementRef="TF1" x="260" y="440" w="180" h="75" xsi:type="Element" />
+        <node identifier="WH_VIEW_LAYERS_TS1" elementRef="TS1" x="480" y="440" w="180" h="75" xsi:type="Element" />
+        <connection identifier="WH_VIEW_LAYERS_rel_3" relationshipRef="WH_REL_3" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_LAYERS_rel_7" relationshipRef="WH_REL_7" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_LAYERS_rel_11" relationshipRef="WH_REL_11" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_LAYERS_rel_13" relationshipRef="WH_REL_13" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_LAYERS_rel_15" relationshipRef="WH_REL_15" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_LAYERS_rel_19" relationshipRef="WH_REL_19" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_LAYERS_rel_23" relationshipRef="WH_REL_23" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2" xsi:type="Relationship" />
+        <connection identifier="WH_VIEW_LAYERS_rel_31" relationshipRef="WH_REL_31" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1" xsi:type="Relationship" />
+      </view>
+      <view identifier="WH_VIEW_STORE_TOBE" xsi:type="Diagram">
+        <name>Warehouse To-Be 1.2 — магазин, WMS и закупки</name>
+        <node identifier="WH_STORE_AC7" elementRef="AC7" x="30" y="40" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AC3" elementRef="AC3" x="290" y="40" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AC4" elementRef="AC4" x="550" y="40" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AC1" elementRef="AC1" x="810" y="40" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AF6" elementRef="AF6" x="810" y="200" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AF7" elementRef="AF7" x="550" y="200" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_DO5" elementRef="DO5" x="550" y="360" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_DO6" elementRef="DO6" x="30" y="200" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AC2" elementRef="AC2" x="290" y="360" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AS6" elementRef="AS6" x="810" y="360" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_AS7" elementRef="AS7" x="290" y="200" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_BP4" elementRef="BP4" x="810" y="520" w="195" h="80" xsi:type="Element" />
+        <node identifier="WH_STORE_DO7" elementRef="DO7" x="30" y="360" w="195" h="80" xsi:type="Element" />
+        <connection identifier="WH_STORE_CONN_WH_REL_101" relationshipRef="WH_REL_101" source="WH_STORE_AC1" target="WH_STORE_AF6" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_102" relationshipRef="WH_REL_102" source="WH_STORE_AC1" target="WH_STORE_AF7" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_104" relationshipRef="WH_REL_104" source="WH_STORE_AF6" target="WH_STORE_AS6" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_105" relationshipRef="WH_REL_105" source="WH_STORE_AF7" target="WH_STORE_AS7" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_106" relationshipRef="WH_REL_106" source="WH_STORE_AF6" target="WH_STORE_DO5" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_107" relationshipRef="WH_REL_107" source="WH_STORE_AF7" target="WH_STORE_DO5" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_108" relationshipRef="WH_REL_108" source="WH_STORE_AC7" target="WH_STORE_DO6" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_110" relationshipRef="WH_REL_110" source="WH_STORE_AS6" target="WH_STORE_BP4" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_111" relationshipRef="WH_REL_111" source="WH_STORE_AS7" target="WH_STORE_BP4" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_112" relationshipRef="WH_REL_112" source="WH_STORE_AC7" target="WH_STORE_AC3" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_113" relationshipRef="WH_REL_113" source="WH_STORE_AC3" target="WH_STORE_AC4" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_114" relationshipRef="WH_REL_114" source="WH_STORE_AC4" target="WH_STORE_AC1" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_115" relationshipRef="WH_REL_115" source="WH_STORE_AC1" target="WH_STORE_AC3" xsi:type="Relationship" />
+        <connection identifier="WH_STORE_CONN_WH_REL_116" relationshipRef="WH_REL_116" source="WH_STORE_AC3" target="WH_STORE_AC2" xsi:type="Relationship" />
       </view>
     </diagrams>
   </views>

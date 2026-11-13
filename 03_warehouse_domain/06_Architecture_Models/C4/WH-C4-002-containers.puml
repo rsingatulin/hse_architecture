@@ -1,0 +1,42 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam maxMessageSize 180
+skinparam wrapWidth 180
+skinparam backgroundColor white
+!pragma layout smetana
+left to right direction
+title Warehouse System — C4 Container To-Be 1.3
+rectangle "Warehouse System" {
+ rectangle "C1 Интерфейс WMS\n<<Container>>\nШтатный клиент / ТСД" as ui #DCEBFA
+ rectangle "C2 Приложение WMS\n<<Container>>\nStock/Reserve, Execution, StoreSync\nСтек поставщика уточняется" as wms #DCEBFA
+ database "C3 БД WMS\n<<Container: database>>\nОперации, inbox/outbox, аудит" as db
+ rectangle "C6 Store Inventory\n<<Container>>\nЛокальная служба логистики" as local #FFF0D5
+ database "C7 Журнал магазина\n<<Container: database>>\nПервичные факты, pending, копия" as journal
+}
+rectangle "IS-07 — общая платформа" {
+ rectangle "C4 Warehouse Adapter\n<<Container>>\nAPI, mapping, publisher/consumer" as adapter #E2F0E9
+ database "C5 Техническое состояние\n<<Container: database>>\nКурсоры и доставка, без Stock" as state
+ rectangle "Gateway / транспорт\n<<Containers общего слоя>>" as bus #E2F0E9
+}
+rectangle "POS\n<<External System>>" as pos
+rectangle "ERP / закупки\n<<External System>>" as erp
+rectangle "Интернет-магазин\n<<External System>>" as web
+rectangle "BI\n<<External System>>" as bi
+ui --> wms : штатный защищённый протокол
+wms --> db : локальная транзакция
+pos --> local : первичный saleId/lineId
+local --> journal : операция + outbox атомарно
+local <--> bus : WH API-16/17/11\nчерез IS-07
+bus <--> adapter : API / команды / события
+adapter <--> wms : поддерживаемый API/журнал
+adapter --> state : техническая доставка
+erp <--> bus : планы/учёт и чтение WMS\nбез постоянной копии остатков
+web <--> bus : резерв, confirm-paid, статусы
+bus --> bi : аналитические факты и снимки
+note bottom of wms
+Выбранный контейнер для UML — C2.
+Бизнес-идемпотентность и фиксация транзакции у WMS.
+end note
+@enduml

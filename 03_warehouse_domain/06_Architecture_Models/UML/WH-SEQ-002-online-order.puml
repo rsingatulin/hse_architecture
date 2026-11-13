@@ -1,0 +1,49 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam maxMessageSize 180
+skinparam wrapWidth 180
+skinparam backgroundColor white
+autonumber
+title SC-WH-02 — оплаченный резерв и одно задание
+participant "Онлайн / владелец заказа" as Online
+participant "IS-07\nкоординация и адаптеры" as IP
+participant "WMS" as WMS
+participant "Платёжный провайдер" as Pay
+participant "ERP" as ERP
+actor "Складской сотрудник" as Worker
+note over Online,ERP : Предусловие: customerId, цены ERP, скидки и компоненты оплаты определены владельцами
+Online -> IP : INT API-05 / WH API-02: reserve, orderId/version
+IP -> WMS : атомарный reserve всех строк CENTRAL
+WMS --> IP : ACTIVE, reservationId, version, expiresAt
+IP --> Online : бизнес-подтверждение
+Online -> IP : начать платёж с прежним paymentAttemptId
+IP -> Pay : авторизованный платёжный запрос
+Pay --> IP : проверенное подтверждение paymentId
+IP -> WMS : INT API-07 / WH API-14: confirm-paid(expectedVersion)
+alt confirm-paid победил expiry
+ WMS --> IP : HELD_FOR_FULFILLMENT; обычный TTL отключён
+ note over IP,ERP : Применимые bonus commit подтверждены до регистрации ERP
+ IP -> ERP : устойчиво зарегистрировать оплаченный заказ
+ ERP --> IP : прежний/новый erpOrderId
+ ERP -> IP : единственное задание с прежним reservationId
+ IP -> WMS : INT API-11 / WH API-06
+ WMS --> IP : taskId, CREATED
+ Worker -> WMS : начать подбор
+ WMS -> WMS : HELD → ALLOCATED; PICKING
+ Worker -> WMS : упаковка и подтверждение передачи
+ WMS -> WMS : onHand/reserved −N, CONSUMED, HANDED_OVER, outbox
+else expiry подтверждённо победил
+ WMS --> IP : EXPIRED, не выдавать ложный резерв
+ IP --> Online : урегулирование
+ Online -> IP : возврат по согласованной политике, без нового reserve
+else ответ неизвестен
+ IP -> WMS : WH API-13: прежний результат / тот же ключ
+ WMS --> IP : фактическое состояние; timeout не равен отказу
+end
+note over IP,ERP
+До освобождения оплаченного hold получить запрет позднего
+задания ERP (INT API-21) и результат cancel существующего task.
+end note
+@enduml
