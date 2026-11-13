@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="Warehouse — проектная модель As-Is / To-Be" id="WH_MODEL_001" version="5.0.0">
+  <folder name="Strategy" id="id-b6b38994c0da44b1a96a9c09769d48c8" type="strategy"/>
+  <folder name="Business" id="id-b37806f488ef4a04b5f66588403eacdd" type="business">
+    <element xsi:type="archimate:BusinessActor" name="Распределительный склад" id="BA1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessRole" name="Кладовщик / комплектовщик" id="BR1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessRole" name="Начальник склада" id="BR2">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Приёмка и размещение" id="BP1">
+      <documentation>As-Is/To-Be, детали различаются</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Комплектация и передача" id="BP2">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessProcess" name="Инвентаризация" id="BP3">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:BusinessService" name="Складское исполнение заказа" id="BS1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+  </folder>
+  <folder name="Application" id="id-f8de6fde39624226a4ee1c10ccebe461" type="application">
+    <element xsi:type="archimate:ApplicationComponent" name="WMS" id="AC1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="ERP" id="AC2">
+      <documentation>As-Is/To-Be, внешний</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="Integration Platform" id="AC3">
+      <documentation>As-Is по DOC-04/05; To-Be развиваемая</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="Адаптер Warehouse" id="AC4">
+      <documentation>To-Be, новый</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="Интернет-магазин" id="AC5">
+      <documentation>Внешний</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationComponent" name="BI" id="AC6">
+      <documentation>Внешний</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationFunction" name="Регистрация складских операций" id="AF1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationFunction" name="Управление заданием" id="AF2">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationFunction" name="Атомарное управление резервом" id="AF3">
+      <documentation>To-Be: уточнение возможностей WMS</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationFunction" name="Преобразование и восстановимая доставка" id="AF4">
+      <documentation>To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationFunction" name="Ведение товара и учётного заказа" id="AF5">
+      <documentation>As-Is/To-Be, ERP</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Управление запасами" id="AS1">
+      <documentation>As-Is/To-Be; SRV-05</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Исполнение складского задания" id="AS2">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Подтверждение резерва" id="AS3">
+      <documentation>To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Обмен Warehouse" id="AS4">
+      <documentation>To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:ApplicationService" name="Данные товара и заказа" id="AS5">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="Складской остаток" id="DO1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="Задание и отгрузка" id="DO2">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="Товар и заказ" id="DO3">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:DataObject" name="Резерв" id="DO4">
+      <documentation>Поле в As-Is, целевой жизненный цикл</documentation>
+    </element>
+  </folder>
+  <folder name="Technology &amp; Physical" id="id-2970c127a255412ba2f2f27afaaac430" type="technology">
+    <element xsi:type="archimate:Node" name="Поддерживаемая среда WMS" id="N1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:Node" name="Корпоративный контейнерный контур" id="N2">
+      <documentation>To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyFunction" name="Выполнение приложения WMS" id="TF1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyFunction" name="Выполнение адаптера" id="TF2">
+      <documentation>To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyService" name="Среда выполнения WMS" id="TS1">
+      <documentation>As-Is/To-Be</documentation>
+    </element>
+    <element xsi:type="archimate:TechnologyService" name="Контейнерное выполнение" id="TS2">
+      <documentation>To-Be</documentation>
+    </element>
+  </folder>
+  <folder name="Motivation" id="id-7b9cb4215418489890f80eeb62efe7d1" type="motivation"/>
+  <folder name="Implementation &amp; Migration" id="id-529f2e333dde46969361bcad6cef24d9" type="implementation_migration"/>
+  <folder name="Other" id="id-aac20421acdd44e8a22d62b7cc1be407" type="other"/>
+  <folder name="Relations" id="id-5da868a6c5ff44379fcd5b82b38ab01b" type="relations">
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_0" source="BA1" target="BR1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_1" source="BA1" target="BR2"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_2" source="BR1" target="BP1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_3" source="BR1" target="BP2"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_4" source="BR1" target="BP3"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_5" source="BR2" target="BP3"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_6" source="AC1" target="AF1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_7" source="AC1" target="AF2"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_8" source="AC1" target="AF3"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_9" source="AC2" target="AF5"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_10" source="AC4" target="AF4"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_11" source="N1" target="TF1"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="WH_REL_12" source="N2" target="TF2"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_13" source="BP2" target="BS1"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_14" source="AF1" target="AS1"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_15" source="AF2" target="AS2"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_16" source="AF3" target="AS3"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_17" source="AF4" target="AS4"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_18" source="AF5" target="AS5"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_19" source="TF1" target="TS1"/>
+    <element xsi:type="archimate:RealizationRelationship" id="WH_REL_20" source="TF2" target="TS2"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_21" source="AS1" target="BP1"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_22" source="AS1" target="BP3"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_23" source="AS2" target="BP2"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_24" source="AS3" target="AF2"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_25" source="AS3" target="AF4"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_26" source="AS4" target="AC2"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_27" source="AS4" target="AC5"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_28" source="AS4" target="AC6"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_29" source="AS5" target="AF1"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_30" source="AS5" target="AF2"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_31" source="TS1" target="AC1"/>
+    <element xsi:type="archimate:ServingRelationship" id="WH_REL_32" source="TS2" target="AC4"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_33" source="AF1" target="DO1" accessType="3"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_34" source="AF2" target="DO2" accessType="3"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_35" source="AF3" target="DO4" accessType="3"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_36" source="AF3" target="DO1" accessType="3"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_37" source="AF1" target="DO3" accessType="1"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_38" source="AF2" target="DO3" accessType="1"/>
+    <element xsi:type="archimate:AccessRelationship" id="WH_REL_39" source="AF5" target="DO3" accessType="3"/>
+    <element xsi:type="archimate:FlowRelationship" name="Товар, поставка, задание" id="WH_REL_40" source="AC2" target="AC3"/>
+    <element xsi:type="archimate:FlowRelationship" name="Команды" id="WH_REL_41" source="AC3" target="AC4"/>
+    <element xsi:type="archimate:FlowRelationship" name="Преобразованные команды" id="WH_REL_42" source="AC4" target="AC1"/>
+    <element xsi:type="archimate:FlowRelationship" name="Складские факты" id="WH_REL_43" source="AC1" target="AC4"/>
+    <element xsi:type="archimate:FlowRelationship" name="События" id="WH_REL_44" source="AC4" target="AC3"/>
+    <element xsi:type="archimate:FlowRelationship" name="Учётные факты" id="WH_REL_45" source="AC3" target="AC2"/>
+    <element xsi:type="archimate:FlowRelationship" name="Доступность и статус" id="WH_REL_46" source="AC3" target="AC5"/>
+    <element xsi:type="archimate:FlowRelationship" name="Аналитические факты" id="WH_REL_47" source="AC3" target="AC6"/>
+  </folder>
+  <folder name="Views" id="id-90c011c0175545fb9d063842a67ae917" type="diagrams">
+    <element xsi:type="archimate:ArchimateDiagramModel" name="Application Layer — To-Be" id="WH_VIEW_APP_TOBE">
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC1" archimateElement="AC1">
+        <bounds x="40" y="40" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_6" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF1" archimateRelationship="WH_REL_6"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_7" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF2" archimateRelationship="WH_REL_7"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_8" source="WH_VIEW_APP_TOBE_AC1" target="WH_VIEW_APP_TOBE_AF3" archimateRelationship="WH_REL_8"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC2" targetConnections="WH_VIEW_APP_TOBE_rel_26" archimateElement="AC2">
+        <bounds x="260" y="40" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_9" source="WH_VIEW_APP_TOBE_AC2" target="WH_VIEW_APP_TOBE_AF5" archimateRelationship="WH_REL_9"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC3" archimateElement="AC3">
+        <bounds x="480" y="40" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC4" archimateElement="AC4">
+        <bounds x="700" y="40" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_10" source="WH_VIEW_APP_TOBE_AC4" target="WH_VIEW_APP_TOBE_AF4" archimateRelationship="WH_REL_10"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC5" targetConnections="WH_VIEW_APP_TOBE_rel_27" archimateElement="AC5">
+        <bounds x="920" y="40" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AC6" targetConnections="WH_VIEW_APP_TOBE_rel_28" archimateElement="AC6">
+        <bounds x="1140" y="40" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF1" targetConnections="WH_VIEW_APP_TOBE_rel_6 WH_VIEW_APP_TOBE_rel_29" archimateElement="AF1">
+        <bounds x="40" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_14" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_AS1" archimateRelationship="WH_REL_14"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_33" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO1" archimateRelationship="WH_REL_33"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_37" source="WH_VIEW_APP_TOBE_AF1" target="WH_VIEW_APP_TOBE_DO3" archimateRelationship="WH_REL_37"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF2" targetConnections="WH_VIEW_APP_TOBE_rel_7 WH_VIEW_APP_TOBE_rel_24 WH_VIEW_APP_TOBE_rel_30" archimateElement="AF2">
+        <bounds x="260" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_15" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_AS2" archimateRelationship="WH_REL_15"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_34" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO2" archimateRelationship="WH_REL_34"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_38" source="WH_VIEW_APP_TOBE_AF2" target="WH_VIEW_APP_TOBE_DO3" archimateRelationship="WH_REL_38"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF3" targetConnections="WH_VIEW_APP_TOBE_rel_8" archimateElement="AF3">
+        <bounds x="480" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_16" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_AS3" archimateRelationship="WH_REL_16"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_35" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO4" archimateRelationship="WH_REL_35"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_36" source="WH_VIEW_APP_TOBE_AF3" target="WH_VIEW_APP_TOBE_DO1" archimateRelationship="WH_REL_36"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF4" targetConnections="WH_VIEW_APP_TOBE_rel_10 WH_VIEW_APP_TOBE_rel_25" archimateElement="AF4">
+        <bounds x="700" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_17" source="WH_VIEW_APP_TOBE_AF4" target="WH_VIEW_APP_TOBE_AS4" archimateRelationship="WH_REL_17"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AF5" targetConnections="WH_VIEW_APP_TOBE_rel_9" archimateElement="AF5">
+        <bounds x="920" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_18" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_AS5" archimateRelationship="WH_REL_18"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_39" source="WH_VIEW_APP_TOBE_AF5" target="WH_VIEW_APP_TOBE_DO3" archimateRelationship="WH_REL_39"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS1" targetConnections="WH_VIEW_APP_TOBE_rel_14" archimateElement="AS1">
+        <bounds x="40" y="400" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS2" targetConnections="WH_VIEW_APP_TOBE_rel_15" archimateElement="AS2">
+        <bounds x="260" y="400" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS3" targetConnections="WH_VIEW_APP_TOBE_rel_16" archimateElement="AS3">
+        <bounds x="480" y="400" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_24" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF2" archimateRelationship="WH_REL_24"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_25" source="WH_VIEW_APP_TOBE_AS3" target="WH_VIEW_APP_TOBE_AF4" archimateRelationship="WH_REL_25"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS4" targetConnections="WH_VIEW_APP_TOBE_rel_17" archimateElement="AS4">
+        <bounds x="700" y="400" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_26" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC2" archimateRelationship="WH_REL_26"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_27" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC5" archimateRelationship="WH_REL_27"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_28" source="WH_VIEW_APP_TOBE_AS4" target="WH_VIEW_APP_TOBE_AC6" archimateRelationship="WH_REL_28"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_AS5" targetConnections="WH_VIEW_APP_TOBE_rel_18" archimateElement="AS5">
+        <bounds x="920" y="400" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_29" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF1" archimateRelationship="WH_REL_29"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_TOBE_rel_30" source="WH_VIEW_APP_TOBE_AS5" target="WH_VIEW_APP_TOBE_AF2" archimateRelationship="WH_REL_30"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO1" targetConnections="WH_VIEW_APP_TOBE_rel_33 WH_VIEW_APP_TOBE_rel_36" archimateElement="DO1">
+        <bounds x="40" y="580" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO2" targetConnections="WH_VIEW_APP_TOBE_rel_34" archimateElement="DO2">
+        <bounds x="260" y="580" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO3" targetConnections="WH_VIEW_APP_TOBE_rel_37 WH_VIEW_APP_TOBE_rel_38 WH_VIEW_APP_TOBE_rel_39" archimateElement="DO3">
+        <bounds x="480" y="580" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_TOBE_DO4" targetConnections="WH_VIEW_APP_TOBE_rel_35" archimateElement="DO4">
+        <bounds x="700" y="580" width="180" height="75"/>
+      </child>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="Application Layer — As-Is по DOC-04/06" id="WH_VIEW_APP_ASIS">
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC1" archimateElement="AC1">
+        <bounds x="40" y="40" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_6" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF1" archimateRelationship="WH_REL_6"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_7" source="WH_VIEW_APP_ASIS_AC1" target="WH_VIEW_APP_ASIS_AF2" archimateRelationship="WH_REL_7"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC2" archimateElement="AC2">
+        <bounds x="260" y="40" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_9" source="WH_VIEW_APP_ASIS_AC2" target="WH_VIEW_APP_ASIS_AF5" archimateRelationship="WH_REL_9"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC3" archimateElement="AC3">
+        <bounds x="480" y="40" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC5" archimateElement="AC5">
+        <bounds x="920" y="40" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AC6" archimateElement="AC6">
+        <bounds x="1140" y="40" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AF1" targetConnections="WH_VIEW_APP_ASIS_rel_6 WH_VIEW_APP_ASIS_rel_29" archimateElement="AF1">
+        <bounds x="40" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_14" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_AS1" archimateRelationship="WH_REL_14"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_33" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO1" archimateRelationship="WH_REL_33"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_37" source="WH_VIEW_APP_ASIS_AF1" target="WH_VIEW_APP_ASIS_DO3" archimateRelationship="WH_REL_37"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AF2" targetConnections="WH_VIEW_APP_ASIS_rel_7 WH_VIEW_APP_ASIS_rel_30" archimateElement="AF2">
+        <bounds x="260" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_15" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_AS2" archimateRelationship="WH_REL_15"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_34" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO2" archimateRelationship="WH_REL_34"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_38" source="WH_VIEW_APP_ASIS_AF2" target="WH_VIEW_APP_ASIS_DO3" archimateRelationship="WH_REL_38"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AF5" targetConnections="WH_VIEW_APP_ASIS_rel_9" archimateElement="AF5">
+        <bounds x="920" y="220" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_18" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_AS5" archimateRelationship="WH_REL_18"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_39" source="WH_VIEW_APP_ASIS_AF5" target="WH_VIEW_APP_ASIS_DO3" archimateRelationship="WH_REL_39"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AS1" targetConnections="WH_VIEW_APP_ASIS_rel_14" archimateElement="AS1">
+        <bounds x="40" y="400" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AS2" targetConnections="WH_VIEW_APP_ASIS_rel_15" archimateElement="AS2">
+        <bounds x="260" y="400" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_AS5" targetConnections="WH_VIEW_APP_ASIS_rel_18" archimateElement="AS5">
+        <bounds x="920" y="400" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_29" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF1" archimateRelationship="WH_REL_29"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_APP_ASIS_rel_30" source="WH_VIEW_APP_ASIS_AS5" target="WH_VIEW_APP_ASIS_AF2" archimateRelationship="WH_REL_30"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_DO1" targetConnections="WH_VIEW_APP_ASIS_rel_33" archimateElement="DO1">
+        <bounds x="40" y="580" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_DO2" targetConnections="WH_VIEW_APP_ASIS_rel_34" archimateElement="DO2">
+        <bounds x="260" y="580" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_APP_ASIS_DO3" targetConnections="WH_VIEW_APP_ASIS_rel_37 WH_VIEW_APP_ASIS_rel_38 WH_VIEW_APP_ASIS_rel_39" archimateElement="DO3">
+        <bounds x="480" y="580" width="180" height="75"/>
+      </child>
+    </element>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="Сквозные слои Warehouse" id="WH_VIEW_LAYERS">
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BR1" archimateElement="BR1">
+        <bounds x="40" y="40" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_3" source="WH_VIEW_LAYERS_BR1" target="WH_VIEW_LAYERS_BP2" archimateRelationship="WH_REL_3"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BP2" targetConnections="WH_VIEW_LAYERS_rel_3 WH_VIEW_LAYERS_rel_23" archimateElement="BP2">
+        <bounds x="260" y="40" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_13" source="WH_VIEW_LAYERS_BP2" target="WH_VIEW_LAYERS_BS1" archimateRelationship="WH_REL_13"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_BS1" targetConnections="WH_VIEW_LAYERS_rel_13" archimateElement="BS1">
+        <bounds x="480" y="40" width="180" height="75"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AC1" targetConnections="WH_VIEW_LAYERS_rel_31" archimateElement="AC1">
+        <bounds x="40" y="240" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_7" source="WH_VIEW_LAYERS_AC1" target="WH_VIEW_LAYERS_AF2" archimateRelationship="WH_REL_7"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AF2" targetConnections="WH_VIEW_LAYERS_rel_7" archimateElement="AF2">
+        <bounds x="260" y="240" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_15" source="WH_VIEW_LAYERS_AF2" target="WH_VIEW_LAYERS_AS2" archimateRelationship="WH_REL_15"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_AS2" targetConnections="WH_VIEW_LAYERS_rel_15" archimateElement="AS2">
+        <bounds x="480" y="240" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_23" source="WH_VIEW_LAYERS_AS2" target="WH_VIEW_LAYERS_BP2" archimateRelationship="WH_REL_23"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_N1" archimateElement="N1">
+        <bounds x="40" y="440" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_11" source="WH_VIEW_LAYERS_N1" target="WH_VIEW_LAYERS_TF1" archimateRelationship="WH_REL_11"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_TF1" targetConnections="WH_VIEW_LAYERS_rel_11" archimateElement="TF1">
+        <bounds x="260" y="440" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_19" source="WH_VIEW_LAYERS_TF1" target="WH_VIEW_LAYERS_TS1" archimateRelationship="WH_REL_19"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="WH_VIEW_LAYERS_TS1" targetConnections="WH_VIEW_LAYERS_rel_19" archimateElement="TS1">
+        <bounds x="480" y="440" width="180" height="75"/>
+        <sourceConnection xsi:type="archimate:Connection" id="WH_VIEW_LAYERS_rel_31" source="WH_VIEW_LAYERS_TS1" target="WH_VIEW_LAYERS_AC1" archimateRelationship="WH_REL_31"/>
+      </child>
+    </element>
+  </folder>
+</archimate:model>

@@ -1,0 +1,36 @@
+@startuml
+!pragma layout smetana
+skinparam componentStyle uml2
+skinparam shadowing false
+title Warehouse To-Be · Компоненты WMS и адаптера
+
+component "Интеграционная платформа IS-07" as Platform
+package "Адаптер Warehouse" {
+  component "Входящие команды и запросы" as API
+  component "Публикация складских фактов" as Publisher
+}
+package "Приложение WMS" {
+  component "Прикладные интерфейсы" as Commands
+  component "Приёмка" as Receiving
+  component "Исполнение задания" as Fulfillment
+  component "Инвентаризация" as Inventory
+  component "Запас и резерв" as Stock
+  component "Транзакционный журнал" as Journal
+}
+database "Хранилище WMS" as WmsData
+
+Platform --> API : команды и запросы
+API --> Commands : поддерживаемый API WMS
+Commands --> Receiving : поставка и приёмка
+Commands --> Fulfillment : задания и передача
+Commands --> Inventory : пересчёт и утверждение
+Commands --> Stock : доступность и резерв
+Receiving --> Stock : принятое количество
+Fulfillment --> Stock : закрепление и списание резерва
+Inventory --> Stock : утверждённое расхождение
+Stock --> WmsData : движение, версия, результат
+Stock --> Journal : факт в той же транзакции
+Journal --> WmsData : запись журнала
+Publisher --> Journal : чтение подтверждённых фактов
+Publisher --> Platform : события с eventId и версией
+@enduml

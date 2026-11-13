@@ -1,0 +1,49 @@
+@startuml
+skinparam shadowing false
+hide footbox
+title Warehouse To-Be · Резерв и передача заказа
+
+participant "Интернет-магазин" as Shop
+participant "IS-07 и адаптер Warehouse" as Platform
+participant "ERP" as ERP
+participant "WMS" as WMS
+database "Хранилище WMS" as Data
+actor "Кладовщик" as Worker
+
+Shop -> Platform : WH API-02 · резерв(orderId, строки, ключ)
+Platform -> WMS : Передать команду с тем же ключом
+WMS -> Data : Проверить доступность и ключ
+alt Запаса достаточно
+  WMS -> Data : Атомарно записать резерв ACTIVE,\nрезультат команды и факт
+  WMS --> Platform : reservationId, expiresAt, version
+  Platform --> Shop : Подтверждённый резерв
+else Запаса недостаточно
+  WMS --> Platform : 409 · резерв не создан
+  Platform --> Shop : Недостаточно запаса
+end
+
+opt Резерв подтверждён, заказ допущен к исполнению
+  ERP -> Platform : WH API-06 · задание(orderId, reservationId)
+  Platform -> WMS : Доставить команду ERP
+  WMS -> Data : Проверить связь заказа и действующий резерв;\nсохранить одно задание
+  WMS --> Platform : taskId, state
+  Platform --> ERP : Подтверждение задания
+  Worker -> WMS : Начать подбор(taskId)
+  WMS -> Data : ACTIVE → ALLOCATED
+  Worker -> WMS : Подтвердить подбор и упаковку
+  WMS -> Data : Сохранить PACKED
+  Worker -> WMS : WH API-09 · подтвердить физическую передачу
+  WMS -> Data : Списать onHand и reserved,\nсохранить отгрузку и запись журнала
+  WMS --> Worker : Передача зарегистрирована
+  Platform -> WMS : Прочитать подтверждённые факты из журнала
+  WMS --> Platform : stock.changed и shipment.handed-over
+  Platform -> ERP : Факт передачи для учёта
+  Platform -> Shop : Статус исполнения
+end
+
+note over Shop,WMS
+  При таймауте команда повторяется с тем же ключом.
+  При просрочке резерва WMS отклоняет создание задания.
+  Допуск заказа после оплаты согласуется на стыке IF-07.
+end note
+@enduml

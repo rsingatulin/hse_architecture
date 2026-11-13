@@ -11,80 +11,18 @@
 
 ## Компонентная модель To-Be
 
-Модель детализирует C2 «Приложение WMS» и C4 «Адаптер Warehouse» из [C4](../C4/WH-C4-002-containers.md). Компоненты ниже — логические модули с предоставляемыми/требуемыми интерфейсами; их выделение не означает создание отдельных микросервисов. Набор интерфейсов является проектным.
+Компоненты детализируют приложение WMS и складской адаптер из [C4 C2](../C4/WH-C4-002-containers.md). Вызовы складских команд проходят через прикладные интерфейсы WMS. Приёмка, исполнение и инвентаризация используют один модуль изменения запаса. Адаптер переводит контракты и читает подтверждённые факты из журнала через поддерживаемый интерфейс.
 
-| Компонент | Предоставляет | Требует |
-| --- | --- | --- |
-| Warehouse API / Consumer | IWarehouseContract | IStock, IReceiving, IFulfillment, IInventory |
-| Stock & Reservation | IStock | IRepository, IAudit, IEventJournal |
-| Receiving | IReceiving | IStockMutation, IRepository, IEventJournal |
-| Fulfillment | IFulfillment | IStockMutation, IRepository, IEventJournal |
-| Inventory | IInventory | IStockMutation, IAudit, IRepository |
-| Event Publisher | IPublishWarehouseEvents | IEventJournal, IPlatformEvents |
-| Integration Platform (внешняя) | IPlatformEvents | IWarehouseContract |
+![UML · Компоненты WMS и адаптера](WH-UML-001-components.svg)
 
-Все операции изменения запаса реализуются одним внутренним модулем WMS; интерфейс IStockMutation не публикуется для соседних систем.
+[Исходник PlantUML](WH-UML-001-components.puml) · [Описание компонентов WMS](../C4/WH-C4-003-components.md)
 
-```mermaid
-flowchart LR
-  P["Integration Platform"] -->|"IWarehouseContract"| A["Warehouse API / Consumer"]
-  A -->|"IStock"| S["Stock and Reservation"]
-  A -->|"IReceiving"| R["Receiving"]
-  A -->|"IFulfillment"| F["Fulfillment"]
-  A -->|"IInventory"| I["Inventory"]
-  R -->|"IStockMutation"| S
-  F -->|"IStockMutation"| S
-  I -->|"IStockMutation"| S
-  S --> J["Transaction and Event Journal"]
-  J --> E["Event Publisher"]
-  E -->|"IPlatformEvents"| P
-```
+## Последовательность резерва и передачи
 
-Mermaid выше — обзор зависимостей. Ниже находится исходное представление UML Component в PlantUML, включённое в Markdown; GitHub показывает его как текст, а не как автоматически отрисованную UML-диаграмму.
+Интернет-магазин получает результат резерва из WMS. ERP выдаёт задание с тем же `reservationId`. При старте подбора WMS закрепляет резерв. Подтверждение физической передачи фиксирует отгрузку, списание и событие в транзакционной границе WMS.
 
-```plantuml
-@startuml
-skinparam componentStyle uml2
-component "Integration Platform" as Platform
-package "Warehouse adapter" {
-  component "Warehouse API / Consumer" as API
-  component "Event Publisher" as Publisher
-}
-package "WMS supported extension" {
-  component "Stock and Reservation" as Stock
-  component "Receiving" as Receiving
-  component "Fulfillment" as Fulfillment
-  component "Inventory" as Inventory
-  component "Transaction and Event Journal" as Journal
-}
-interface IWarehouseContract
-interface IStock
-interface IReceiving
-interface IFulfillment
-interface IInventory
-interface IEventJournal
-interface IPlatformEvents
-API - IWarehouseContract
-Platform ..> IWarehouseContract : uses
-Stock - IStock
-Receiving - IReceiving
-Fulfillment - IFulfillment
-Inventory - IInventory
-API ..> IStock
-API ..> IReceiving
-API ..> IFulfillment
-API ..> IInventory
-Receiving ..> Stock : internal mutation
-Fulfillment ..> Stock : internal mutation
-Inventory ..> Stock : internal mutation
-Stock ..> Journal : atomic record
-Journal - IEventJournal
-Publisher ..> IEventJournal
-Platform - IPlatformEvents
-Publisher ..> IPlatformEvents
-@enduml
-```
+![UML · Резерв и передача заказа](WH-UML-002-reservation-sequence.svg)
 
-Принципы модели: бизнес-правила не дублируются в адаптере; publisher читает устойчивый журнал, а не угадывает факт по ответу клиента; права и аудит применяются внутри WMS независимо от входного клиента.
+[Исходник PlantUML](WH-UML-002-reservation-sequence.puml) · [BPMN исполнения](../BPMN/WH-BPMN-002-to-be.md#исполнение-подтверждённый-резерв-и-контроль-результата) · [Каталог API](../../02_Application_Architecture/APIs/WH-API-001-catalog.md)
 
 [К содержанию Warehouse](../../README.md)
