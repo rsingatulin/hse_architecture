@@ -19,7 +19,7 @@
 
 | ID | Метод и относительный путь | Потребитель → исполнитель | Вход / результат | Ошибки и бизнес-правило |
 | --- | --- | --- | --- | --- |
-| API-01 | `GET /stocks?warehouseId=&productId=` | ERP/онлайн → WMS | Идентификаторы → onHand, reserved, blocked, available, version, asOf | `404` неизвестный товар/склад; результат чтения не является резервом |
+| API-01 | `GET /stocks?warehouseId=&productId=` | ERP/онлайн → WMS | Идентификаторы → onHand, reserved, blocked, available, unitCode, version, asOf | `404` неизвестный товар/склад; результат чтения не является резервом |
 | API-02 | `POST /reservations` | ERP/онлайн → WMS | orderId, warehouseId, строки → reservationId, status, expiresAt | `201`; `409` нехватка/конфликт; все строки атомарно, частичное принятие в базовом варианте запрещено |
 | API-03 | `POST /reservations/{id}/release` | Владелец заказа → WMS | Причина, expectedVersion → результат освобождения | Повтор освобождения безопасен; после начала подбора нужна управляемая отмена задания, не простое освобождение |
 | API-04 | `PUT /expected-receipts/{externalId}` | ERP → WMS | purchaseId, версия, ожидаемые строки → подтверждённая версия | `200/201`; устаревшая версия `409`; товар должен существовать |
@@ -51,7 +51,7 @@ API-05/09/10 — границы прикладных функций для ра�
 
 | Событие | Агрегат и полезная нагрузка | Потребители |
 | --- | --- | --- |
-| `warehouse.stock.changed.v1` | Stock: productId, warehouseId, актуальные количества и версия | ERP, онлайн, BI |
+| `warehouse.stock.changed.v1` | Stock: productId, warehouseId, актуальные количества, unitCode, version, asOf | Онлайн, аналитика; ERP получает сигнал перечитать WMS |
 | `warehouse.receipt.confirmed.v1` | Receipt: purchaseId, принятые строки, movementIds, расхождения | ERP/закупки, BI |
 | `warehouse.reservation.changed.v1` | Reservation: orderId, состояние и expiresAt | Владелец заказа |
 | `warehouse.task.state-changed.v1` | FulfillmentTask: orderId, состояние, reasonCode | ERP, онлайн, согласованный потребитель доставки |
@@ -59,6 +59,12 @@ API-05/09/10 — границы прикладных функций для ра�
 | `warehouse.inventory.adjusted.v1` | InventoryCount: утверждающий, основание, movementIds | ERP, аудит/BI |
 
 Общая оболочка: `eventId`, `eventType`, `schemaVersion`, `aggregateId`, `aggregateVersion`, `occurredAt`, `correlationId`, `payload`. Версия относится к указанному агрегату; версия Shipment не используется для упорядочения Stock. Денормализованный остаток обновляет только событие Stock, остальные факты не списывают его повторно у потребителя.
+
+## Сопоставление с общим каталогом IS-07
+
+Для центрального склада WH API-01/02/03/04/06/07/08/11 соответствуют INT API-04/05/08/15/11/25/12/20. `warehouse.stock.changed.v1` соответствует INT EVT-04. ERP читает текущий запас у WMS по запросу и сохраняет учётные документы по подтверждённым движениям. Получение события остатка инициирует чтение, если оно нужно для расчёта или просмотра.
+
+Поиск резерва, подтверждение оплаты, план передачи и магазинные API остаются предметом согласования. [Общий каталог](../../../06_integration_architecture/INT-002-contract-catalog.md) · [Реестр стыков](../../07_Project_Management/WH-PM-002-coordination.md)
 
 ## Совместимость, качество и безопасность
 

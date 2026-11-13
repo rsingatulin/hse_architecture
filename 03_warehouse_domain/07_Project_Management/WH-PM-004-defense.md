@@ -22,8 +22,8 @@
 | 2:00–3:30 | [To-Be процесса](../06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md) и [данные](../03_Data_Architecture/Data_Entities/WH-DAT-001-data-model.md) | Один резерв, однократные движения, исключения и контроль отмены |
 | 3:30–5:00 | [C4](../06_Architecture_Models/C4/WH-C4-002-containers.md), [ArchiMate](../06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md), [ADR](../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md) | Контракты и события устраняют связанность; адаптер не ведёт второй запас |
 | 5:00–6:00 | [Технологии](../04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md) и [проверки](../04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md) | Контейнеризируются новые компоненты; HA зависит от всей цепочки |
-| 6:00–7:00 | [ТЭО](TCO_ROI/WH-ECO-001-business-case.md) и [риски](Risks/WH-RSK-001-risks.md) | Базовый ROI 30,43%, NPV 7 893 — условные, чувствительные к реальной экономии |
-| 7:00–8:00 | [План](Roadmap/WH-ROAD-001-roadmap.md) и [стыки](WH-PM-002-coordination.md) | Поэтапный переход; перечислены решения, требующие подтверждения |
+| 6:00–7:00 | [ТЭО и риски](../financials.md) | Базовый ROI 30,43%, NPV 7 893 — условные, чувствительные к реальной экономии |
+| 7:00–8:00 | [Дорожная карта](../financials.md#дорожная-карта-внедрения) и [стыки](WH-PM-002-coordination.md) | Поэтапный переход; перечислены решения, требующие подтверждения |
 
 ## Ответы на вероятные вопросы
 

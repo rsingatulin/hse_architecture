@@ -1,4 +1,4 @@
-# Покрытие заданий DOC-01–DOC-09
+# Покрытие заданий по домену Warehouse
 
 | Поле | Значение |
 | --- | --- |
@@ -120,6 +120,28 @@
 | 09.3 | Определить состав создаваемых архитектурных артефактов | [Паспорт и план выполнения архитектурного проекта Warehouse](WH-PM-001-project-plan.md); [Обследование / содержание](../README.md) | Подготовлен документальный результат |
 | 09.4 | Организовать совместную работу в архитектурном репозитории | [Паспорт и план выполнения архитектурного проекта Warehouse](WH-PM-001-project-plan.md); [Междоменные соглашения и проверка согласованности](WH-PM-002-coordination.md) | Структура и правила подготовлены; персональные назначения — командой |
 | 09.5 | Обеспечить согласованность разрабатываемых решений с результатами других групп | [Междоменные соглашения и проверка согласованности](WH-PM-002-coordination.md) | Выполнена сверка опубликованных материалов; подтверждения сторон ожидаются |
+
+## Дополнительные материалы DOC-10–DOC-17 и форматы команды
+
+| Источник | Артефакт |
+| --- | --- |
+| DOC-10 | [ТЭО, ROI, риски и Gantt](../financials.md), [развёрнутый расчёт](TCO_ROI/WH-ECO-001-business-case.md), [риски с оценками](Risks/WH-RSK-001-risks.md). Общая Google Таблица ожидает создания. |
+| DOC-11/12 | [Реестр участников](../01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md) и [каталог требований](../01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) с источниками и критериями. |
+| DOC-13/14 | [Видение и архитектурные принципы](../01_Business_Architecture/Business_Capabilities/WH-VIS-001-vision.md), [три ADR](../05_Architecture_Decisions/ADR) и [развёртывание](../04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md). |
+| DOC-15/16 | [Каталог сервисов](../02_Application_Architecture/Services/WH-SRV-001-services.md), [интеграции](../02_Application_Architecture/Integrations/WH-INT-001-integration.md), [контракты API](../02_Application_Architecture/APIs/WH-API-001-catalog.md). |
+| DOC-17 | [НФТ и сценарии приёмки](../04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md), [безопасность](../04_Technology_Architecture/Security/WH-SEC-001-security.md), [решение по размещению](../05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md). |
+| Регламент | [Модель Archi](../06_Architecture_Models/ArchiMate/Warehouse.archimate), [C4 C1–C3](../06_Architecture_Models/C4/workspace.dsl) с SVG в отчётах, [UML с PlantUML и SVG](../06_Architecture_Models/UML/WH-UML-001-components.md), [BPMN As-Is](../06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md) и [To-Be](../06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md) с XML и SVG. |
+
+## Трассировка от целей до решений и моделей
+
+| Бизнес-цель | Требования | Решение | Модель и проверка |
+| --- | --- | --- | --- |
+| WH-G-01 · Актуальный запас | WH-R-01/02/03/09 | [ADR-WH-001](../05_Architecture_Decisions/ADR/ADR-WH-001-inventory-authority.md), [ADR-WH-002](../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md) | [C3](../06_Architecture_Models/C4/WH-C4-003-components.md), QA-01–05 |
+| WH-G-02 · Меньше ручных действий и ошибок | WH-R-04/06/08 | Рекомендация ячейки, маршрут подбора и контролируемая корректировка в WMS | [BPMN To-Be](../06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md), QA-12/14 |
+| WH-G-03 · Предсказуемое исполнение и устойчивость склада | WH-R-03/05/07/10/11/12 | [ADR-WH-001](../05_Architecture_Decisions/ADR/ADR-WH-001-inventory-authority.md), [ADR-WH-003](../05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md), однократная фиксация передачи | [UML последовательности](../06_Architecture_Models/UML/WH-UML-001-components.md#последовательность-резерва-и-передачи), QA-06/07/09–11 |
+| WH-G-04 · Управляемая и развиваемая архитектура | WH-R-09/15/16/17/18 | [ADR-WH-002](../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md), [ADR-WH-003](../05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md) | [Развёртывание](../04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md), QA-03/11/13 |
+
+Идентификаторы целей и проверок раскрыты в [архитектурном видении](../01_Business_Architecture/Business_Capabilities/WH-VIS-001-vision.md) и [сценариях приёмки](../04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md).
 
 ## Дополнительная трассировка требований в созданные артефакты
 
