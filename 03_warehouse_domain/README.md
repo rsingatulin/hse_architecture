@@ -1,20 +1,100 @@
 # Архитектурное обследование домена Warehouse — RetailMax
 
-| Поле | Значение |
-| --- | --- |
-| Идентификатор | WH-OV-001 |
-| Версия | 1.1 |
-| Ответственная группа | Команда 3 — «Управление складом» |
-| Дата | 04.10.2026 |
-| Статус | Черновик для согласования внутри команды |
-| Дисциплина | Архитектура и проектирование корпоративных информационных систем |
-| Область | BP-03 «Управление складом», сервис SRV-05 «Управление запасами» |
+Команда 3 проектирует развитие центрального склада RetailMax. В область работы входят BP-03 «Управление складом» и сервис SRV-05 «Управление запасами». Целевой вариант сохраняет WMS и ERP и добавляет управляемый обмен через IS-07. Решения подготовлены для согласования.
 
-## Результаты DOC-01–DOC-09
+## Защита за 10 минут
 
-Подготовлен архитектурный пакет Warehouse по заданиям **DOC-01–DOC-09 включительно**. [Матрица покрытия 61 пункта](07_Project_Management/WH-PM-003-assignment-coverage.md) связывает каждое задание с результатом. Материалы от 17.09.2026 сохранены и дополнены 04.10.2026; все новые решения имеют статус проекта для согласования.
+| Кто и когда | Что рассказать | Что открыть по порядку |
+| --- | --- | --- |
+| **Выступающий 1 · 0:00–3:20** | Центральный склад и BP-03. Как сейчас идут приёмка и комплектация. Что меняется при размещении и инвентаризации. | [Паспорт BP-03](01_Business_Architecture/Business_Process/WH-BP-001-process.md) → [BPMN As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md) → [BPMN To-Be](06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md). Для сравнения архитектуры открыть [ArchiMate As-Is](06_Architecture_Models/ArchiMate/views/application-as-is.png). |
+| **Выступающий 2 · 3:20–6:40** | Последняя единица товара, резерв и передача. Роли WMS, ERP и IS-07. Что происходит при сбое обмена. | [UML последовательности](06_Architecture_Models/UML/WH-UML-001-components.md#последовательность-резерва-и-передачи) → [C4 Context](06_Architecture_Models/C4/WH-C4-001-context.md) → [C4 Container](06_Architecture_Models/C4/WH-C4-002-containers.md) → [C4 Component](06_Architecture_Models/C4/WH-C4-003-components.md). При вопросе про приложения открыть [UML компонентов](06_Architecture_Models/UML/WH-UML-001-components.md#компонентная-модель-to-be) или [ArchiMate To-Be](06_Architecture_Models/ArchiMate/views/application-to-be.png). |
+| **Выступающий 3 · 6:40–10:00** | Затраты и окупаемость. Риски, пилот и условия расширения. Какие решения ждут согласования. | [Показатели ТЭО](financials.md#расчёт-и-итоговые-показатели) → [Ключевые риски](financials.md#ключевые-риски) → [Диаграмма Ганта](financials.md#дорожная-карта-внедрения) → [Открытые вопросы на стыках](07_Project_Management/WH-PM-002-coordination.md#сверка-с-проектом-is-07-от-12112026). |
 
-Отчёты оформлены в Markdown. Mermaid-схемы читаются на GitHub. Для BPMN приложены стандартные графические SVG и редактируемые `.bpmn`, встроенные в Markdown; ArchiMate представлен типизированной моделью элементов/отношений и редактируемым Open Exchange XML, C4 — диаграммами границ и контейнеров, UML Component — обзором и исходником PlantUML. Устная защита, подтверждение другими командами и реальные испытания систем требуют участия людей и не объявлены состоявшимися.
+[Сценарий защиты и ответы на вопросы](07_Project_Management/WH-PM-004-defense.md) · [Трассировка целей, требований и решений](07_Project_Management/WH-PM-003-assignment-coverage.md#трассировка-от-целей-до-решений-и-моделей) · [Проверка по таблице преподавателя](#проверка-по-таблице-преподавателя)
+
+## Проверка по таблице преподавателя
+
+Сверка колонки `F` (Warehouse) листа «Лист1» файла «Практика.xlsx» с опубликованным `main` на 13.11.2026 (`14ee369`). В таблице семь отметок «1». Пустая ячейка означает отсутствие отметки. Наличие файла и принятие работы преподавателем проверяются отдельно.
+
+| Пункты таблицы | Что есть в Git | Что остаётся |
+| --- | --- | --- |
+| **Практика 1 · F2–F7** | Отмечены F2–F5 и F7. Есть [обследование](#анализ-материалов-и-границы-домена), [участники](01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md), [проблемы](01_Business_Architecture/Requirements/WH-PRB-001-problems.md), [требования](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) и структура домена. | F6. Внутреннее согласование требует подтверждения команды. Запись о согласовании в репозитории не найдена. |
+| **Практика 2 · F9–F13** | Отмечены F10 и F11. F9 — выбран [BP-03](01_Business_Architecture/Business_Process/WH-BP-001-process.md). F10/F11 — есть [BPMN As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md) и [каталог систем](02_Application_Architecture/Application_Catalog/WH-APP-001-landscape.md). F12 — [модель Archi](06_Architecture_Models/ArchiMate/Warehouse.archimate) с [представлением прикладного слоя As-Is](06_Architecture_Models/ArchiMate/views/application-as-is.png). F13 — [связи слоёв](06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md#сквозное-представление-слоёв) и [трассировка](07_Project_Management/WH-PM-003-assignment-coverage.md#трассировка-от-целей-до-решений-и-моделей). | F9, F12 и F13 можно показать по ссылкам, их ячейки пустые. |
+| **Практика 3 · F16–F21** | Все шесть ячеек пустые. F16/F17 — [C4 Context](06_Architecture_Models/C4/WH-C4-001-context.md) и [Container](06_Architecture_Models/C4/WH-C4-002-containers.md). F18 — выбран контейнер [«Приложение WMS»](06_Architecture_Models/C4/WH-C4-003-components.md). F19 — [UML Component](06_Architecture_Models/UML/WH-UML-001-components.md#компонентная-модель-to-be). F20/F21 — сценарий [резерва и передачи заказа](06_Architecture_Models/UML/WH-UML-001-components.md#последовательность-резерва-и-передачи) и его UML Sequence. | Исходники и изображения уже опубликованы. |
+| **Практика 4 · F23–F27** | F23 — [границы склада и соседних доменов](07_Project_Management/WH-PM-002-coordination.md). F25/F26 — [каталог и взаимодействие сервисов](02_Application_Architecture/Services/WH-SRV-001-services.md). F27 — [три ADR](05_Architecture_Decisions/ADR/). | F24 — границы ответственности описаны, Bounded Context явно не определены. |
+| **Практика 5 · F29–F35** | F29 — [технологические требования](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md). F30–F32 — [компоненты, схема To-Be и развёртывание](04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md). F33 — [безопасность](04_Technology_Architecture/Security/WH-SEC-001-security.md), [мониторинг, доступность и восстановление](04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md). F34/F35 — [обоснование размещения](05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md) и материалы в репозитории. | Технологический проект опубликован. Характеристики эксплуатации подлежат проверке на пилоте. |
+| **Практика 6 · F37–F43** | [Пилот прогноза загрузки смен](02_Application_Architecture/Services/WH-AI-001-ai-options.md) описывает задачу, пользователей, ожидаемый эффект, сравнение с сезонным прогнозом, логическую схему, источники, метрики и ручной контроль. Риск ошибки прогноза внесён в [реестр](07_Project_Management/Risks/WH-RSK-001-risks.md). | F41/F42 — потоки показаны на логическом уровне. Для пилота нужно уточнить интерфейс выдачи прогноза и права доступа к набору данных. |
+| **Практика 7 · F45–F51** | [ТЭО](07_Project_Management/TCO_ROI/WH-ECO-001-business-case.md) содержит границы, CAPEX/OPEX/TCO, денежные потоки, ROI, NPV, окупаемость, чувствительность и рекомендацию. [ADR по размещению](05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md) сравнивает альтернативы качественно. | F46 — в ТЭО нет сопоставимых расчётов по двум вариантам. F49 — не рассчитаны IRR и PI. Общая Google Таблица не подтверждена. |
+| **Практика 8 · F53–F57** | [Реестр рисков](07_Project_Management/Risks/WH-RSK-001-risks.md) содержит оценки вероятности и влияния, владельцев, меры и резервные действия. Есть [план внедрения](07_Project_Management/Roadmap/WH-ROAD-001-roadmap.md) с критериями перехода и [Gantt с вехами](financials.md#дорожная-карта-внедрения). | F54 — оценки В×У есть по каждому риску. Сводная матрица «вероятность × влияние» с размещением рисков отсутствует. |
+| **Защита проекта · F60–F67** | [Сценарий защиты](07_Project_Management/WH-PM-004-defense.md) и ссылки выше покрывают контекст, цели, As-Is и To-Be, системы и данные, альтернативы, риски, дорожную карту и открытые вопросы складского блока. | Отдельный файл презентации Warehouse в Git не найден. |
+
+## Каталог материалов
+
+[Матрица покрытия](07_Project_Management/WH-PM-003-assignment-coverage.md) связывает 61 пункт DOC-01–DOC-09 с артефактами команды и указывает материалы по DOC-10–DOC-17.
+
+### Бизнес
+
+- [Архитектурное видение и бизнес-возможности Warehouse](01_Business_Architecture/Business_Capabilities/WH-VIS-001-vision.md)
+- [Участники и карта влияния](01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md)
+- [Паспорт процесса BP-03 и предложения по совершенствованию](01_Business_Architecture/Business_Process/WH-BP-001-process.md)
+- [9 ключевых проблем](01_Business_Architecture/Requirements/WH-PRB-001-problems.md)
+- [20 архитектурных требований](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md)
+
+### Приложения
+
+- [Карта приложений и границы ответственности](02_Application_Architecture/Application_Catalog/WH-APP-001-landscape.md)
+- [Каталог сервисов Warehouse](02_Application_Architecture/Services/WH-SRV-001-services.md)
+- [Интеграционная архитектура As-Is и To-Be](02_Application_Architecture/Integrations/WH-INT-001-integration.md)
+- [Каталог API и событий Warehouse](02_Application_Architecture/APIs/WH-API-001-catalog.md)
+- [Варианты применения ИИ в Warehouse](02_Application_Architecture/Services/WH-AI-001-ai-options.md)
+
+### Данные
+
+- [Концептуальная и целевая модель данных Warehouse](03_Data_Architecture/Data_Entities/WH-DAT-001-data-model.md)
+- [Владельцы данных, качество и устранение дублирования](03_Data_Architecture/Data_Ownership/WH-DGO-001-ownership.md)
+- [Потоки данных и правила межсистемного обмена](03_Data_Architecture/Data_Flows/WH-DF-001-flows.md)
+
+### Технологии
+
+- [Технологическая архитектура Warehouse As-Is](04_Technology_Architecture/Infrastructure/WH-TECH-001-as-is.md)
+- [Технологическая архитектура To-Be и концепция Kubernetes](04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md)
+- [Безопасность складского контура](04_Technology_Architecture/Security/WH-SEC-001-security.md)
+- [Наблюдаемость, восстановление и приёмочные сценарии](04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md)
+
+### Архитектурные решения
+
+- [ADR-WH-001: единый источник остатка и резервирование](05_Architecture_Decisions/ADR/ADR-WH-001-inventory-authority.md)
+- [ADR-WH-002: управляемые API и восстановимая доставка событий](05_Architecture_Decisions/ADR/ADR-WH-002-integration.md)
+- [ADR-WH-003: поэтапное контейнерное размещение новых компонентов](05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md)
+
+### Модели
+
+- [BPMN: процесс Warehouse As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md)
+- [BPMN: целевые процессы Warehouse](06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md)
+- [ArchiMate: связанные бизнес-, прикладной и технологический слои](06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md)
+- [C4: контекст складской информационной системы](06_Architecture_Models/C4/WH-C4-001-context.md)
+- [C4: контейнеры Warehouse System и взаимодействие сервисов](06_Architecture_Models/C4/WH-C4-002-containers.md)
+- [C4: компоненты WMS](06_Architecture_Models/C4/WH-C4-003-components.md)
+- [UML: компоненты и последовательность](06_Architecture_Models/UML/WH-UML-001-components.md)
+
+### Управление проектом
+
+- [ТЭО, риски и Gantt](financials.md)
+- [Паспорт и план выполнения архитектурного проекта Warehouse](07_Project_Management/WH-PM-001-project-plan.md)
+- [Междоменные соглашения и проверка согласованности](07_Project_Management/WH-PM-002-coordination.md)
+- [Покрытие заданий и трассировка](07_Project_Management/WH-PM-003-assignment-coverage.md)
+- [Предварительное ТЭО Warehouse: TCO, эффект и чувствительность](07_Project_Management/TCO_ROI/WH-ECO-001-business-case.md)
+- [Реестр рисков архитектуры и перехода Warehouse](07_Project_Management/Risks/WH-RSK-001-risks.md)
+- [Дорожная карта будущего внедрения Warehouse](07_Project_Management/Roadmap/WH-ROAD-001-roadmap.md)
+- [Материалы для защиты архитектурного проекта Warehouse](07_Project_Management/WH-PM-004-defense.md)
+
+### Редактируемые исходники диаграмм
+
+- BPMN As-Is — [приёмка](06_Architecture_Models/BPMN/WH-BPMN-ASIS-receiving.bpmn), [исполнение заказа](06_Architecture_Models/BPMN/WH-BPMN-ASIS-fulfillment.bpmn).
+- BPMN To-Be — [приёмка](06_Architecture_Models/BPMN/WH-BPMN-TOBE-receiving.bpmn), [исполнение заказа](06_Architecture_Models/BPMN/WH-BPMN-TOBE-fulfillment.bpmn), [инвентаризация](06_Architecture_Models/BPMN/WH-BPMN-TOBE-count.bpmn).
+- ArchiMate — [модель для Archi](06_Architecture_Models/ArchiMate/Warehouse.archimate), [Open Exchange XML](06_Architecture_Models/ArchiMate/WH-AM-001-model-exchange.xml).
+- C4 — [workspace.dsl с уровнями C1–C3](06_Architecture_Models/C4/workspace.dsl).
+- UML — [компоненты](06_Architecture_Models/UML/WH-UML-001-components.puml), [последовательность резерва и передачи](06_Architecture_Models/UML/WH-UML-002-reservation-sequence.puml).
 
 ### Структура домена
 
@@ -51,22 +131,6 @@
     ├── Roadmap/
     └── TCO_ROI/
 ```
-
-### Навигация
-
-| Раздел | Документы |
-| --- | --- |
-| Бизнес | [Архитектурное видение и бизнес-возможности Warehouse](01_Business_Architecture/Business_Capabilities/WH-VIS-001-vision.md); [Участники и карта влияния](01_Business_Architecture/Stakeholders/WH-STK-001-stakeholders.md); [Паспорт процесса BP-03 и предложения по совершенствованию](01_Business_Architecture/Business_Process/WH-BP-001-process.md); [9 ключевых проблем](01_Business_Architecture/Requirements/WH-PRB-001-problems.md); [20 архитектурных требований](01_Business_Architecture/Requirements/WH-REQ-001-requirements.md) |
-| Приложения | [Карта приложений и границы ответственности](02_Application_Architecture/Application_Catalog/WH-APP-001-landscape.md); [Каталог сервисов Warehouse](02_Application_Architecture/Services/WH-SRV-001-services.md); [Интеграционная архитектура As-Is и To-Be](02_Application_Architecture/Integrations/WH-INT-001-integration.md); [Каталог API и событий Warehouse](02_Application_Architecture/APIs/WH-API-001-catalog.md); [Варианты применения ИИ в Warehouse](02_Application_Architecture/Services/WH-AI-001-ai-options.md) |
-| Данные | [Концептуальная и целевая модель данных Warehouse](03_Data_Architecture/Data_Entities/WH-DAT-001-data-model.md); [Владельцы данных, качество и устранение дублирования](03_Data_Architecture/Data_Ownership/WH-DGO-001-ownership.md); [Потоки данных и правила межсистемного обмена](03_Data_Architecture/Data_Flows/WH-DF-001-flows.md) |
-| Технологии | [Технологическая архитектура Warehouse As-Is](04_Technology_Architecture/Infrastructure/WH-TECH-001-as-is.md); [Технологическая архитектура To-Be и концепция Kubernetes](04_Technology_Architecture/Deployment/WH-TECH-002-to-be.md); [Безопасность складского контура](04_Technology_Architecture/Security/WH-SEC-001-security.md); [Наблюдаемость, восстановление и приёмочные сценарии](04_Technology_Architecture/Monitoring/WH-OPS-001-operations.md) |
-| Архитектурные решения | [ADR-WH-001: единый источник остатка и резервирование](05_Architecture_Decisions/ADR/ADR-WH-001-inventory-authority.md); [ADR-WH-002: управляемые API и восстановимая доставка событий](05_Architecture_Decisions/ADR/ADR-WH-002-integration.md); [ADR-WH-003: поэтапное контейнерное размещение новых компонентов](05_Architecture_Decisions/ADR/ADR-WH-003-deployment.md) |
-| Модели | [BPMN: процесс Warehouse As-Is](06_Architecture_Models/BPMN/WH-BPMN-001-as-is.md); [BPMN: целевые процессы Warehouse](06_Architecture_Models/BPMN/WH-BPMN-002-to-be.md); [ArchiMate: связанные бизнес-, прикладной и технологический слои](06_Architecture_Models/ArchiMate/WH-AM-001-layered-model.md); [C4: контекст складской информационной системы](06_Architecture_Models/C4/WH-C4-001-context.md); [C4: контейнеры Warehouse System и взаимодействие сервисов](06_Architecture_Models/C4/WH-C4-002-containers.md); [C4: компоненты WMS](06_Architecture_Models/C4/WH-C4-003-components.md); [UML: компоненты и последовательность](06_Architecture_Models/UML/WH-UML-001-components.md) |
-| Управление проектом | [ТЭО, риски и Gantt](financials.md); [Паспорт и план выполнения архитектурного проекта Warehouse](07_Project_Management/WH-PM-001-project-plan.md); [Междоменные соглашения и проверка согласованности](07_Project_Management/WH-PM-002-coordination.md); [Покрытие заданий DOC-01–DOC-09](07_Project_Management/WH-PM-003-assignment-coverage.md); [Предварительное ТЭО Warehouse: TCO, эффект и чувствительность](07_Project_Management/TCO_ROI/WH-ECO-001-business-case.md); [Реестр рисков архитектуры и перехода Warehouse](07_Project_Management/Risks/WH-RSK-001-risks.md); [Дорожная карта будущего внедрения Warehouse](07_Project_Management/Roadmap/WH-ROAD-001-roadmap.md); [Материалы для защиты архитектурного проекта Warehouse](07_Project_Management/WH-PM-004-defense.md) |
-
-### Область изменений
-
-Рабочая область — только `03_warehouse_domain/`. Документация предприятия и опубликованные требования соседних команд использованы для чтения и сверки. Изменения в их файлы не вносятся.
 
 ## Анализ материалов и границы домена
 
