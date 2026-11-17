@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_BP01_ASIS" targetNamespace="https://retailmax.example/bpmn/sales">
+  <bpmn:message id="Message_ConsultRequest" name="Запрос консультации" />
+  <bpmn:message id="Message_ConsultResult" name="Результат консультации" />
+  <bpmn:message id="Message_Basket" name="Выбранные товары" />
+  <bpmn:message id="Message_Amount" name="Сумма к оплате" />
+  <bpmn:message id="Message_Payment" name="Подтверждение оплаты" />
+  <bpmn:message id="Message_Receipt" name="Товар и чек" />
+  <bpmn:message id="Message_LoyaltyRequest" name="Запрос бонусов и скидок" />
+  <bpmn:message id="Message_LoyaltyResponse" name="Ответ CRM: бонусы и скидки" />
+  <bpmn:message id="Message_SaleFact" name="Факт продажи" />
+  <bpmn:collaboration id="Collaboration_BP01_ASIS">
+    <bpmn:participant id="Participant_Buyer" name="Покупатель" processRef="Process_Buyer" />
+    <bpmn:participant id="Participant_Seller" name="Продавец-консультант" processRef="Process_Seller" />
+    <bpmn:participant id="Participant_POS" name="Кассир и POS" processRef="Process_POS" />
+    <bpmn:participant id="Participant_IP" name="Integration Platform (IS-07)" processRef="Process_IP" />
+    <bpmn:participant id="Participant_CRM" name="CRM" processRef="Process_CRM" />
+    <bpmn:participant id="Participant_ERP" name="ERP" processRef="Process_ERP" />
+    <bpmn:messageFlow id="MF_ConsultRequest" name="Запрос консультации" sourceRef="Buyer_AskConsult" targetRef="Seller_Start" messageRef="Message_ConsultRequest" />
+    <bpmn:messageFlow id="MF_ConsultResult" name="Результат консультации" sourceRef="Seller_SendAdvice" targetRef="Buyer_ReceiveConsult" messageRef="Message_ConsultResult" />
+    <bpmn:messageFlow id="MF_Basket" name="Выбранные товары" sourceRef="Buyer_SendBasket" targetRef="POS_Start" messageRef="Message_Basket" />
+    <bpmn:messageFlow id="MF_Amount" name="Сумма к оплате" sourceRef="POS_SendAmount" targetRef="Buyer_ReceiveAmount" messageRef="Message_Amount" />
+    <bpmn:messageFlow id="MF_Payment" name="Подтверждение оплаты" sourceRef="Buyer_SendPayment" targetRef="POS_ReceivePayment" messageRef="Message_Payment" />
+    <bpmn:messageFlow id="MF_Receipt" name="Товар и чек" sourceRef="POS_Handover" targetRef="Buyer_ReceiveReceipt" messageRef="Message_Receipt" />
+    <bpmn:messageFlow id="MF_POS_IP_Request" name="Запрос через IS-07" sourceRef="POS_RequestCRM" targetRef="IP_LoyaltyStart" messageRef="Message_LoyaltyRequest" />
+    <bpmn:messageFlow id="MF_IP_CRM_Request" name="Запрос CRM через IS-07" sourceRef="IP_ToCRM" targetRef="CRM_LoyaltyStart" messageRef="Message_LoyaltyRequest" />
+    <bpmn:messageFlow id="MF_CRM_IP_Response" name="Ответ CRM" sourceRef="CRM_SendLoyalty" targetRef="IP_WaitCRM" messageRef="Message_LoyaltyResponse" />
+    <bpmn:messageFlow id="MF_IP_POS_Response" name="Ответ через IS-07" sourceRef="IP_ToPOS" targetRef="POS_WaitCRM" messageRef="Message_LoyaltyResponse" />
+    <bpmn:messageFlow id="MF_POS_IP_Sale" name="Факт продажи через IS-07" sourceRef="POS_FiscalSale" targetRef="IP_SaleStart" messageRef="Message_SaleFact" />
+    <bpmn:messageFlow id="MF_IP_CRM_Sale" name="История покупки" sourceRef="IP_RouteSale" targetRef="CRM_SaleStart" messageRef="Message_SaleFact" />
+    <bpmn:messageFlow id="MF_IP_ERP_Sale" name="Учёт продажи" sourceRef="IP_RouteSale" targetRef="ERP_SaleStart" messageRef="Message_SaleFact" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Buyer" name="Покупатель" isExecutable="false">
+    <bpmn:startEvent id="Buyer_Start" name="Покупатель входит в магазин">
+      <bpmn:outgoing>B_F1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Buyer_Select" name="Выбрать товар в торговом зале">
+      <bpmn:incoming>B_F1</bpmn:incoming>
+      <bpmn:outgoing>B_F2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Buyer_ConsultGate" name="Нужна консультация?" gatewayDirection="Diverging">
+      <bpmn:incoming>B_F2</bpmn:incoming>
+      <bpmn:outgoing>B_F3</bpmn:outgoing>
+      <bpmn:outgoing>B_F4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Buyer_ConsultMerge" name="" gatewayDirection="Converging">
+      <bpmn:incoming>B_F4</bpmn:incoming>
+      <bpmn:incoming>B_F6</bpmn:incoming>
+      <bpmn:outgoing>B_F7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sendTask id="Buyer_SendBasket" name="Передать товары кассиру" messageRef="Message_Basket">
+      <bpmn:incoming>B_F7</bpmn:incoming>
+      <bpmn:outgoing>B_F8</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:receiveTask id="Buyer_ReceiveAmount" name="Получить сумму к оплате" messageRef="Message_Amount">
+      <bpmn:incoming>B_F8</bpmn:incoming>
+      <bpmn:outgoing>B_F9</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:task id="Buyer_Pay" name="Выбрать способ и оплатить покупку">
+      <bpmn:incoming>B_F9</bpmn:incoming>
+      <bpmn:outgoing>B_F10</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sendTask id="Buyer_SendPayment" name="Подтвердить оплату кассиру" messageRef="Message_Payment">
+      <bpmn:incoming>B_F10</bpmn:incoming>
+      <bpmn:outgoing>B_F11</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:receiveTask id="Buyer_ReceiveReceipt" name="Получить товар и чек" messageRef="Message_Receipt">
+      <bpmn:incoming>B_F11</bpmn:incoming>
+      <bpmn:outgoing>B_F12</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:endEvent id="Buyer_End" name="Покупка завершена">
+      <bpmn:incoming>B_F12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="B_F1" sourceRef="Buyer_Start" targetRef="Buyer_Select" />
+    <bpmn:sequenceFlow id="B_F2" sourceRef="Buyer_Select" targetRef="Buyer_ConsultGate" />
+    <bpmn:sequenceFlow id="B_F3" name="Да" sourceRef="Buyer_ConsultGate" targetRef="Buyer_AskConsult">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${consultationNeeded == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="B_F4" name="Нет" sourceRef="Buyer_ConsultGate" targetRef="Buyer_ConsultMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${consultationNeeded == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="B_F5" sourceRef="Buyer_AskConsult" targetRef="Buyer_ReceiveConsult" />
+    <bpmn:sequenceFlow id="B_F6" sourceRef="Buyer_ReceiveConsult" targetRef="Buyer_ConsultMerge" />
+    <bpmn:sequenceFlow id="B_F7" sourceRef="Buyer_ConsultMerge" targetRef="Buyer_SendBasket" />
+    <bpmn:sequenceFlow id="B_F8" sourceRef="Buyer_SendBasket" targetRef="Buyer_ReceiveAmount" />
+    <bpmn:sequenceFlow id="B_F9" sourceRef="Buyer_ReceiveAmount" targetRef="Buyer_Pay" />
+    <bpmn:sequenceFlow id="B_F10" sourceRef="Buyer_Pay" targetRef="Buyer_SendPayment" />
+    <bpmn:sequenceFlow id="B_F11" sourceRef="Buyer_SendPayment" targetRef="Buyer_ReceiveReceipt" />
+    <bpmn:sequenceFlow id="B_F12" sourceRef="Buyer_ReceiveReceipt" targetRef="Buyer_End" />
+    <bpmn:receiveTask id="Buyer_ReceiveConsult" name="Получить консультацию" messageRef="Message_ConsultResult">
+      <bpmn:incoming>B_F5</bpmn:incoming>
+      <bpmn:outgoing>B_F6</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sendTask id="Buyer_AskConsult" name="Запросить консультацию" messageRef="Message_ConsultRequest">
+      <bpmn:incoming>B_F3</bpmn:incoming>
+      <bpmn:outgoing>B_F5</bpmn:outgoing>
+    </bpmn:sendTask>
+  </bpmn:process>
+  <bpmn:process id="Process_Seller" name="Продавец-консультант" isExecutable="false">
+    <bpmn:startEvent id="Seller_Start" name="Запрос консультации поступил">
+      <bpmn:outgoing>S_F1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="Seller_Start_MessageDef" messageRef="Message_ConsultRequest" />
+    </bpmn:startEvent>
+    <bpmn:userTask id="Seller_Consult" name="Проконсультировать покупателя">
+      <bpmn:incoming>S_F1</bpmn:incoming>
+      <bpmn:outgoing>S_F2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sendTask id="Seller_SendAdvice" name="Передать рекомендацию покупателю" messageRef="Message_ConsultResult">
+      <bpmn:incoming>S_F2</bpmn:incoming>
+      <bpmn:outgoing>S_F3</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="Seller_End" name="Консультация завершена">
+      <bpmn:incoming>S_F3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="S_F1" sourceRef="Seller_Start" targetRef="Seller_Consult" />
+    <bpmn:sequenceFlow id="S_F2" sourceRef="Seller_Consult" targetRef="Seller_SendAdvice" />
+    <bpmn:sequenceFlow id="S_F3" sourceRef="Seller_SendAdvice" targetRef="Seller_End" />
+  </bpmn:process>
+  <bpmn:process id="Process_POS" name="Кассир и POS" isExecutable="false">
+    <bpmn:startEvent id="POS_Start" name="Товары переданы кассиру">
+      <bpmn:outgoing>P_F1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="POS_Start_MessageDef" messageRef="Message_Basket" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="POS_Scan" name="Сканировать товары и проверить акции">
+      <bpmn:incoming>P_F1</bpmn:incoming>
+      <bpmn:outgoing>P_F2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="POS_RequestCRM" name="Запросить бонусы и скидки через IS-07" messageRef="Message_LoyaltyRequest">
+      <bpmn:incoming>P_F3</bpmn:incoming>
+      <bpmn:outgoing>P_F5</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:eventBasedGateway id="POS_ResponseGate" name="Ожидать ответ CRM или тайм-аут" gatewayDirection="Diverging">
+      <bpmn:incoming>P_F5</bpmn:incoming>
+      <bpmn:outgoing>P_F6</bpmn:outgoing>
+      <bpmn:outgoing>P_F7</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:receiveTask id="POS_WaitCRM" name="Ожидать ответ CRM через IS-07" messageRef="Message_LoyaltyResponse">
+      <bpmn:incoming>P_F6</bpmn:incoming>
+      <bpmn:outgoing>P_F8</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:task id="POS_NoBenefits" name="Продолжить без бонусов и скидок">
+      <bpmn:incoming>P_F9</bpmn:incoming>
+      <bpmn:outgoing>P_F10</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="POS_LoyaltyMerge" name="" gatewayDirection="Converging">
+      <bpmn:incoming>P_F4</bpmn:incoming>
+      <bpmn:incoming>P_F8</bpmn:incoming>
+      <bpmn:incoming>P_F10</bpmn:incoming>
+      <bpmn:outgoing>P_F11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sendTask id="POS_SendAmount" name="Сообщить покупателю итоговую сумму" messageRef="Message_Amount">
+      <bpmn:incoming>P_F11</bpmn:incoming>
+      <bpmn:outgoing>P_F12</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:receiveTask id="POS_ReceivePayment" name="Принять оплату покупателя" messageRef="Message_Payment">
+      <bpmn:incoming>P_F12</bpmn:incoming>
+      <bpmn:outgoing>P_F13</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:serviceTask id="POS_FiscalSale" name="Оформить чек и передать факт продажи в ERP/CRM через IS-07">
+      <bpmn:incoming>P_F13</bpmn:incoming>
+      <bpmn:outgoing>P_F14</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="POS_Handover" name="Выдать товар и чек покупателю">
+      <bpmn:incoming>P_F14</bpmn:incoming>
+      <bpmn:outgoing>P_F15</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="POS_End" name="Продажа завершена">
+      <bpmn:incoming>P_F15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="P_F1" sourceRef="POS_Start" targetRef="POS_Scan" />
+    <bpmn:sequenceFlow id="P_F2" sourceRef="POS_Scan" targetRef="POS_LoyaltyGate" />
+    <bpmn:sequenceFlow id="P_F3" name="Да" sourceRef="POS_LoyaltyGate" targetRef="POS_RequestCRM">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${loyaltyCard == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="P_F4" name="Нет" sourceRef="POS_LoyaltyGate" targetRef="POS_LoyaltyMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${loyaltyCard == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="P_F5" sourceRef="POS_RequestCRM" targetRef="POS_ResponseGate" />
+    <bpmn:sequenceFlow id="P_F6" sourceRef="POS_ResponseGate" targetRef="POS_WaitCRM" />
+    <bpmn:sequenceFlow id="P_F7" sourceRef="POS_ResponseGate" targetRef="POS_Timeout" />
+    <bpmn:sequenceFlow id="P_F8" sourceRef="POS_WaitCRM" targetRef="POS_LoyaltyMerge" />
+    <bpmn:sequenceFlow id="P_F9" sourceRef="POS_Timeout" targetRef="POS_NoBenefits" />
+    <bpmn:sequenceFlow id="P_F10" sourceRef="POS_NoBenefits" targetRef="POS_LoyaltyMerge" />
+    <bpmn:sequenceFlow id="P_F11" sourceRef="POS_LoyaltyMerge" targetRef="POS_SendAmount" />
+    <bpmn:sequenceFlow id="P_F12" sourceRef="POS_SendAmount" targetRef="POS_ReceivePayment" />
+    <bpmn:sequenceFlow id="P_F13" sourceRef="POS_ReceivePayment" targetRef="POS_FiscalSale" />
+    <bpmn:sequenceFlow id="P_F14" sourceRef="POS_FiscalSale" targetRef="POS_Handover" />
+    <bpmn:sequenceFlow id="P_F15" sourceRef="POS_Handover" targetRef="POS_End" />
+    <bpmn:intermediateCatchEvent id="POS_Timeout" name="Тайм-аут ожидания CRM">
+      <bpmn:incoming>P_F7</bpmn:incoming>
+      <bpmn:outgoing>P_F9</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="POS_Timeout_Timer">
+        <bpmn:timeDuration>PT2S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:exclusiveGateway id="POS_LoyaltyGate" name="Есть карта лояльности?" gatewayDirection="Diverging">
+      <bpmn:incoming>P_F2</bpmn:incoming>
+      <bpmn:outgoing>P_F3</bpmn:outgoing>
+      <bpmn:outgoing>P_F4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+  </bpmn:process>
+  <bpmn:process id="Process_IP" name="Integration Platform (IS-07)" isExecutable="false">
+    <bpmn:startEvent id="IP_LoyaltyStart" name="Запрос лояльности от POS">
+      <bpmn:outgoing>I_F1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="IP_LoyaltyStart_MessageDef" messageRef="Message_LoyaltyRequest" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="IP_ToCRM" name="Маршрутизировать запрос в CRM">
+      <bpmn:incoming>I_F1</bpmn:incoming>
+      <bpmn:outgoing>I_F2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:receiveTask id="IP_WaitCRM" name="Ожидать ответ CRM" messageRef="Message_LoyaltyResponse">
+      <bpmn:incoming>I_F2</bpmn:incoming>
+      <bpmn:outgoing>I_F3</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:sendTask id="IP_ToPOS" name="Вернуть ответ в POS" messageRef="Message_LoyaltyResponse">
+      <bpmn:incoming>I_F3</bpmn:incoming>
+      <bpmn:outgoing>I_F4</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="IP_LoyaltyEnd" name="Ответ доставлен в POS">
+      <bpmn:incoming>I_F4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="I_F1" sourceRef="IP_LoyaltyStart" targetRef="IP_ToCRM" />
+    <bpmn:sequenceFlow id="I_F2" sourceRef="IP_ToCRM" targetRef="IP_WaitCRM" />
+    <bpmn:sequenceFlow id="I_F3" sourceRef="IP_WaitCRM" targetRef="IP_ToPOS" />
+    <bpmn:sequenceFlow id="I_F4" sourceRef="IP_ToPOS" targetRef="IP_LoyaltyEnd" />
+    <bpmn:startEvent id="IP_SaleStart" name="Факт продажи получен от POS">
+      <bpmn:outgoing>I_F5</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="IP_SaleStart_MessageDef" messageRef="Message_SaleFact" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="IP_RouteSale" name="Передать факт продажи адресатам: ERP и CRM">
+      <bpmn:incoming>I_F5</bpmn:incoming>
+      <bpmn:outgoing>I_F6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="IP_SaleEnd" name="Передача завершена">
+      <bpmn:incoming>I_F6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="I_F5" sourceRef="IP_SaleStart" targetRef="IP_RouteSale" />
+    <bpmn:sequenceFlow id="I_F6" sourceRef="IP_RouteSale" targetRef="IP_SaleEnd" />
+  </bpmn:process>
+  <bpmn:process id="Process_CRM" name="CRM" isExecutable="false">
+    <bpmn:startEvent id="CRM_LoyaltyStart" name="Запрос лояльности получен">
+      <bpmn:outgoing>C_F1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="CRM_LoyaltyStart_MessageDef" messageRef="Message_LoyaltyRequest" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="CRM_Lookup" name="Найти клиента, бонусы и скидки">
+      <bpmn:incoming>C_F1</bpmn:incoming>
+      <bpmn:outgoing>C_F2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="CRM_SendLoyalty" name="Вернуть данные лояльности через IS-07" messageRef="Message_LoyaltyResponse">
+      <bpmn:incoming>C_F2</bpmn:incoming>
+      <bpmn:outgoing>C_F3</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="CRM_LoyaltyEnd" name="Ответ отправлен">
+      <bpmn:incoming>C_F3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="C_F1" sourceRef="CRM_LoyaltyStart" targetRef="CRM_Lookup" />
+    <bpmn:sequenceFlow id="C_F2" sourceRef="CRM_Lookup" targetRef="CRM_SendLoyalty" />
+    <bpmn:sequenceFlow id="C_F3" sourceRef="CRM_SendLoyalty" targetRef="CRM_LoyaltyEnd" />
+    <bpmn:startEvent id="CRM_SaleStart" name="Факт продажи получен через IS-07">
+      <bpmn:outgoing>C_F4</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="CRM_SaleStart_MessageDef" messageRef="Message_SaleFact" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="CRM_UpdateHistory" name="Обновить историю покупок клиента">
+      <bpmn:incoming>C_F4</bpmn:incoming>
+      <bpmn:outgoing>C_F5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="CRM_SaleEnd" name="История обновлена">
+      <bpmn:incoming>C_F5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="C_F4" sourceRef="CRM_SaleStart" targetRef="CRM_UpdateHistory" />
+    <bpmn:sequenceFlow id="C_F5" sourceRef="CRM_UpdateHistory" targetRef="CRM_SaleEnd" />
+  </bpmn:process>
+  <bpmn:process id="Process_ERP" name="ERP" isExecutable="false">
+    <bpmn:startEvent id="ERP_SaleStart" name="Факт продажи получен через IS-07">
+      <bpmn:outgoing>E_F1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="ERP_SaleStart_MessageDef" messageRef="Message_SaleFact" />
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="ERP_PostSale" name="Учесть продажу и обновить остатки">
+      <bpmn:incoming>E_F1</bpmn:incoming>
+      <bpmn:outgoing>E_F2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="ERP_End" name="Продажа учтена">
+      <bpmn:incoming>E_F2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="E_F1" sourceRef="ERP_SaleStart" targetRef="ERP_PostSale" />
+    <bpmn:sequenceFlow id="E_F2" sourceRef="ERP_PostSale" targetRef="ERP_End" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_BP01_ASIS">
+    <bpmndi:BPMNPlane id="BPMNPlane_BP01_ASIS" bpmnElement="Collaboration_BP01_ASIS">
+      <bpmndi:BPMNShape id="Participant_Buyer_di" bpmnElement="Participant_Buyer" isHorizontal="true">
+        <dc:Bounds x="50" y="-40" width="1800" height="240" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Start_di" bpmnElement="Buyer_Start">
+        <dc:Bounds x="100" y="95" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Select_di" bpmnElement="Buyer_Select">
+        <dc:Bounds x="190" y="73" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_ConsultGate_di" bpmnElement="Buyer_ConsultGate" isMarkerVisible="true">
+        <dc:Bounds x="350" y="88" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="409.5" y="99" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_ConsultMerge_di" bpmnElement="Buyer_ConsultMerge" isMarkerVisible="true">
+        <dc:Bounds x="790" y="88" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_SendBasket_di" bpmnElement="Buyer_SendBasket">
+        <dc:Bounds x="880" y="73" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_ReceiveAmount_di" bpmnElement="Buyer_ReceiveAmount">
+        <dc:Bounds x="1020" y="73" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_Pay_di" bpmnElement="Buyer_Pay">
+        <dc:Bounds x="1170" y="73" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_SendPayment_di" bpmnElement="Buyer_SendPayment">
+        <dc:Bounds x="1320" y="73" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_ReceiveReceipt_di" bpmnElement="Buyer_ReceiveReceipt">
+        <dc:Bounds x="1470" y="73" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_End_di" bpmnElement="Buyer_End">
+        <dc:Bounds x="1640" y="95" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_ReceiveConsult_di" bpmnElement="Buyer_ReceiveConsult">
+        <dc:Bounds x="620" y="0" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Buyer_AskConsult_di" bpmnElement="Buyer_AskConsult">
+        <dc:Bounds x="460" y="0" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="B_F1_di" bpmnElement="B_F1">
+        <di:waypoint x="136" y="113" />
+        <di:waypoint x="190" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F2_di" bpmnElement="B_F2">
+        <di:waypoint x="290" y="113" />
+        <di:waypoint x="350" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F3_di" bpmnElement="B_F3">
+        <di:waypoint x="375" y="88" />
+        <di:waypoint x="375" y="40" />
+        <di:waypoint x="460" y="40" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="380" y="31" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F4_di" bpmnElement="B_F4">
+        <di:waypoint x="375" y="138" />
+        <di:waypoint x="375" y="165" />
+        <di:waypoint x="815" y="165" />
+        <di:waypoint x="815" y="138" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="380" y="116" width="90" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F5_di" bpmnElement="B_F5">
+        <di:waypoint x="560" y="40" />
+        <di:waypoint x="620" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F6_di" bpmnElement="B_F6">
+        <di:waypoint x="720" y="40" />
+        <di:waypoint x="815" y="40" />
+        <di:waypoint x="815" y="88" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F7_di" bpmnElement="B_F7">
+        <di:waypoint x="840" y="113" />
+        <di:waypoint x="880" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F8_di" bpmnElement="B_F8">
+        <di:waypoint x="980" y="113" />
+        <di:waypoint x="1020" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F9_di" bpmnElement="B_F9">
+        <di:waypoint x="1120" y="113" />
+        <di:waypoint x="1170" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F10_di" bpmnElement="B_F10">
+        <di:waypoint x="1270" y="113" />
+        <di:waypoint x="1320" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F11_di" bpmnElement="B_F11">
+        <di:waypoint x="1420" y="113" />
+        <di:waypoint x="1470" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="B_F12_di" bpmnElement="B_F12">
+        <di:waypoint x="1570" y="113" />
+        <di:waypoint x="1640" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Seller_di" bpmnElement="Participant_Seller" isHorizontal="true">
+        <dc:Bounds x="50" y="220" width="1800" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Seller_Start_di" bpmnElement="Seller_Start">
+        <dc:Bounds x="460" y="277" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Seller_Consult_di" bpmnElement="Seller_Consult">
+        <dc:Bounds x="560" y="255" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Seller_SendAdvice_di" bpmnElement="Seller_SendAdvice">
+        <dc:Bounds x="710" y="255" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Seller_End_di" bpmnElement="Seller_End">
+        <dc:Bounds x="870" y="277" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="852" y="326" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="S_F1_di" bpmnElement="S_F1">
+        <di:waypoint x="496" y="295" />
+        <di:waypoint x="560" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="S_F2_di" bpmnElement="S_F2">
+        <di:waypoint x="660" y="295" />
+        <di:waypoint x="710" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="S_F3_di" bpmnElement="S_F3">
+        <di:waypoint x="810" y="295" />
+        <di:waypoint x="870" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_POS_di" bpmnElement="Participant_POS" isHorizontal="true">
+        <dc:Bounds x="50" y="390" width="1800" height="220" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_Start_di" bpmnElement="POS_Start">
+        <dc:Bounds x="100" y="477" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_Scan_di" bpmnElement="POS_Scan">
+        <dc:Bounds x="190" y="455" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_RequestCRM_di" bpmnElement="POS_RequestCRM">
+        <dc:Bounds x="460" y="455" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_ResponseGate_di" bpmnElement="POS_ResponseGate" isMarkerVisible="true">
+        <dc:Bounds x="590" y="470" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="575" y="420" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_WaitCRM_di" bpmnElement="POS_WaitCRM">
+        <dc:Bounds x="680" y="435" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_NoBenefits_di" bpmnElement="POS_NoBenefits">
+        <dc:Bounds x="770" y="523" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_LoyaltyMerge_di" bpmnElement="POS_LoyaltyMerge" isMarkerVisible="true">
+        <dc:Bounds x="900" y="470" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_SendAmount_di" bpmnElement="POS_SendAmount">
+        <dc:Bounds x="1000" y="455" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_ReceivePayment_di" bpmnElement="POS_ReceivePayment">
+        <dc:Bounds x="1150" y="455" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_FiscalSale_di" bpmnElement="POS_FiscalSale">
+        <dc:Bounds x="1290" y="455" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_Handover_di" bpmnElement="POS_Handover">
+        <dc:Bounds x="1460" y="455" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_End_di" bpmnElement="POS_End">
+        <dc:Bounds x="1630" y="477" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_Timeout_di" bpmnElement="POS_Timeout">
+        <dc:Bounds x="652" y="545" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="631" y="581" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="POS_LoyaltyGate_di" bpmnElement="POS_LoyaltyGate" isMarkerVisible="true">
+        <dc:Bounds x="325" y="470" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="377" y="461" width="66" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="P_F1_di" bpmnElement="P_F1">
+        <di:waypoint x="136" y="495" />
+        <di:waypoint x="190" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F2_di" bpmnElement="P_F2">
+        <di:waypoint x="290" y="495" />
+        <di:waypoint x="325" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F3_di" bpmnElement="P_F3">
+        <di:waypoint x="375" y="495" />
+        <di:waypoint x="460" y="495" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="403" y="499" width="14" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F4_di" bpmnElement="P_F4">
+        <di:waypoint x="350" y="520" />
+        <di:waypoint x="350" y="610" />
+        <di:waypoint x="925" y="610" />
+        <di:waypoint x="925" y="520" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="325" y="556" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F5_di" bpmnElement="P_F5">
+        <di:waypoint x="560" y="495" />
+        <di:waypoint x="590" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F6_di" bpmnElement="P_F6">
+        <di:waypoint x="640" y="495" />
+        <di:waypoint x="660" y="495" />
+        <di:waypoint x="660" y="475" />
+        <di:waypoint x="680" y="475" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F7_di" bpmnElement="P_F7">
+        <di:waypoint x="615" y="520" />
+        <di:waypoint x="615" y="563" />
+        <di:waypoint x="652" y="563" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F8_di" bpmnElement="P_F8">
+        <di:waypoint x="780" y="475" />
+        <di:waypoint x="830" y="475" />
+        <di:waypoint x="830" y="495" />
+        <di:waypoint x="900" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F9_di" bpmnElement="P_F9">
+        <di:waypoint x="688" y="563" />
+        <di:waypoint x="770" y="563" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F10_di" bpmnElement="P_F10">
+        <di:waypoint x="870" y="563" />
+        <di:waypoint x="925" y="560" />
+        <di:waypoint x="925" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F11_di" bpmnElement="P_F11">
+        <di:waypoint x="950" y="495" />
+        <di:waypoint x="1000" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F12_di" bpmnElement="P_F12">
+        <di:waypoint x="1100" y="495" />
+        <di:waypoint x="1150" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F13_di" bpmnElement="P_F13">
+        <di:waypoint x="1250" y="495" />
+        <di:waypoint x="1290" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F14_di" bpmnElement="P_F14">
+        <di:waypoint x="1390" y="495" />
+        <di:waypoint x="1460" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="P_F15_di" bpmnElement="P_F15">
+        <di:waypoint x="1560" y="495" />
+        <di:waypoint x="1630" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_IP_di" bpmnElement="Participant_IP" isHorizontal="true">
+        <dc:Bounds x="50" y="620" width="1800" height="210" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_LoyaltyStart_di" bpmnElement="IP_LoyaltyStart">
+        <dc:Bounds x="460" y="707" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_ToCRM_di" bpmnElement="IP_ToCRM">
+        <dc:Bounds x="570" y="685" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_WaitCRM_di" bpmnElement="IP_WaitCRM">
+        <dc:Bounds x="720" y="685" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_ToPOS_di" bpmnElement="IP_ToPOS">
+        <dc:Bounds x="870" y="685" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_LoyaltyEnd_di" bpmnElement="IP_LoyaltyEnd">
+        <dc:Bounds x="1030" y="707" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_SaleStart_di" bpmnElement="IP_SaleStart">
+        <dc:Bounds x="1250" y="707" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_RouteSale_di" bpmnElement="IP_RouteSale">
+        <dc:Bounds x="1360" y="685" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IP_SaleEnd_di" bpmnElement="IP_SaleEnd">
+        <dc:Bounds x="1530" y="707" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="I_F1_di" bpmnElement="I_F1">
+        <di:waypoint x="496" y="725" />
+        <di:waypoint x="570" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="I_F2_di" bpmnElement="I_F2">
+        <di:waypoint x="670" y="725" />
+        <di:waypoint x="720" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="I_F3_di" bpmnElement="I_F3">
+        <di:waypoint x="820" y="725" />
+        <di:waypoint x="870" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="I_F4_di" bpmnElement="I_F4">
+        <di:waypoint x="970" y="725" />
+        <di:waypoint x="1030" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="I_F5_di" bpmnElement="I_F5">
+        <di:waypoint x="1286" y="725" />
+        <di:waypoint x="1360" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="I_F6_di" bpmnElement="I_F6">
+        <di:waypoint x="1460" y="725" />
+        <di:waypoint x="1530" y="725" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_CRM_di" bpmnElement="Participant_CRM" isHorizontal="true">
+        <dc:Bounds x="50" y="850" width="1800" height="210" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_LoyaltyStart_di" bpmnElement="CRM_LoyaltyStart">
+        <dc:Bounds x="570" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_Lookup_di" bpmnElement="CRM_Lookup">
+        <dc:Bounds x="680" y="915" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_SendLoyalty_di" bpmnElement="CRM_SendLoyalty">
+        <dc:Bounds x="830" y="915" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_LoyaltyEnd_di" bpmnElement="CRM_LoyaltyEnd">
+        <dc:Bounds x="990" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_SaleStart_di" bpmnElement="CRM_SaleStart">
+        <dc:Bounds x="1360" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_UpdateHistory_di" bpmnElement="CRM_UpdateHistory">
+        <dc:Bounds x="1470" y="915" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CRM_SaleEnd_di" bpmnElement="CRM_SaleEnd">
+        <dc:Bounds x="1630" y="937" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="C_F1_di" bpmnElement="C_F1">
+        <di:waypoint x="606" y="955" />
+        <di:waypoint x="680" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="C_F2_di" bpmnElement="C_F2">
+        <di:waypoint x="780" y="955" />
+        <di:waypoint x="830" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="C_F3_di" bpmnElement="C_F3">
+        <di:waypoint x="930" y="955" />
+        <di:waypoint x="990" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="C_F4_di" bpmnElement="C_F4">
+        <di:waypoint x="1396" y="955" />
+        <di:waypoint x="1470" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="C_F5_di" bpmnElement="C_F5">
+        <di:waypoint x="1570" y="955" />
+        <di:waypoint x="1630" y="955" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_ERP_di" bpmnElement="Participant_ERP" isHorizontal="true">
+        <dc:Bounds x="50" y="1080" width="1800" height="170" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ERP_SaleStart_di" bpmnElement="ERP_SaleStart">
+        <dc:Bounds x="1360" y="1152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ERP_PostSale_di" bpmnElement="ERP_PostSale">
+        <dc:Bounds x="1470" y="1130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ERP_End_di" bpmnElement="ERP_End">
+        <dc:Bounds x="1630" y="1152" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_F1_di" bpmnElement="E_F1">
+        <di:waypoint x="1396" y="1170" />
+        <di:waypoint x="1470" y="1170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F2_di" bpmnElement="E_F2">
+        <di:waypoint x="1570" y="1170" />
+        <di:waypoint x="1630" y="1170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_ConsultRequest_di" bpmnElement="MF_ConsultRequest">
+        <di:waypoint x="478" y="80" />
+        <di:waypoint x="478" y="277" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="482" y="88" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_ConsultResult_di" bpmnElement="MF_ConsultResult">
+        <di:waypoint x="810" y="295" />
+        <di:waypoint x="900" y="295" />
+        <di:waypoint x="900" y="40" />
+        <di:waypoint x="720" y="40" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="810" y="226" width="100" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Basket_di" bpmnElement="MF_Basket">
+        <di:waypoint x="930" y="153" />
+        <di:waypoint x="930" y="410" />
+        <di:waypoint x="118" y="410" />
+        <di:waypoint x="118" y="477" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="934" y="154" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Amount_di" bpmnElement="MF_Amount">
+        <di:waypoint x="1000" y="455" />
+        <di:waypoint x="1000" y="150" />
+        <di:waypoint x="1070" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1004" y="459" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Payment_di" bpmnElement="MF_Payment">
+        <di:waypoint x="1420" y="113" />
+        <di:waypoint x="1420" y="495" />
+        <di:waypoint x="1150" y="495" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1424" y="117" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Receipt_di" bpmnElement="MF_Receipt">
+        <di:waypoint x="1560" y="495" />
+        <di:waypoint x="1560" y="113" />
+        <di:waypoint x="1520" y="113" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1534" y="499" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_POS_IP_Request_di" bpmnElement="MF_POS_IP_Request">
+        <di:waypoint x="510" y="535" />
+        <di:waypoint x="510" y="707" />
+        <di:waypoint x="478" y="707" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="514" y="459" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_IP_CRM_Request_di" bpmnElement="MF_IP_CRM_Request">
+        <di:waypoint x="620" y="765" />
+        <di:waypoint x="620" y="837" />
+        <di:waypoint x="588" y="837" />
+        <di:waypoint x="588" y="937" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="624" y="689" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_CRM_IP_Response_di" bpmnElement="MF_CRM_IP_Response">
+        <di:waypoint x="930" y="955" />
+        <di:waypoint x="930" y="820" />
+        <di:waypoint x="770" y="820" />
+        <di:waypoint x="770" y="765" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="884" y="919" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_IP_POS_Response_di" bpmnElement="MF_IP_POS_Response">
+        <di:waypoint x="920" y="765" />
+        <di:waypoint x="920" y="805" />
+        <di:waypoint x="730" y="805" />
+        <di:waypoint x="730" y="515" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="924" y="769" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_POS_IP_Sale_di" bpmnElement="MF_POS_IP_Sale">
+        <di:waypoint x="1340" y="535" />
+        <di:waypoint x="1340" y="707" />
+        <di:waypoint x="1268" y="707" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1304" y="539" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_IP_CRM_Sale_di" bpmnElement="MF_IP_CRM_Sale">
+        <di:waypoint x="1410" y="765" />
+        <di:waypoint x="1410" y="937" />
+        <di:waypoint x="1378" y="937" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1414" y="769" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_IP_ERP_Sale_di" bpmnElement="MF_IP_ERP_Sale">
+        <di:waypoint x="1410" y="765" />
+        <di:waypoint x="1410" y="1152" />
+        <di:waypoint x="1378" y="1152" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1414" y="769" width="100" height="18" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

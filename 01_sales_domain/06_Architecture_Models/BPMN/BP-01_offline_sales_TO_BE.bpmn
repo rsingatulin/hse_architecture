@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns0:definitions xmlns:ns0="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:ns2="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:ns3="http://www.omg.org/spec/DD/20100524/DC" xmlns:ns4="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_Sales_TOBE" targetNamespace="http://bpmn.io/schema/bpmn">
+  <ns0:message id="Message_SaleBatch" name="Пакет продаж для синхронизации" />
+  <ns0:message id="Message_DiscountResponse" name="Результат расчёта персональной скидки" />
+  <ns0:message id="Message_DiscountRequest" name="Запрос персональной скидки" />
+  <ns0:message id="Message_ConnectivityRestored" name="Связь восстановлена" />
+  <ns0:collaboration id="Collaboration_Sales_TOBE">
+    <ns0:participant id="Participant_Sales" name="BP-01. Продажи в розничном магазине (TO-BE)" processRef="Process_Sales_TOBE" />
+    <ns0:participant id="Participant_Sync" name="Обмен при восстановлении связи" processRef="Process_ReconnectSync" />
+    <ns0:participant id="Participant_IS07" name="Integration Platform (IS-07)" processRef="Process_IS07_Loyalty" />
+    <ns0:participant id="Participant_CRM" name="CRM / Loyalty" processRef="Process_CRM_Loyalty" />
+    <ns0:messageFlow id="MF_POS_IP_DiscountRequest" name="Запрос скидки" sourceRef="RequestDiscount" targetRef="IP_LoyaltyStart" messageRef="Message_DiscountRequest" />
+    <ns0:messageFlow id="MF_IP_CRM_DiscountRequest" name="Запрос через IS-07" sourceRef="IP_SendCRMRequest" targetRef="CRM_LoyaltyStart" messageRef="Message_DiscountRequest" />
+    <ns0:messageFlow id="MF_CRM_IP_DiscountResponse" name="Результат расчёта" sourceRef="CRM_SendLoyalty" targetRef="IP_WaitCRM" messageRef="Message_DiscountResponse" />
+    <ns0:messageFlow id="MF_IP_POS_DiscountResponse" name="Ответ через IS-07" sourceRef="IP_ReturnPOS" targetRef="DiscountReceived" messageRef="Message_DiscountResponse" />
+    <ns0:messageFlow id="MF_POS_IP_SaleBatch" name="Пакет Outbox через IS-07" sourceRef="Sync" targetRef="IP_SyncStart" messageRef="Message_SaleBatch" />
+  </ns0:collaboration>
+  <ns0:process id="Process_Sales_TOBE" name="BP-01. Продажи в розничном магазине (TO-BE)" isExecutable="false">
+    <ns0:laneSet id="LaneSet_Sales_TOBE">
+      <ns0:lane id="Lane_Buyer" name="Покупатель">
+        <ns0:flowNodeRef>ConsultGate</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Select</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Start</ns0:flowNodeRef>
+        <ns0:flowNodeRef>NoPackage</ns0:flowNodeRef>
+        <ns0:flowNodeRef>ConsultMerge</ns0:flowNodeRef>
+      </ns0:lane>
+      <ns0:lane id="Lane_Consultant" name="Продавец-консультант">
+        <ns0:flowNodeRef>Consultation</ns0:flowNodeRef>
+      </ns0:lane>
+      <ns0:lane id="Lane_POS" name="Кассир / POS и локальный Outbox">
+        <ns0:flowNodeRef>Scan</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Internet</ns0:flowNodeRef>
+        <ns0:flowNodeRef>OfflineDiscount</ns0:flowNodeRef>
+        <ns0:flowNodeRef>DiscountMerge</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Package</ns0:flowNodeRef>
+        <ns0:flowNodeRef>ApplyDiscount</ns0:flowNodeRef>
+        <ns0:flowNodeRef>PayMerge</ns0:flowNodeRef>
+        <ns0:flowNodeRef>PayMode</ns0:flowNodeRef>
+        <ns0:flowNodeRef>OfflinePay</ns0:flowNodeRef>
+        <ns0:flowNodeRef>PayJoin</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Fiscal</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Queue</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Handover</ns0:flowNodeRef>
+        <ns0:flowNodeRef>End</ns0:flowNodeRef>
+        <ns0:flowNodeRef>RequestDiscount</ns0:flowNodeRef>
+        <ns0:flowNodeRef>OnlinePay</ns0:flowNodeRef>
+        <ns0:flowNodeRef>DiscountReceived</ns0:flowNodeRef>
+      </ns0:lane>
+    </ns0:laneSet>
+    <ns0:serviceTask id="Scan" name="Сканирование товаров и проверка цен/акций в POS">
+      <ns0:incoming>f3</ns0:incoming>
+      <ns0:outgoing>f3a</ns0:outgoing>
+    </ns0:serviceTask>
+    <ns0:exclusiveGateway id="Internet" name="Есть связь с центральными системами?" gatewayDirection="Diverging">
+      <ns0:incoming>f3a</ns0:incoming>
+      <ns0:outgoing>f4</ns0:outgoing>
+      <ns0:outgoing>f5</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:serviceTask id="OfflineDiscount" name="Получить персональную скидку из локальной БД POS">
+      <ns0:incoming>f5</ns0:incoming>
+      <ns0:outgoing>f7</ns0:outgoing>
+    </ns0:serviceTask>
+    <ns0:exclusiveGateway id="DiscountMerge" gatewayDirection="Converging">
+      <ns0:incoming>f6c</ns0:incoming>
+      <ns0:incoming>f7</ns0:incoming>
+      <ns0:outgoing>f8</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:exclusiveGateway id="Package" name="Персональная скидка доступна?" gatewayDirection="Diverging">
+      <ns0:incoming>f8</ns0:incoming>
+      <ns0:outgoing>f9</ns0:outgoing>
+      <ns0:outgoing>f10</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:task id="ApplyDiscount" name="Применить скидку и зафиксировать основание в чеке">
+      <ns0:incoming>f9</ns0:incoming>
+      <ns0:outgoing>f11</ns0:outgoing>
+    </ns0:task>
+    <ns0:exclusiveGateway id="PayMerge" gatewayDirection="Converging">
+      <ns0:incoming>f11</ns0:incoming>
+      <ns0:incoming>f12</ns0:incoming>
+      <ns0:outgoing>f13</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:exclusiveGateway id="PayMode" name="Режим продажи" gatewayDirection="Diverging">
+      <ns0:incoming>f13</ns0:incoming>
+      <ns0:outgoing>f14</ns0:outgoing>
+      <ns0:outgoing>f15</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:task id="OfflinePay" name="Кассир принимает оплату вручную и фиксирует её в POS">
+      <ns0:incoming>f15</ns0:incoming>
+      <ns0:outgoing>f17</ns0:outgoing>
+    </ns0:task>
+    <ns0:exclusiveGateway id="PayJoin" gatewayDirection="Converging">
+      <ns0:incoming>f16</ns0:incoming>
+      <ns0:incoming>f17</ns0:incoming>
+      <ns0:outgoing>f18</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:serviceTask id="Fiscal" name="Оформить чек и сохранить продажу локально">
+      <ns0:incoming>f18</ns0:incoming>
+      <ns0:outgoing>f19</ns0:outgoing>
+    </ns0:serviceTask>
+    <ns0:serviceTask id="Queue" name="Сохранить факт продажи в локальном журнале и Outbox для последующей отправки через IS-07">
+      <ns0:incoming>f19</ns0:incoming>
+      <ns0:outgoing>f20</ns0:outgoing>
+    </ns0:serviceTask>
+    <ns0:task id="Handover" name="Выдать товар и чек покупателю">
+      <ns0:incoming>f20</ns0:incoming>
+      <ns0:outgoing>f21</ns0:outgoing>
+    </ns0:task>
+    <ns0:endEvent id="End" name="Продажа завершена">
+      <ns0:incoming>f21</ns0:incoming>
+    </ns0:endEvent>
+    <ns0:exclusiveGateway id="ConsultGate" name="Нужна консультация?" gatewayDirection="Diverging">
+      <ns0:incoming>f2</ns0:incoming>
+      <ns0:outgoing>f2a</ns0:outgoing>
+      <ns0:outgoing>f2b</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:sequenceFlow id="f1" sourceRef="Start" targetRef="Select" />
+    <ns0:sequenceFlow id="f2" sourceRef="Select" targetRef="ConsultGate" />
+    <ns0:sequenceFlow id="f2a" name="Да" sourceRef="ConsultGate" targetRef="Consultation">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${consultationNeeded == true}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f2b" name="Нет" sourceRef="ConsultGate" targetRef="ConsultMerge">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${consultationNeeded == false}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f2c" sourceRef="Consultation" targetRef="ConsultMerge" />
+    <ns0:sequenceFlow id="f3" sourceRef="ConsultMerge" targetRef="Scan" />
+    <ns0:sequenceFlow id="f3a" sourceRef="Scan" targetRef="Internet" />
+    <ns0:sequenceFlow id="f4" name="Да" sourceRef="Internet" targetRef="RequestDiscount">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${internetAvailable == true}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f5" name="Нет" sourceRef="Internet" targetRef="OfflineDiscount">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${internetAvailable == false}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f6c" sourceRef="DiscountReceived" targetRef="DiscountMerge" />
+    <ns0:sequenceFlow id="f7" sourceRef="OfflineDiscount" targetRef="DiscountMerge" />
+    <ns0:sequenceFlow id="f8" sourceRef="DiscountMerge" targetRef="Package" />
+    <ns0:sequenceFlow id="f9" name="Да" sourceRef="Package" targetRef="ApplyDiscount">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${discountAvailable == true}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f10" name="Нет" sourceRef="Package" targetRef="NoPackage">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${discountAvailable == false}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f11" sourceRef="ApplyDiscount" targetRef="PayMerge" />
+    <ns0:sequenceFlow id="f12" sourceRef="NoPackage" targetRef="PayMerge" />
+    <ns0:sequenceFlow id="f13" sourceRef="PayMerge" targetRef="PayMode" />
+    <ns0:sequenceFlow id="f14" name="Связь есть" sourceRef="PayMode" targetRef="OnlinePay">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${internetAvailable == true}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f15" name="Связи нет" sourceRef="PayMode" targetRef="OfflinePay">
+      <ns0:conditionExpression xsi:type="ns0:tFormalExpression">${internetAvailable == false}</ns0:conditionExpression>
+    </ns0:sequenceFlow>
+    <ns0:sequenceFlow id="f16" sourceRef="OnlinePay" targetRef="PayJoin" />
+    <ns0:sequenceFlow id="f17" sourceRef="OfflinePay" targetRef="PayJoin" />
+    <ns0:sequenceFlow id="f18" sourceRef="PayJoin" targetRef="Fiscal" />
+    <ns0:sequenceFlow id="f19" sourceRef="Fiscal" targetRef="Queue" />
+    <ns0:sequenceFlow id="f20" sourceRef="Queue" targetRef="Handover" />
+    <ns0:sequenceFlow id="f21" sourceRef="Handover" targetRef="End" />
+    <ns0:sendTask id="RequestDiscount" name="Запросить персональную скидку через IS-07" messageRef="Message_DiscountRequest">
+      <ns0:incoming>f4</ns0:incoming>
+      <ns0:outgoing>f4a</ns0:outgoing>
+    </ns0:sendTask>
+    <ns0:task id="OnlinePay" name="Выбрать способ и провести оплату штатным способом">
+      <ns0:incoming>f14</ns0:incoming>
+      <ns0:outgoing>f16</ns0:outgoing>
+    </ns0:task>
+    <ns0:userTask id="Consultation" name="Проконсультировать покупателя">
+      <ns0:incoming>f2a</ns0:incoming>
+      <ns0:outgoing>f2c</ns0:outgoing>
+    </ns0:userTask>
+    <ns0:task id="Select" name="Выбор товара в торговом зале">
+      <ns0:incoming>f1</ns0:incoming>
+      <ns0:outgoing>f2</ns0:outgoing>
+    </ns0:task>
+    <ns0:startEvent id="Start" name="Покупатель начинает покупку">
+      <ns0:outgoing>f1</ns0:outgoing>
+    </ns0:startEvent>
+    <ns0:task id="NoPackage" name="Запросить и зафиксировать согласие на покупку без скидки">
+      <ns0:incoming>f10</ns0:incoming>
+      <ns0:outgoing>f12</ns0:outgoing>
+    </ns0:task>
+    <ns0:sequenceFlow id="f4a" sourceRef="RequestDiscount" targetRef="DiscountReceived" />
+    <ns0:exclusiveGateway id="ConsultMerge" name="" gatewayDirection="Converging">
+      <ns0:incoming>f2b</ns0:incoming>
+      <ns0:incoming>f2c</ns0:incoming>
+      <ns0:outgoing>f3</ns0:outgoing>
+    </ns0:exclusiveGateway>
+    <ns0:receiveTask id="DiscountReceived" name="Ожидать персональную скидку от CRM через IS-07" messageRef="Message_DiscountResponse">
+      <ns0:incoming>f4a</ns0:incoming>
+      <ns0:outgoing>f6c</ns0:outgoing>
+    </ns0:receiveTask>
+  </ns0:process>
+  <ns0:process id="Process_ReconnectSync" name="Синхронизация продаж после восстановления связи" isExecutable="false">
+    <ns0:laneSet id="LaneSet_ReconnectSync">
+      <ns0:lane id="Lane_Sync_POS" name="POS / Outbox">
+        <ns0:flowNodeRef>ReconnectStart</ns0:flowNodeRef>
+        <ns0:flowNodeRef>Sync</ns0:flowNodeRef>
+        <ns0:flowNodeRef>SyncEnd</ns0:flowNodeRef>
+      </ns0:lane>
+    </ns0:laneSet>
+    <ns0:startEvent id="ReconnectStart" name="Связь восстановлена">
+      <ns0:outgoing>sf1</ns0:outgoing>
+      <ns0:messageEventDefinition id="ReconnectMessage" messageRef="Message_ConnectivityRestored" />
+    </ns0:startEvent>
+    <ns0:sequenceFlow id="sf1" sourceRef="ReconnectStart" targetRef="Sync" />
+    <ns0:sequenceFlow id="sf2" sourceRef="Sync" targetRef="SyncEnd" />
+    <ns0:endEvent id="SyncEnd" name="Пакет передан в IS-07">
+      <ns0:incoming>sf2</ns0:incoming>
+    </ns0:endEvent>
+    <ns0:sendTask id="Sync" name="Передать накопленные продажи и движения в IS-07" messageRef="Message_SaleBatch">
+      <ns0:incoming>sf1</ns0:incoming>
+      <ns0:outgoing>sf2</ns0:outgoing>
+    </ns0:sendTask>
+  </ns0:process>
+  <ns0:process id="Process_IS07_Loyalty" name="Маршрутизация запросов скидок и синхронизации через IS-07" isExecutable="false">
+    <ns0:startEvent id="IP_LoyaltyStart" name="Запрос скидки от POS получен">
+      <ns0:outgoing>ipf1</ns0:outgoing>
+      <ns0:messageEventDefinition id="IP_LoyaltyStart_Message" messageRef="Message_DiscountRequest" />
+    </ns0:startEvent>
+    <ns0:serviceTask id="IP_RouteDiscount" name="Маршрутизировать запрос в CRM/Loyalty">
+      <ns0:incoming>ipf1</ns0:incoming>
+      <ns0:outgoing>ipf2</ns0:outgoing>
+    </ns0:serviceTask>
+    <ns0:sendTask id="IP_SendCRMRequest" name="Передать запрос в CRM/Loyalty" messageRef="Message_DiscountRequest">
+      <ns0:incoming>ipf2</ns0:incoming>
+      <ns0:outgoing>ipf3</ns0:outgoing>
+    </ns0:sendTask>
+    <ns0:receiveTask id="IP_WaitCRM" name="Ожидать результат расчёта CRM/Loyalty" messageRef="Message_DiscountResponse">
+      <ns0:incoming>ipf3</ns0:incoming>
+      <ns0:outgoing>ipf4</ns0:outgoing>
+    </ns0:receiveTask>
+    <ns0:sendTask id="IP_ReturnPOS" name="Вернуть результат расчёта в POS" messageRef="Message_DiscountResponse">
+      <ns0:incoming>ipf4</ns0:incoming>
+      <ns0:outgoing>ipf5</ns0:outgoing>
+    </ns0:sendTask>
+    <ns0:endEvent id="IP_LoyaltyEnd" name="Ответ доставлен в POS">
+      <ns0:incoming>ipf5</ns0:incoming>
+    </ns0:endEvent>
+    <ns0:sequenceFlow id="ipf1" sourceRef="IP_LoyaltyStart" targetRef="IP_RouteDiscount" />
+    <ns0:sequenceFlow id="ipf2" sourceRef="IP_RouteDiscount" targetRef="IP_SendCRMRequest" />
+    <ns0:sequenceFlow id="ipf3" sourceRef="IP_SendCRMRequest" targetRef="IP_WaitCRM" />
+    <ns0:sequenceFlow id="ipf4" sourceRef="IP_WaitCRM" targetRef="IP_ReturnPOS" />
+    <ns0:sequenceFlow id="ipf5" sourceRef="IP_ReturnPOS" targetRef="IP_LoyaltyEnd" />
+    <ns0:startEvent id="IP_SyncStart" name="Пакет Outbox от POS получен">
+      <ns0:outgoing>ipf6</ns0:outgoing>
+      <ns0:messageEventDefinition id="IP_SyncStart_Message" messageRef="Message_SaleBatch" />
+    </ns0:startEvent>
+    <ns0:serviceTask id="IP_RouteSync" name="Передать продажи и движения в целевые системы">
+      <ns0:incoming>ipf6</ns0:incoming>
+      <ns0:outgoing>ipf7</ns0:outgoing>
+    </ns0:serviceTask>
+    <ns0:endEvent id="IP_SyncEnd" name="Пакет передан адресатам">
+      <ns0:incoming>ipf7</ns0:incoming>
+    </ns0:endEvent>
+    <ns0:sequenceFlow id="ipf6" sourceRef="IP_SyncStart" targetRef="IP_RouteSync" />
+    <ns0:sequenceFlow id="ipf7" sourceRef="IP_RouteSync" targetRef="IP_SyncEnd" />
+  </ns0:process>
+  <ns0:process id="Process_CRM_Loyalty" name="Расчёт персональной скидки CRM/Loyalty" isExecutable="false">
+    <ns0:startEvent id="CRM_LoyaltyStart" name="Запрос скидки от IS-07 получен">
+      <ns0:outgoing>crmf1</ns0:outgoing>
+      <ns0:messageEventDefinition id="CRM_LoyaltyStart_Message" messageRef="Message_DiscountRequest" />
+    </ns0:startEvent>
+    <ns0:serviceTask id="CRMQuote" name="Рассчитать персональную скидку по правилам CRM/Loyalty">
+      <ns0:incoming>crmf1</ns0:incoming>
+      <ns0:outgoing>crmf2</ns0:outgoing>
+    </ns0:serviceTask>
+    <ns0:sendTask id="CRM_SendLoyalty" name="Вернуть результат расчёта в IS-07" messageRef="Message_DiscountResponse">
+      <ns0:incoming>crmf2</ns0:incoming>
+      <ns0:outgoing>crmf3</ns0:outgoing>
+    </ns0:sendTask>
+    <ns0:endEvent id="CRM_LoyaltyEnd" name="Расчёт скидки завершён">
+      <ns0:incoming>crmf3</ns0:incoming>
+    </ns0:endEvent>
+    <ns0:sequenceFlow id="crmf1" sourceRef="CRM_LoyaltyStart" targetRef="CRMQuote" />
+    <ns0:sequenceFlow id="crmf2" sourceRef="CRMQuote" targetRef="CRM_SendLoyalty" />
+    <ns0:sequenceFlow id="crmf3" sourceRef="CRM_SendLoyalty" targetRef="CRM_LoyaltyEnd" />
+  </ns0:process>
+  <ns2:BPMNDiagram id="Diagram_Sales_TOBE">
+    <ns2:BPMNPlane id="Plane_Sales_TOBE" bpmnElement="Collaboration_Sales_TOBE">
+      <ns2:BPMNShape id="Participant_Sales_di" bpmnElement="Participant_Sales" isHorizontal="true">
+        <ns3:Bounds x="0" y="-30" width="3050" height="500" />
+        <ns2:BPMNLabel />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Lane_POS_di" bpmnElement="Lane_POS" isHorizontal="true">
+        <ns3:Bounds x="50" y="230" width="3000" height="240" />
+        <ns2:BPMNLabel />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Lane_Consultant_di" bpmnElement="Lane_Consultant" isHorizontal="true">
+        <ns3:Bounds x="50" y="135" width="3000" height="95" />
+        <ns2:BPMNLabel />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Lane_Buyer_di" bpmnElement="Lane_Buyer" isHorizontal="true">
+        <ns3:Bounds x="50" y="-30" width="3000" height="165" />
+        <ns2:BPMNLabel />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Scan_di" bpmnElement="Scan">
+        <ns3:Bounds x="700" y="320" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Internet_di" bpmnElement="Internet" isMarkerVisible="true">
+        <ns3:Bounds x="850" y="335" width="50" height="50" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="837" y="285" width="76" height="40" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="OfflineDiscount_di" bpmnElement="OfflineDiscount">
+        <ns3:Bounds x="960" y="380" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="DiscountMerge_di" bpmnElement="DiscountMerge" isMarkerVisible="true">
+        <ns3:Bounds x="1730" y="335" width="50" height="50" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Package_di" bpmnElement="Package" isMarkerVisible="true">
+        <ns3:Bounds x="1820" y="335" width="50" height="50" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="ApplyDiscount_di" bpmnElement="ApplyDiscount">
+        <ns3:Bounds x="1920" y="320" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="PayMerge_di" bpmnElement="PayMerge" isMarkerVisible="true">
+        <ns3:Bounds x="2070" y="335" width="50" height="50" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="PayMode_di" bpmnElement="PayMode" isMarkerVisible="true">
+        <ns3:Bounds x="2160" y="335" width="50" height="50" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="2099" y="423" width="81" height="14" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="OfflinePay_di" bpmnElement="OfflinePay">
+        <ns3:Bounds x="2250" y="370" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="PayJoin_di" bpmnElement="PayJoin" isMarkerVisible="true">
+        <ns3:Bounds x="2400" y="335" width="50" height="50" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Fiscal_di" bpmnElement="Fiscal">
+        <ns3:Bounds x="2490" y="320" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Queue_di" bpmnElement="Queue">
+        <ns3:Bounds x="2630" y="320" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Handover_di" bpmnElement="Handover">
+        <ns3:Bounds x="2780" y="320" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="End_di" bpmnElement="End">
+        <ns3:Bounds x="2920" y="342" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="ConsultGate_di" bpmnElement="ConsultGate" isMarkerVisible="true">
+        <ns3:Bounds x="300" y="70" width="50" height="50" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="287" y="129.5" width="75" height="27" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="RequestDiscount_di" bpmnElement="RequestDiscount">
+        <ns3:Bounds x="1050" y="280" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="OnlinePay_di" bpmnElement="OnlinePay">
+        <ns3:Bounds x="2250" y="250" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Consultation_di" bpmnElement="Consultation">
+        <ns3:Bounds x="440" y="150" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Select_di" bpmnElement="Select">
+        <ns3:Bounds x="150" y="20" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Start_di" bpmnElement="Start">
+        <ns3:Bounds x="80" y="42" width="36" height="36" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="54" y="78" width="89" height="27" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="NoPackage_di" bpmnElement="NoPackage">
+        <ns3:Bounds x="1920" y="30" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="ConsultMerge_di" bpmnElement="ConsultMerge" isMarkerVisible="true">
+        <ns3:Bounds x="605" y="25" width="50" height="50" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="DiscountReceived_di" bpmnElement="DiscountReceived">
+        <ns3:Bounds x="1580" y="280" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNEdge id="f1_di" bpmnElement="f1">
+        <ns4:waypoint x="116" y="60" />
+        <ns4:waypoint x="150" y="60" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f2_di" bpmnElement="f2">
+        <ns4:waypoint x="250" y="60" />
+        <ns4:waypoint x="275" y="60" />
+        <ns4:waypoint x="275" y="95" />
+        <ns4:waypoint x="300" y="95" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f2a_di" bpmnElement="f2a">
+        <ns4:waypoint x="325" y="70" />
+        <ns4:waypoint x="325" y="50" />
+        <ns4:waypoint x="400" y="50" />
+        <ns4:waypoint x="400" y="190" />
+        <ns4:waypoint x="440" y="190" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="329" y="48" width="85" height="14" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f2b_di" bpmnElement="f2b">
+        <ns4:waypoint x="350" y="95" />
+        <ns4:waypoint x="380" y="95" />
+        <ns4:waypoint x="380" y="150" />
+        <ns4:waypoint x="630" y="150" />
+        <ns4:waypoint x="630" y="75" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="379" y="113" width="85" height="14" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f2c_di" bpmnElement="f2c">
+        <ns4:waypoint x="540" y="190" />
+        <ns4:waypoint x="570" y="190" />
+        <ns4:waypoint x="570" y="50" />
+        <ns4:waypoint x="605" y="50" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f3_di" bpmnElement="f3">
+        <ns4:waypoint x="655" y="50" />
+        <ns4:waypoint x="680" y="50" />
+        <ns4:waypoint x="680" y="360" />
+        <ns4:waypoint x="700" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f3a_di" bpmnElement="f3a">
+        <ns4:waypoint x="800" y="360" />
+        <ns4:waypoint x="850" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f4_di" bpmnElement="f4">
+        <ns4:waypoint x="900" y="360" />
+        <ns4:waypoint x="955" y="360" />
+        <ns4:waypoint x="955" y="320" />
+        <ns4:waypoint x="1050" y="320" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="932" y="339" width="85" height="14" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f5_di" bpmnElement="f5">
+        <ns4:waypoint x="875" y="385" />
+        <ns4:waypoint x="875" y="420" />
+        <ns4:waypoint x="960" y="420" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="847" y="408" width="85" height="14" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f6c_di" bpmnElement="f6c">
+        <ns4:waypoint x="1680" y="320" />
+        <ns4:waypoint x="1705" y="320" />
+        <ns4:waypoint x="1705" y="360" />
+        <ns4:waypoint x="1730" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f7_di" bpmnElement="f7">
+        <ns4:waypoint x="1060" y="420" />
+        <ns4:waypoint x="1730" y="420" />
+        <ns4:waypoint x="1755" y="420" />
+        <ns4:waypoint x="1755" y="385" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f8_di" bpmnElement="f8">
+        <ns4:waypoint x="1780" y="360" />
+        <ns4:waypoint x="1820" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f9_di" bpmnElement="f9">
+        <ns4:waypoint x="1870" y="360" />
+        <ns4:waypoint x="1920" y="360" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="1874" y="338" width="85" height="18" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f10_di" bpmnElement="f10">
+        <ns4:waypoint x="1845" y="335" />
+        <ns4:waypoint x="1845" y="70" />
+        <ns4:waypoint x="1920" y="70" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="1804" y="315" width="85" height="14" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f11_di" bpmnElement="f11">
+        <ns4:waypoint x="2020" y="360" />
+        <ns4:waypoint x="2070" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f12_di" bpmnElement="f12">
+        <ns4:waypoint x="2020" y="70" />
+        <ns4:waypoint x="2095" y="70" />
+        <ns4:waypoint x="2095" y="335" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f13_di" bpmnElement="f13">
+        <ns4:waypoint x="2120" y="360" />
+        <ns4:waypoint x="2160" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f14_di" bpmnElement="f14">
+        <ns4:waypoint x="2185" y="335" />
+        <ns4:waypoint x="2185" y="290" />
+        <ns4:waypoint x="2250" y="290" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="2189" y="283" width="85" height="14" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f15_di" bpmnElement="f15">
+        <ns4:waypoint x="2185" y="385" />
+        <ns4:waypoint x="2185" y="410" />
+        <ns4:waypoint x="2250" y="410" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="2189" y="363" width="85" height="18" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f16_di" bpmnElement="f16">
+        <ns4:waypoint x="2350" y="290" />
+        <ns4:waypoint x="2380" y="290" />
+        <ns4:waypoint x="2380" y="360" />
+        <ns4:waypoint x="2400" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f17_di" bpmnElement="f17">
+        <ns4:waypoint x="2350" y="410" />
+        <ns4:waypoint x="2425" y="410" />
+        <ns4:waypoint x="2425" y="385" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f18_di" bpmnElement="f18">
+        <ns4:waypoint x="2450" y="360" />
+        <ns4:waypoint x="2490" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f19_di" bpmnElement="f19">
+        <ns4:waypoint x="2590" y="360" />
+        <ns4:waypoint x="2630" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f20_di" bpmnElement="f20">
+        <ns4:waypoint x="2730" y="360" />
+        <ns4:waypoint x="2780" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f21_di" bpmnElement="f21">
+        <ns4:waypoint x="2880" y="360" />
+        <ns4:waypoint x="2920" y="360" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="f4a_di" bpmnElement="f4a">
+        <ns4:waypoint x="1150" y="320" />
+        <ns4:waypoint x="1580" y="320" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNShape id="Participant_Sync_di" bpmnElement="Participant_Sync" isHorizontal="true">
+        <ns3:Bounds x="0" y="840" width="3050" height="120" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Lane_Sync_POS_di" bpmnElement="Lane_Sync_POS" isHorizontal="true">
+        <ns3:Bounds x="50" y="840" width="3000" height="120" />
+        <ns2:BPMNLabel />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="ReconnectStart_di" bpmnElement="ReconnectStart">
+        <ns3:Bounds x="2200" y="882" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="SyncEnd_di" bpmnElement="SyncEnd">
+        <ns3:Bounds x="2430" y="882" width="36" height="36" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="2411" y="920" width="74" height="40" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="Sync_di" bpmnElement="Sync">
+        <ns3:Bounds x="2280" y="860" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNEdge id="sf1_di" bpmnElement="sf1">
+        <ns4:waypoint x="2236" y="900" />
+        <ns4:waypoint x="2280" y="900" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="sf2_di" bpmnElement="sf2">
+        <ns4:waypoint x="2380" y="900" />
+        <ns4:waypoint x="2430" y="900" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNShape id="Participant_IS07_di" bpmnElement="Participant_IS07" isHorizontal="true">
+        <ns3:Bounds x="50" y="500" width="3000" height="140" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_LoyaltyStart_di" bpmnElement="IP_LoyaltyStart">
+        <ns3:Bounds x="1000" y="552" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_RouteDiscount_di" bpmnElement="IP_RouteDiscount">
+        <ns3:Bounds x="1080" y="530" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_SendCRMRequest_di" bpmnElement="IP_SendCRMRequest">
+        <ns3:Bounds x="1220" y="530" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_WaitCRM_di" bpmnElement="IP_WaitCRM">
+        <ns3:Bounds x="1360" y="530" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_ReturnPOS_di" bpmnElement="IP_ReturnPOS">
+        <ns3:Bounds x="1500" y="530" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_LoyaltyEnd_di" bpmnElement="IP_LoyaltyEnd">
+        <ns3:Bounds x="1660" y="552" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_SyncStart_di" bpmnElement="IP_SyncStart">
+        <ns3:Bounds x="2200" y="552" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_RouteSync_di" bpmnElement="IP_RouteSync">
+        <ns3:Bounds x="2290" y="530" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="IP_SyncEnd_di" bpmnElement="IP_SyncEnd">
+        <ns3:Bounds x="2450" y="552" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNEdge id="ipf1_di" bpmnElement="ipf1">
+        <ns4:waypoint x="1036" y="570" />
+        <ns4:waypoint x="1080" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="ipf2_di" bpmnElement="ipf2">
+        <ns4:waypoint x="1180" y="570" />
+        <ns4:waypoint x="1220" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="ipf3_di" bpmnElement="ipf3">
+        <ns4:waypoint x="1320" y="570" />
+        <ns4:waypoint x="1360" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="ipf4_di" bpmnElement="ipf4">
+        <ns4:waypoint x="1460" y="570" />
+        <ns4:waypoint x="1500" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="ipf5_di" bpmnElement="ipf5">
+        <ns4:waypoint x="1600" y="570" />
+        <ns4:waypoint x="1660" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="ipf6_di" bpmnElement="ipf6">
+        <ns4:waypoint x="2236" y="570" />
+        <ns4:waypoint x="2290" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="ipf7_di" bpmnElement="ipf7">
+        <ns4:waypoint x="2390" y="570" />
+        <ns4:waypoint x="2450" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNShape id="Participant_CRM_di" bpmnElement="Participant_CRM" isHorizontal="true">
+        <ns3:Bounds x="50" y="660" width="3000" height="140" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="CRM_LoyaltyStart_di" bpmnElement="CRM_LoyaltyStart">
+        <ns3:Bounds x="1360" y="712" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="CRMQuote_di" bpmnElement="CRMQuote">
+        <ns3:Bounds x="1450" y="690" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="CRM_SendLoyalty_di" bpmnElement="CRM_SendLoyalty">
+        <ns3:Bounds x="1600" y="690" width="100" height="80" />
+      </ns2:BPMNShape>
+      <ns2:BPMNShape id="CRM_LoyaltyEnd_di" bpmnElement="CRM_LoyaltyEnd">
+        <ns3:Bounds x="1760" y="712" width="36" height="36" />
+      </ns2:BPMNShape>
+      <ns2:BPMNEdge id="crmf1_di" bpmnElement="crmf1">
+        <ns4:waypoint x="1396" y="730" />
+        <ns4:waypoint x="1450" y="730" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="crmf2_di" bpmnElement="crmf2">
+        <ns4:waypoint x="1550" y="730" />
+        <ns4:waypoint x="1600" y="730" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="crmf3_di" bpmnElement="crmf3">
+        <ns4:waypoint x="1700" y="730" />
+        <ns4:waypoint x="1760" y="730" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="MF_POS_IP_DiscountRequest_di" bpmnElement="MF_POS_IP_DiscountRequest">
+        <ns4:waypoint x="1150" y="320" />
+        <ns4:waypoint x="1180" y="320" />
+        <ns4:waypoint x="1180" y="570" />
+        <ns4:waypoint x="1018" y="570" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="MF_IP_CRM_DiscountRequest_di" bpmnElement="MF_IP_CRM_DiscountRequest">
+        <ns4:waypoint x="1320" y="570" />
+        <ns4:waypoint x="1340" y="570" />
+        <ns4:waypoint x="1340" y="730" />
+        <ns4:waypoint x="1378" y="730" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="MF_CRM_IP_DiscountResponse_di" bpmnElement="MF_CRM_IP_DiscountResponse">
+        <ns4:waypoint x="1700" y="730" />
+        <ns4:waypoint x="1740" y="730" />
+        <ns4:waypoint x="1740" y="640" />
+        <ns4:waypoint x="1410" y="640" />
+        <ns4:waypoint x="1410" y="610" />
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="MF_IP_POS_DiscountResponse_di" bpmnElement="MF_IP_POS_DiscountResponse">
+        <ns4:waypoint x="1600" y="570" />
+        <ns4:waypoint x="1700" y="570" />
+        <ns4:waypoint x="1700" y="360" />
+        <ns4:waypoint x="1630" y="360" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="1675" y="456" width="80" height="27" />
+        </ns2:BPMNLabel>
+      </ns2:BPMNEdge>
+      <ns2:BPMNEdge id="MF_POS_IP_SaleBatch_di" bpmnElement="MF_POS_IP_SaleBatch">
+        <ns4:waypoint x="2380" y="900" />
+        <ns4:waypoint x="2420" y="900" />
+        <ns4:waypoint x="2420" y="720" />
+        <ns4:waypoint x="2218" y="720" />
+        <ns4:waypoint x="2218" y="570" />
+      </ns2:BPMNEdge>
+    </ns2:BPMNPlane>
+  </ns2:BPMNDiagram>
+</ns0:definitions>
