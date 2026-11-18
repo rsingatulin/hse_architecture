@@ -8,13 +8,20 @@ skinparam maxMessageSize 220
 autonumber
 
 title
-RetailMax — Кассовое приложение
+RetailMax: кассовое приложение
 UML Sequence Diagram (TO-BE, ADR-001)
-Взаимодействие компонентов при продаже по карте лояльности
+Продажа по карте лояльности: персональные скидки CRM хранятся в POS локально,
+все обмены идут только через Integration Platform (IS-07)
 end title
 
 ' ==========================================
 ' Участники (по C4 Container, UML Component и ADR-001)
+' Изменения относительно AS-IS:
+'  1. новый компонент Local Cache хранит только персональные скидки CRM
+'     и периодически подгружает их через IS-07 (ADR-001 от 12.11.2026);
+'  2. IS-07 показана отдельно от CRM и ERP: касса не обращается
+'     к CRM и ERP напрямую, все вызовы и события идут через IS-07;
+'  3. факт продажи уходит через очередь отправки с повтором.
 ' ==========================================
 
 actor "Кассир" as Cashier
@@ -23,7 +30,7 @@ box "Кассовое приложение <<container>>" #F3F6FA
   participant "Cashier UI" as UI
   participant "Sale\nProcessing" as Sale
   participant "Discount & Loyalty\nHandling" as Loyalty
-  participant "Local Cache\n(новый, ADR-001)" as Cache #E8F5E9
+  participant "Local Cache\nскидок CRM\n(новый, ADR-001)" as Cache #E8F5E9
   participant "Integration\nAdapter" as Integration
   participant "Fiscal\nAdapter" as FiscalAdapter
   participant "POS Data\nAccess" as DataAccess
@@ -31,22 +38,39 @@ end box
 
 participant "Фискальный\nмодуль" as Fiscal
 database "БД POS" as POS_DB
-participant "Integration Platform\n(IS-07)\nCRM, ERP" as IP
+participant "Integration Platform\n(IS-07)" as IP #D8F0EC
+participant "CRM\n(IS-02)" as CRM
+participant "ERP\n(IS-01)" as ERP
 
 ' ==========================================
-' 0. Периодическая подгрузка данных
+' 0. Периодическая подгрузка персональных скидок
 ' ==========================================
 
-== Фоновая синхронизация (каждые 5 минут и по событиям) ==
+== Подгрузка персональных скидок из CRM (фоном, вне продажи) ==
 
-loop периодически, вне продажи
-  Cache -> Integration : запросить изменения\nцен, акций и бонусов
-  Integration -> IP : изменения с момента\nпоследней синхронизации
-  IP --> Integration : новые цены, акции,\nуровни и балансы
-  Integration --> Cache : изменения
-  Cache -> DataAccess : обновить локальный кэш
-  DataAccess -> POS_DB : UPSERT кэш
+opt CRM изменила персональные скидки
+  CRM -> IP : пакет скидок магазина\nобновлен (EVT-28)
+  IP -> Integration : уведомление\nо новой версии пакета
+  Integration -> Cache : запустить внеплановую подгрузку
 end
+
+loop каждые 5 минут и сразу после уведомления
+  Cache -> Integration : запросить изменения скидок\nс версии пакета N
+  Integration -> IP : изменения пакета скидок\nдля магазина (API-32)
+  IP -> CRM : запрос с проверкой\nправ магазина
+  CRM --> IP : правила скидок по картам,\nверсия N+1, срок действия
+  IP --> Integration : пакет скидок
+  Integration --> Cache : пакет скидок
+  Cache -> DataAccess : сохранить пакет
+  DataAccess -> POS_DB : UPSERT правил скидок и версии\nв одной транзакции
+end
+
+note over Cache, IP
+  Если IS-07 или CRM недоступны, касса работает
+  на последнем загруженном пакете до окончания
+  его срока действия. Балансы бонусов и цены
+  в Local Cache не хранятся.
+end note
 
 ' ==========================================
 ' 1. Сканирование товаров
@@ -56,39 +80,80 @@ end
 
 Cashier -> UI : сканирует товары
 UI -> Sale : начать продажу, добавить позиции
-Sale -> Cache : цены и акции
-Cache --> Sale : цены и акции из кэша
+Sale -> Integration : запросить цены и акции
+Integration -> IP : цены и акции по позициям (API-03)
+IP -> ERP : цены и общие акции
+ERP --> IP : цены и акции
+IP --> Integration : цены и акции
+Integration --> Sale : цены и акции
 Sale --> UI : состав и сумма чека
 
+note right of IP
+  Цены и общие акции ведет ERP,
+  как в AS-IS. Изменение: касса
+  получает их только через IS-07.
+  Кэширование цен в наш TO-BE
+  не входит.
+end note
+
 ' ==========================================
-' 2. Карта лояльности
+' 2. Персональная скидка по карте
 ' ==========================================
 
-== Применение скидок и бонусов ==
+== Применение персональной скидки ==
 
 Cashier -> UI : сканирует карту лояльности
 UI -> Sale : добавить карту в чек
-Sale -> Loyalty : применить скидки и бонусы
-Loyalty -> Integration : уточнить баланс в CRM\n(таймаут 2 секунды)
-Integration -> IP : уровень и баланс (CRM)
+Sale -> Loyalty : применить персональную скидку
+Loyalty -> Cache : правила скидки по карте
+Cache -> DataAccess : найти карту в пакете
+DataAccess -> POS_DB : SELECT правила по карте
+POS_DB --> DataAccess : правила, версия, срок действия
+DataAccess --> Cache : правила по карте
 
-alt CRM ответила за 2 секунды
-  IP --> Integration : уровень, баланс, скидка
-  Integration --> Loyalty : актуальные данные
-  Loyalty -> Cache : обновить карту клиента
-else CRM не ответила
-  IP --> Integration : таймаут
-  Integration --> Loyalty : таймаут
-  Loyalty -> Cache : уровень и баланс клиента
-  Cache --> Loyalty : данные из кэша,\nпометка «не подтверждено»
-  note right of Loyalty
-    Продажа не ждет CRM.
-    Закрывает проблему INT-02
-  end note
+alt пакет действует
+  Cache --> Loyalty : правила скидки\nи версия пакета
+  Loyalty -> Loyalty : рассчитать скидку по позициям\n(0, если правила для карты нет)
+else срок действия пакета истек
+  Cache --> Loyalty : пакет устарел
+  Loyalty --> Sale : персональная скидка недоступна
+  Sale --> UI : предупреждение
+  UI --> Cashier : продолжить без персональной скидки\nс согласия покупателя
 end
 
-Loyalty -> Loyalty : рассчитать скидку\nи доступные бонусы
-Loyalty --> Sale : скидка и бонусы
+note right of Loyalty
+  CRM в момент продажи не вызывается.
+  Время применения скидки не зависит
+  от CRM и связи с центром
+  (проблемы 3 и 4, INT-02).
+end note
+
+' ==========================================
+' 2а. Списание бонусов (только онлайн)
+' ==========================================
+
+opt покупатель оплачивает часть покупки бонусами
+  Loyalty -> Integration : зарезервировать бонусы\n(таймаут 2 секунды)
+  Integration -> IP : резерв бонусов (API-17)
+  IP -> CRM : проверить баланс\nи зарезервировать
+
+  alt CRM ответила вовремя
+    CRM --> IP : резерв создан, сумма
+    IP --> Integration : резерв бонусов
+    Integration --> Loyalty : подтвержденная сумма
+  else нет связи или таймаут
+    IP --> Integration : таймаут
+    Integration --> Loyalty : резерв не создан
+    note right of Loyalty
+      Бонусы без подтверждения CRM
+      не списываются: баланс общий
+      для всех каналов. Покупка
+      продолжается без списания.
+    end note
+  end
+end
+
+Loyalty --> Sale : скидка и сумма бонусов
 Sale --> UI : итог чека
 UI --> Cashier : сумма к оплате
 
@@ -104,8 +169,8 @@ Sale -> FiscalAdapter : сформировать фискальный чек
 FiscalAdapter -> Fiscal : печать и фискализация,\nAPI драйвера
 Fiscal --> FiscalAdapter : чек напечатан
 FiscalAdapter --> Sale : ok
-Sale -> DataAccess : сохранить продажу и чек,\nпоставить в очередь отправки
-DataAccess -> POS_DB : INSERT чек, операция,\nзапись в очередь
+Sale -> DataAccess : сохранить продажу, чек, основание\nскидки и запись в очередь отправки
+DataAccess -> POS_DB : INSERT чек, версия пакета и правило\nскидки, запись в очередь (одна транзакция)
 POS_DB --> DataAccess : ok
 Sale --> UI : продажа завершена
 UI --> Cashier : продажа завершена
@@ -118,20 +183,28 @@ UI --> Cashier : продажа завершена
 
 loop пока есть неотправленные продажи
   Integration -> DataAccess : взять продажу из очереди
-  DataAccess --> Integration : продажа (ключ = номер чека)
-  Integration -> IP : продажа (ERP), продажа по карте (CRM)
+  DataAccess --> Integration : продажа, saleId\n(магазин, касса, номер чека)
+  Integration -> IP : событие «продажа завершена» (EVT-16)
 
-  alt системы приняли
-    IP --> Integration : ok, новый баланс бонусов
+  alt IS-07 приняла событие
+    IP --> Integration : принято
     Integration -> DataAccess : отметить отправленной
-    Integration -> Cache : обновить баланс клиента
-  else ошибка или нет связи
-    IP --> Integration : ошибка
+    par доставка в ERP
+      IP -> ERP : продажа для учета
+    else доставка в CRM
+      IP -> CRM : покупка по карте и основание скидки,\nсписание резерва бонусов, начисление
+    end
+    note right of IP
+      IS-07 повторяет доставку в ERP и CRM
+      до подтверждения. Повтор с тем же
+      saleId не задваивает продажу
+      и бонусы (INT-01).
+    end note
+  else нет связи или ошибка
+    IP --> Integration : ошибка или нет ответа
     note right of Integration
       Продажа остается в очереди
       и уйдет при следующей попытке.
-      Повтор с тем же ключом не
-      задваивает бонусы (INT-01)
     end note
   end
 end
