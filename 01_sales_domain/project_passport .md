@@ -15,9 +15,24 @@
 
 ## 2. Ссылки на артефакты проекта
 
-- [Стейкхолдеры](<01_sales_domain\01_Business_Architecture\Stakeholders\Stakeholders.md>)
-- [Бизнес процесс оффлайн продаж](<01_sales_domain\01_Business_Architecture\Business_Process\BP-01_offline_sales.svg>)
-- [Требования](<01_sales_domain\01_Business_Architecture\Requirements\REQ-001-sales-requirements.md>)
+- [Стейкхолдеры](01_Business_Architecture/Stakeholders/Stakeholders.md)
+- [Бизнес-процесс офлайн-продаж](06_Architecture_Models/BPMN/BP-01_offline_sales.svg)
+- [Требования](01_Business_Architecture/Requirements/REQ-001-sales-requirements.md)
+- [Взаимодействие сервисов продаж](02_Application_Architecture/Integrations/sales_services_interaction.svg)
+- [Архитектурные решения](05_Architecture_Decisions/ADR/ADR-001.md)
+- BPMN:
+  - [Офлайн-продажи AS-IS — схема](06_Architecture_Models/BPMN/BP-01_offline_sales.svg)
+  - [Офлайн-продажи TO-BE — схема](06_Architecture_Models/BPMN/BP-01_offline_sales_TO_BE.svg)
+- UML:
+  - [Компоненты продаж](06_Architecture_Models/UML/update_sales_components_UML.svg)
+  - [Последовательность продаж AS-IS](06_Architecture_Models/UML/sales_sequence_UML_AS_IS.svg)
+  - [Последовательность продаж TO-BE](06_Architecture_Models/UML/sales_sequence_UML_TO_BE.svg)
+- C4:
+  - [Контекст AS-IS](06_Architecture_Models/C4/ContextLevel_as-is%20v2.svg)
+  - [Контекст TO-BE](06_Architecture_Models/C4/ContextLevel_to-be_v2.svg)
+  - [Контейнеры](06_Architecture_Models/C4/C4_Containers.svg)
+- ArchiMate:
+  - [Модель домена продаж](06_Architecture_Models/ArchiMate/Archi_Sales_Domain_v3.svg)
 
 ## 3. Состав команды и роли
 
