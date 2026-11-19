@@ -1,0 +1,87 @@
+@startuml cmp_crm_container
+title CD-01. UML Component Diagram — контейнер «CRM» домена Retention (As-Is)\n(декомпозиция по C4 Container As-Is: монолит CRM)
+
+skinparam componentStyle rectangle
+skinparam rectangleRoundCorner 0
+skinparam shadowing false
+
+' === Внешние системы ===
+component "POS\n<<внешняя система>>" as POS
+component "Интернет-магазин\n<<внешняя система>>" as Shop
+component "ERP\n<<внешняя система>>" as ERP
+component "Каналы коммуникаций\n(email / SMS / push)\n<<внешняя система>>" as CH
+component "Интеграционная\nплатформа" as GW
+component "BI-система" as BI
+database "БД CRM" as CRMDB
+database "БД BI\n(аналитические витрины)" as BIDB
+
+' === Контейнер CRM (декомпозиция монолита) ===
+package "CRM (монолит) — контейнер домена Retention" {
+
+    component "API-адаптер" as ApiAdapter {
+    }
+
+    component "Управление профилем\nклиента" as Profile
+
+    component "Программа лояльности\n(бонусные счета)" as Loyalty
+
+    component "Маркетинговые кампании\nи персональные предложения" as Campaign
+
+    component "ETL-выгрузка\nданных" as Etl
+
+    component "Слой доступа\nк данным" as Dao
+}
+
+' === Предоставляемые интерфейсы (lollipop) ===
+interface "ICustomerAPI\n(REST: клиент, бонусы,\nпредложения)" as iCustomerApi
+interface "IOrderAPI\n(заказы, покупки)" as iOrderApi
+interface "ICampaignManagement\n(акции, правила)" as iCampaign
+interface "IDataExport\n(выгрузка в витрины)" as iExport
+interface "IProfileStore" as iProfileStore
+interface "IBonusStore" as iBonusStore
+interface "IPurchaseStore" as iPurchaseStore
+interface "ISQL\n(JDBC/SQL)" as iSql
+interface "ISendMessage\n(email/SMS/push)" as iSend
+
+actor "Маркетолог" as Marketer
+
+' === Предоставление интерфейсов ===
+ApiAdapter -- iCustomerApi
+ApiAdapter -- iOrderApi
+Dao -- iProfileStore
+Dao -- iBonusStore
+Dao -- iPurchaseStore
+Etl -- iExport
+CRMDB -- iSql
+Campaign -- iCampaign
+CH -- iSend
+
+' === Требуемые интерфейсы (socket) ===
+GW --( iCustomerApi
+Shop --( iOrderApi
+Marketer --( iCampaign
+BIDB --( iExport
+Profile --( iProfileStore
+Loyalty --( iBonusStore
+Loyalty --( iProfileStore
+Campaign --( iProfileStore
+Campaign --( iSend
+Etl --( iProfileStore
+Etl --( iBonusStore
+Etl --( iPurchaseStore
+Dao --( iSql
+
+' === Взаимодействие с внешним контуром ===
+POS --> GW : запрос\nклиента и бонусов
+BI -- BIDB : JDBC/SQL\nчтение витрин
+ERP -- BIDB : ETL\n(продажи и закупки)
+
+ApiAdapter ..> Profile
+ApiAdapter ..> Loyalty
+Profile ..> Loyalty : бонусы\nи сегменты
+Loyalty ..> Campaign : триггеры\nкатегорий
+Campaign ..> Etl : результаты\nкампаний
+Profile ..> Dao
+Loyalty ..> Dao
+Etl ..> Dao
+@enduml

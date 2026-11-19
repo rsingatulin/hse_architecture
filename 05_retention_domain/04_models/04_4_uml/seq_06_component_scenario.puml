@@ -1,0 +1,60 @@
+@startuml seq_06_component_scenario
+title SEQ-06. Покупка на кассе -> персональное предложение — на уровне компонентов CRM (As-Is)\n(сценарий SEQ-01 на компонентах из CD-01 cmp_crm_container.puml)
+
+autonumber
+skinparam responseMessageBelowArrow true
+
+actor "Клиент" as Client
+actor "Кассир" as Cashier
+participant "POS\n<<внешняя система>>" as POS
+participant "Интеграционная\nплатформа" as GW
+participant "API-адаптер" as ApiAdapter
+participant "Программа лояльности\n(бонусные счета)" as Loyalty
+participant "Управление профилем\nклиента" as Profile
+participant "Слой доступа\nк данным" as Dao
+database "БД CRM" as CRMDB
+participant "ETL-выгрузка\nданных" as Etl
+database "БД BI\n(аналитические витрины)" as BIDB
+participant "BI-система" as BI
+participant "Маркетинговые кампании\nи персональные предложения" as Campaign
+participant "Каналы коммуникаций\n(email / SMS / push)\n<<внешняя система>>" as CH
+
+== Совершение покупки ==
+Client -> Cashier : Покупка, предъявляет карту лояльности
+Cashier -> POS : Проведение чека
+POS -> GW : Передача данных о покупке
+GW -> ApiAdapter : ICustomerAPI\n(регистрация покупки)
+ApiAdapter -> Loyalty : Расчет правил лояльности
+Loyalty -> Dao : IBonusStore / IPurchaseStore
+Dao -> CRMDB : ISQL — запись чека,\nначисление бонусов
+CRMDB --> Dao : Подтверждение
+Dao --> Loyalty : Подтверждение
+Loyalty --> ApiAdapter : Бонусы начислены
+ApiAdapter --> GW : Подтверждение
+GW --> POS : Чек закрыт
+
+== Обновление аналитического контура ==
+Etl -> Dao : IProfileStore / IBonusStore /\nIPurchaseStore — выборка изменений
+Dao --> Etl : Данные о клиентах, бонусах, покупках
+Etl -> BIDB : IDataExport\n(обновление витрин)
+BI -> BIDB : Чтение витрин, пересчет метрик\n(retention, RFM), AI-скоринг
+BI -> ApiAdapter : Передача метрик\nв профиль клиента
+ApiAdapter -> Profile : Запись метрик и сегмента
+Profile -> Dao : IProfileStore
+Dao -> CRMDB : ISQL — обновление профиля
+
+== Персональное предложение ==
+Profile -> Campaign : Актуальные метрики\nи сегмент клиента
+alt Условия назначения предложения выполнены
+    Campaign -> Campaign : Формирование\nперсонального предложения
+    Campaign -> ApiAdapter : Оффер для кассы\nи приложения
+    ApiAdapter --> GW : Передача данных о предложении
+    GW --> POS : Оффер на кассе
+    Campaign -> CH : ISendMessage\n(сообщение клиенту)
+    CH -> Client : Push / SMS / email
+else Условия не выполнены
+    Campaign --> ApiAdapter : Предложение не назначено
+end
+
+Cashier --> Client : Завершение обслуживания
+@enduml
