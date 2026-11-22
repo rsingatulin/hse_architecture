@@ -1,0 +1,85 @@
+@startuml sales_components_UML_TO_BE_v2
+top to bottom direction
+
+' Основа: пользовательская sales_sequence_UML_TO_BE.puml.
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ArrowColor #475569
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam component {
+  BackgroundColor #F8FAFC
+  BorderColor #475569
+  BackgroundColor<<new>> #DCFCE7
+  BorderColor<<new>> #15803D
+}
+
+title
+RetailMax — Кассовое приложение
+UML Component Diagram (TO BE, ADR-001)
+Персональные скидки CRM хранятся локально в POS
+end title
+
+actor "Кассир" as Cashier
+
+package "POS (IS-04)" {
+  package "Кассовое приложение" {
+    component "Cashier UI" as UI
+    component "Sale Processing" as Sale
+    component "Discount & Loyalty\nHandling" as Loyalty
+    component "Local Cache\nскидок CRM" as Cache <<new>>
+    component "Integration Adapter" as Integration
+    component "Fiscal Adapter" as FiscalAdapter
+    component "POS Data Access" as DataAccess
+  }
+  database "БД POS\nПродажи, чеки, очередь отправки;\nправила скидок, версия и срок действия" as POS_DB
+  component "Фискальный модуль" as Fiscal
+}
+
+component "Integration Platform\n(IS-07)" as IP #DBEAFE
+component "CRM\n(IS-02)" as CRM
+component "ERP\n(IS-01)" as ERP
+
+Cashier --> UI : сканирует товары и карту,\nзакрывает чек
+UI --> Sale : начинает и изменяет продажу,\nзавершает чек
+Sale --> Loyalty : запрашивает персональную\nскидку и применение бонусов
+Loyalty -[#15803D,bold]-> Cache : получает локальные правила\nпо карте и срок действия
+Cache -[#15803D,bold]-> DataAccess : читает правила; сохраняет\nпакет и версию атомарно
+Cache -[#15803D,bold]-> Integration : запрашивает изменения скидок\nкаждые 5 минут
+Integration .[#15803D].> Cache : запускает подгрузку\nпо уведомлению о новой версии
+
+Sale --> Integration : запрашивает цены и акции
+Loyalty --> Integration : запрашивает онлайн-резерв бонусов
+Sale --> FiscalAdapter : формирует фискальный чек
+FiscalAdapter --> Fiscal : API драйвера
+Sale --> DataAccess : сохраняет продажу, чек, основание скидки\nи запись в очередь одной транзакцией
+Integration --> DataAccess : читает очередь; фиксирует\nподтверждение отправки
+DataAccess --> POS_DB : SQL
+
+Integration --> IP : API-03 — цены и акции;\nAPI-32 — пакет скидок;\nAPI-17 — резерв бонусов
+Integration ..> IP : EVT-16 — факт продажи;\nповтор до подтверждения
+IP --> CRM : API-32 — пакет скидок;\nAPI-17 — резерв бонусов
+IP --> ERP : API-03 — цены и акции
+IP ..> CRM : факт продажи и основание скидки\n(EVT-16)
+IP ..> ERP : факт продажи для учёта\n(EVT-16)
+CRM ..> IP : EVT-28 — новая версия\nпакета скидок
+IP ..> Integration : EVT-28 — уведомление\nдля подгрузки
+
+note bottom of Cache
+  Хранит персональные скидки CRM.
+  Расчёт скидки использует локальный пакет.
+  При сбое обновления доступна предыдущая
+  версия до окончания срока действия.
+end note
+
+legend bottom
+  Зелёным выделены новый компонент Local Cache и его связи.
+  Сплошная стрелка — обращение к компоненту или API.
+  Пунктирная стрелка — событие или уведомление.
+  Integration Adapter передаёт продажи из локальной очереди.
+  IS-07 обеспечивает повторную доставку принятых событий в CRM и ERP.
+  Бонусы применяются после онлайн-подтверждения CRM.
+endlegend
+@enduml
