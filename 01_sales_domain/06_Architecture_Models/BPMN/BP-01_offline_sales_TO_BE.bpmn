@@ -554,7 +554,7 @@
         <ns4:waypoint x="2430" y="900" />
       </ns2:BPMNEdge>
       <ns2:BPMNShape id="Participant_IS07_di" bpmnElement="Participant_IS07" isHorizontal="true">
-        <ns3:Bounds x="50" y="500" width="3000" height="140" />
+        <ns3:Bounds x="50" y="480" width="3000" height="170" />
       </ns2:BPMNShape>
       <ns2:BPMNShape id="IP_LoyaltyStart_di" bpmnElement="IP_LoyaltyStart">
         <ns3:Bounds x="1000" y="552" width="36" height="36" />
@@ -612,7 +612,8 @@
         <ns4:waypoint x="2450" y="570" />
       </ns2:BPMNEdge>
       <ns2:BPMNShape id="Participant_CRM_di" bpmnElement="Participant_CRM" isHorizontal="true">
-        <ns3:Bounds x="50" y="660" width="3000" height="140" />
+        <ns3:Bounds x="50" y="660" width="3000" height="170" />
+        <ns2:BPMNLabel />
       </ns2:BPMNShape>
       <ns2:BPMNShape id="CRM_LoyaltyStart_di" bpmnElement="CRM_LoyaltyStart">
         <ns3:Bounds x="1360" y="712" width="36" height="36" />
@@ -652,10 +653,13 @@
       </ns2:BPMNEdge>
       <ns2:BPMNEdge id="MF_CRM_IP_DiscountResponse_di" bpmnElement="MF_CRM_IP_DiscountResponse">
         <ns4:waypoint x="1700" y="730" />
-        <ns4:waypoint x="1740" y="730" />
-        <ns4:waypoint x="1740" y="640" />
-        <ns4:waypoint x="1410" y="640" />
+        <ns4:waypoint x="1880" y="730" />
+        <ns4:waypoint x="1880" y="650" />
+        <ns4:waypoint x="1410" y="650" />
         <ns4:waypoint x="1410" y="610" />
+        <ns2:BPMNLabel>
+          <ns3:Bounds x="1870" y="679" width="51" height="27" />
+        </ns2:BPMNLabel>
       </ns2:BPMNEdge>
       <ns2:BPMNEdge id="MF_IP_POS_DiscountResponse_di" bpmnElement="MF_IP_POS_DiscountResponse">
         <ns4:waypoint x="1600" y="570" />
