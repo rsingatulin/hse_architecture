@@ -18,3 +18,7 @@
 См. [каталог API](../../02_Application_Architecture/APIs/WH-API-001-catalog.md), [ADR по доставке событий](../../05_Architecture_Decisions/ADR/ADR-WH-002-integration.md) и [UML](../UML/WH-UML-001-components.md).
 
 [К содержанию Warehouse](../../README.md)
+
+## Связь с UML
+
+[Компонентная модель и sequence одного контейнера WMS](../UML/WH-UML-003-wms-detail.md) используют те же шесть компонентов и внешние зависимости. Детализирован сценарий API-02: резерв, конкуренция и повтор команды.

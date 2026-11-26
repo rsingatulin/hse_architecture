@@ -1,0 +1,30 @@
+@startuml
+!pragma layout smetana
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam nodesep 70
+skinparam ranksep 90
+title Практика 3 · ключевой контейнер: Приложение WMS
+component "Адаптер Warehouse\n[внешний контейнер]" as Adapter
+package "Приложение WMS · C4 C2 / wms" {
+ component "Прикладные интерфейсы" as Commands
+ component "Приёмка" as Receiving
+ component "Исполнение задания" as Fulfillment
+ component "Инвентаризация" as Inventory
+ component "Запас и резерв" as Stock
+ component "Транзакционный журнал" as Journal
+ Commands --> Receiving : IReceiving
+ Commands --> Fulfillment : IFulfillment
+ Commands --> Inventory : IInventory
+ Commands --> Stock : IStock
+ Receiving ..> Stock : IStockMutation
+ Fulfillment ..> Stock : IStockMutation
+ Inventory ..> Stock : IStockMutation
+ Stock ..> Journal : IEventJournal\nобщая транзакция
+}
+database "Хранилище WMS\n[внешний контейнер]" as Data
+Adapter ..> Commands : IWarehouseCommands
+Adapter ..> Journal : читать подтверждённые факты
+Stock --> Data : запас / резерв / ключ команды
+Journal --> Data : журнал в той же транзакции
+@enduml

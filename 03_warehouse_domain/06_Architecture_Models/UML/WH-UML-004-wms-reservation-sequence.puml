@@ -1,0 +1,53 @@
+@startuml
+skinparam shadowing false
+hide footbox
+title Практика 3 · компоненты WMS: резерв последней единицы
+participant "Адаптер Warehouse\nвнешний контейнер" as Adapter
+box "Приложение WMS · выбранный контейнер" #EDF4FA
+ participant "Прикладные интерфейсы" as Commands
+ participant "Запас и резерв" as Stock
+ participant "Транзакционный журнал" as Journal
+end box
+database "Хранилище WMS\nвнешний контейнер" as Data
+Adapter -> Commands : API-02(orderId, SKU, quantity, idemKey)
+Commands -> Commands : Проверить роль, формат и склад
+alt Нет полномочий или неверный запрос
+ Commands --> Adapter : 403 / 400; изменений нет
+else Запрос допустим
+ Commands -> Stock : reserve(orderId, строки, idemKey)
+ Stock -> Data : BEGIN; найти результат idemKey
+ alt Повтор команды с тем же телом
+  Data --> Stock : Сохранённый результат
+  Stock -> Data : Завершить чтение
+  Stock --> Commands : Тот же reservationId / результат
+ else Тот же ключ с изменённым телом
+  Stock -> Data : Завершить чтение без изменения запаса
+  Stock --> Commands : 409 — конфликт ключа
+ else Новая команда
+  Stock -> Data : Блокировать / проверить версию строк запаса
+  Data --> Stock : onHand, blocked, reserved, version
+  alt Доступно достаточно по всем строкам
+   Stock -> Data : Записать резерв ACTIVE и reserved;\nсохранить результат idemKey
+   Stock -> Journal : append(reservation.changed, stock.changed)\nв той же транзакции
+   Journal -> Data : Записать событие
+   Stock -> Data : COMMIT
+   Stock --> Commands : reservationId, expiresAt, version
+  else Недостаточно хотя бы одной строки
+   Stock -> Data : Не менять количества; сохранить отказ\nдля idemKey; COMMIT
+   Stock --> Commands : 409 — резерв не создан
+  end
+ end
+ Commands --> Adapter : Подтверждённый результат
+end
+note over Stock,Data
+ Конкурирующие команды сериализуются по запасу.
+ Резерв всех строк создаётся целиком либо не создаётся.
+ Журнал использует транзакцию WMS, а не отдельный commit.
+end note
+note over Adapter,Commands
+ idemKey = (клиент, операция, Idempotency-Key).
+ После таймаута повтор с тем же idemKey.
+ Новый бизнес-запрос после отказа получает новый ключ.
+ Публикация событий после commit описана в общей sequence.
+end note
+@enduml
