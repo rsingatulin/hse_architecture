@@ -148,4 +148,6 @@ API выдачи возвращает только разрешённый наб
 
 ## Основания и зависимости
 
+Сценарий первого выпуска, сравнение правил с ML, критерии A/B-пилота и план внедрения описаны в [EC-AI-001](../../07_Project_Management/EC-AI-001-recommendation-project.md). [Экономическое обоснование](../../07_Project_Management/TCO_ROI/EC-ECO-001-recommendation-business-case.md) задаёт смету и порог эффекта для решения о тиражировании.
+
 [EC-P-08](../../01_Business_Architecture/Requirements/EC-PRB-001-problems.md), [REQ-EC-010](../../01_Business_Architecture/Requirements/requirements.md), [DOC-07](../../../00_Documentation/DOC-07.md), [DOC-08](../../../00_Documentation/DOC-08.md), [DOC-11](../../../00_Documentation/DOC-11.md), [DOC-12](../../../00_Documentation/DOC-12.md), [DOC-17](../../../00_Documentation/DOC-17.md). Зависит от ADR-EC-001/002/003. [К реестру ADR](../README.md).

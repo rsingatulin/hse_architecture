@@ -33,6 +33,8 @@
 
 ## Структура разделов
 
+[Проект внедрения товарных рекомендаций](07_Project_Management/EC-AI-001-recommendation-project.md) развивает ADR-EC-004 до плана пилота и внедрения. [ТЭО рекомендаций](07_Project_Management/TCO_ROI/EC-ECO-001-recommendation-business-case.md) содержит сравнение затрат двух вариантов и Excel-модель.
+
 - `01_Business_Architecture` — заинтересованные стороны, бизнес-процесс и требования;
 - `02_Application_Architecture` — приложения, сервисы, API и интеграции;
 - `03_Data_Architecture` — данные, потоки и владение данными;
